@@ -63,7 +63,13 @@ With a single click, you can transform the overall aesthetic of your generated v
 - The archive securely preserves the media itself alongside its core metadata: the original text description, selected model, output resolution, custom duration, and style configurations.
 - Use the **Use parameters** option to instantly reload a past configuration back into your primary workspace panel for fast, iterative improvements.
 
-### 8. Privacy & Token Safety
+### 8. Google Drive Cloud Backup Integration
+- **Background Backups**: Securely back up your generated images, custom base designs, and full `.mp4` cinematic sequences to your personal Google Drive in the background.
+- **Auto Cloud Backup**: When enabled, newly generated assets and films are automatically uploaded to Google Drive as soon as they are successfully synthesized.
+- **Dedicated Cloud Storage Tab**: Filter between your "Local History" (offline-first browser state) and "Google Drive Cloud Backups" (an interactive explorer showing all backed-up assets inside your dedicated folder).
+- **File Management & Sharing**: Open any backed-up video or image directly in Google Drive with a single click, or safely delete files from your cloud backup repository from inside the Vision Forge interface.
+
+### 9. Privacy & Token Safety
 - **Laid-back API Config**: The application runs directly on your own API keys for **Google Gemini** and **OpenAI**.
 - **LocalStorage Storage**: Your secret developer API keys are stored exclusively inside your browser's sandboxed `localStorage` environment and never leave your local workspace—ensuring 100% protection and peace of mind.
 

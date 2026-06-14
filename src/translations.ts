@@ -151,7 +151,8 @@ export const translations = {
         features: "Core Features",
         models: "AI Models",
         ratios: "Aspect Ratios",
-        privacy: "Privacy & API"
+        privacy: "Privacy & API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Welcome to Vision Forge",
@@ -203,6 +204,18 @@ export const translations = {
         item1Text: "Your secret API keys for Gemini and OpenAI reside inside your native localStorage sandboxed space and never leave.",
         item2Title: "Instant Revocation",
         item2Text: "Wipe existing browser credentials instantly inside the API config panel anytime with a single click."
+      },
+      drive: {
+        title: "Google Drive Cloud Storage",
+        intro: "Vision Forge includes full Google Drive cloud backup integration, enabling you to save and access your creations anywhere, safely.",
+        item1Title: "1. Background Backup",
+        item1Text: "Back up your generated images, custom base designs, and full .mp4 cinematic sequences directly to your personal Google Drive with a single click. Keep your premium content secure.",
+        item2Title: "2. Cloud Storage tab & Explorer",
+        item2Text: "Access your cloud backups directly through the history section. You can view all saved items, open them directly in Google Drive, or remove backups when no longer needed.",
+        item3Title: "3. Automatic Backup Option",
+        item3Text: "Enable automatic background cloud backups. When active, every successfully generated image or video is immediately uploaded to your Google Drive in the background.",
+        item4Title: "4. Sandbox & Cookie Solutions",
+        item4Text: "If external authentication is blocked by browser restrictions or iframe protections, simply use the 'New Tab' feature to load the app in a dedicated standalone window."
       }
     }
   },
@@ -356,7 +369,8 @@ export const translations = {
         features: "Kernfunktionen",
         models: "KI-Modelle",
         ratios: "Seitenverhältnisse",
-        privacy: "Datenschutz & API"
+        privacy: "Datenschutz & API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Willkommen bei Vision Forge",
@@ -408,6 +422,18 @@ export const translations = {
         item1Text: "Ihre API-Schlüssel für Gemini und OpenAI werden ausschließlich lokal in Ihrem Browser (localStorage) gespeichert und verlassen diesen nie.",
         item2Title: "Sofortiger Widerruf",
         item2Text: "Löschen Sie vorhandene Zugangsdaten im API-Einstellungskonfigurator zeitnah mit einem einzigen Klick permanent."
+      },
+      drive: {
+        title: "Google Drive Cloud-Speicher",
+        intro: "Vision Forge bietet eine vollständige Google Drive Cloud-Backup-Integration, mit der Sie Ihre Kreationen sicher an jedem Ort speichern und abrufen können.",
+        item1Title: "1. Backups im Hintergrund",
+        item1Text: "Sichern Sie generierte Bilder und komplette .mp4 Videosequenzen mit nur einem Klick direkt auf Ihrem persönlichen Google Drive.",
+        item2Title: "2. Cloud-Verlauf-Explorer",
+        item2Text: "Greifen Sie über den Verlaufsbereich direkt auf Ihre Cloud-Backups zu. Sie können gesicherte Elemente ansehen, im Drive öffnen oder löschen.",
+        item3Title: "3. Automatische Cloud-Sicherung",
+        item3Text: "Aktivieren Sie das automatische Backup. Jedes erfolgreich generierte Bild oder Video wird sofort im Hintergrund auf Ihr Google Drive hochgeladen.",
+        item4Title: "4. Standalone-Fenster-Option",
+        item4Text: "Verwenden Sie bei Cookie- oder Iframe-Blockaden die Option 'Neues Tab', um die Autorisierung reibungslos in einem separaten Fenster durchzuführen."
       }
     }
   },
@@ -561,7 +587,8 @@ export const translations = {
         features: "Fonctionnalités",
         models: "Modèles IA",
         ratios: "Formats d'image",
-        privacy: "Confidentialité & API"
+        privacy: "Confidentialité & API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Bienvenue sur Vision Forge",
@@ -613,6 +640,18 @@ export const translations = {
         item1Text: "Vos clés API Gemini and OpenAI sont enregistrées exclusivement dans votre navigateur (localStorage) et ne le quittent jamais.",
         item2Title: "Révocation instantanée",
         item2Text: "Effacez vos identifiants existants dans l'onglet des configurations API à tout moment d'un simple clic."
+      },
+      drive: {
+        title: "Stockage cloud Google Drive",
+        intro: "Vision Forge comprend une intégration de sauvegarde cloud Google Drive complète, vous permettant de sauvegarder vos créations en toute sécurité.",
+        item1Title: "1. Sauvegarde en arrière-plan",
+        item1Text: "Sauvegardez vos images générées et vos séquences vidéo .mp4 directement sur votre Google Drive personnel en un seul clic.",
+        item2Title: "2. Onglet Cloud & Explorateur",
+        item2Text: "Accédez à vos sauvegardes cloud directement via l'historique. Vous pouvez voir les éléments, les ouvrir dans Drive ou les supprimer.",
+        item3Title: "3. Sauvegarde Cloud Automatique",
+        item3Text: "Activez la sauvegarde cloud automatique. Une fois activée, chaque création réussie est immédiatement envoyée vers Google Drive.",
+        item4Title: "4. Solutions Iframe & Cookie",
+        item4Text: "Si la connexion est bloquée par les restrictions de l'iframe, utilisez la fonction 'Nouvel onglet' pour charger l'application de manière autonome."
       }
     }
   },
@@ -766,7 +805,8 @@ export const translations = {
         features: "Funzionalità",
         models: "Modelli IA",
         ratios: "Formati",
-        privacy: "Privacy & API"
+        privacy: "Privacy & API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Benvenuti su Vision Forge",
@@ -818,6 +858,18 @@ export const translations = {
         item1Text: "Le tue chiavi API per Gemini e OpenAI vengono memorizzate solo localmente nel tuo browser (localStorage) e non vengono mai inviate all'esterno.",
         item2Title: "Revoca immediata",
         item2Text: "Cancella le credenziali esistenti nell'area di configurazione delle API in qualsiasi momento con un solo clic."
+      },
+      drive: {
+        title: "Archiviazione Google Drive Cloud",
+        intro: "Vision Forge supporta l'integrazione di backup cloud su Google Drive, per salvare e consultare le tue creazioni in sicurezza ovunque.",
+        item1Title: "1. Backup in background",
+        item1Text: "Salva le tue immagini generate e le sequenze video .mp4 sul tuo Google Drive personale con un solo clic.",
+        item2Title: "2. Navigatore Cloud History",
+        item2Text: "Visualizza i backup cloud nella cronologia. Puoi aprire i file direttamente in Google Drive o eliminare i backup esistenti.",
+        item3Title: "3. Backup automatico cloud",
+        item3Text: "Attiva il backup automatico in background per salvare immediatamente ogni immagine o video generato sul tuo Google Drive.",
+        item4Title: "4. Bypass dei blocchi iframe",
+        item4Text: "Se l'accesso è limitato dall'iframe del browser, seleziona 'Nuova scheda' per caricare l'applicazione in una finestra dedicata."
       }
     }
   },
@@ -971,7 +1023,8 @@ export const translations = {
         features: "Funciones",
         models: "Modelos IA",
         ratios: "Formatos",
-        privacy: "Privacidad y API"
+        privacy: "Privacidad y API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Bienvenido a Vision Forge",
@@ -1023,6 +1076,18 @@ export const translations = {
         item1Text: "Tus claves API de Gemini y OpenAI se almacenan exclusivamente de manera local en tu navegador (localStorage) y nunca lo abandonan.",
         item2Title: "Revocación instantánea",
         item2Text: "Borra las credenciales existentes en la configuración de la API en cualquier momento con un solo clic."
+      },
+      drive: {
+        title: "Almacenamiento Google Drive Cloud",
+        intro: "Vision Forge incluye una integración de copia de seguridad en Google Drive, lo que le permite guardar y acceder a sus creaciones de forma segura.",
+        item1Title: "1. Copia de seguridad en segundo plano",
+        item1Text: "Guarde sus imágenes generadas y secuencias de video .mp4 en su Google Drive personal con un solo clic.",
+        item2Title: "2. Explorador del Historial Cloud",
+        item2Text: "Acceda a sus copias de seguridad de la nube desde el historial. Puede abrir los archivos en Google Drive o eliminarlos.",
+        item3Title: "3. Respaldo Automático en la Nube",
+        item3Text: "Active la copia de seguridad automática. Cada imagen o video generado se cargará de inmediato a su Google Drive en segundo plano.",
+        item4Title: "4. Solución Iframe y cookies",
+        item4Text: "Si la verificación de cookies bloquea la conexión, use el botón 'Nueva pestaña' para cargar la aplicación de forma independiente."
       }
     }
   },
@@ -1176,7 +1241,8 @@ export const translations = {
         features: "Recursos",
         models: "Modelos de IA",
         ratios: "Formatos",
-        privacy: "Privacidade & API"
+        privacy: "Privacidade & API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Bem-vindo ao Vision Forge",
@@ -1228,6 +1294,18 @@ export const translations = {
         item1Text: "Diferente de apps que enviam dados para servidores próprios, suas chaves de API do Gemini e do OpenAI ficam guardadas de forma segura apenas no seu navegador (localStorage).",
         item2Title: "Remoção instantânea",
         item2Text: "Limpe suas credenciais salvas no menu de configurações do aplicativo quando quiser com um único clique."
+      },
+      drive: {
+        title: "Armazenamento na Nuvem Google Drive",
+        intro: "O Vision Forge inclui integração completa de backup em nuvem do Google Drive, para que você possa salvar e acessar suas criações em segurança.",
+        item1Title: "1. Backup em segundo plano",
+        item1Text: "Salve suas imagens e sequências de vídeo .mp4 diretamente no seu Google Drive pessoal com apenas um clique.",
+        item2Title: "2. Explorador de Histórico na Nuvem",
+        item2Text: "Veja seus backups na nuvem diretamente pelo histórico. Você pode abrir os arquivos no Drive ou deletar os itens.",
+        item3Title: "3. Cópia automática na nuvem",
+        item3Text: "Ative a opção de backup automático para enviar todas as novas criações imediatamente para o seu Google Drive.",
+        item4Title: "4. Soluções para Iframe & Cookies",
+        item4Text: "Se a conexão externa for bloqueada pelas restrições do iframe, recarregue o app em uma 'Nova aba' independente."
       }
     }
   },
@@ -1381,7 +1459,8 @@ export const translations = {
         features: "Funkcje",
         models: "Modele AI",
         ratios: "Formaty obrazu",
-        privacy: "Prywatność & API"
+        privacy: "Prywatność & API",
+        drive: "Google Drive"
       },
       overview: {
         title: "Witaj w Vision Forge",
@@ -1433,6 +1512,18 @@ export const translations = {
         item1Text: "Klucze API dla platform Gemini i OpenAI są zapisywane tylko i wyłącznie w pamięci Twojej przeglądarki (localStorage).",
         item2Title: "Natychmiastowe usuwanie",
         item2Text: "Z łatwością wymazujesz zapisane klucze w sekcji ustawień aplikacji w dowolnym momencie jednym kliknięciem."
+      },
+      drive: {
+        title: "Kopia zapasowa Google Drive",
+        intro: "Vision Forge oferuje pełną integrację z chmurą Google Drive, umożliwiając bezpieczne zapisywanie i otwieranie wygenerowanych kreacji z dowolnego miejsca.",
+        item1Title: "1. Kopia zapasowa w tle",
+        item1Text: "Zapisuj wygenerowane obrazy i gotowe pliki wideo .mp4 bezpośrednio na osobistym dysku Google Drive za pomocą jednego kliknięcia.",
+        item2Title: "2. Zakładka chmury w historii",
+        item2Text: "Przeglądaj pliki zapisane w chmurze bezpośrednio z historii. Możesz je otworzyć w Google Drive lub usunąć.",
+        item3Title: "3. Automatyczny zapis w chmurze",
+        item3Text: "Włącz automatyczną kopię zapasową w tle. Nowe obrazy i filmy zostaną automatycznie przesłane na Twój dysk zaraz po wygenerowaniu.",
+        item4Title: "4. Rozwiązanie blokad iframe",
+        item4Text: "W przypadku blokad przeglądania wewnątrz osadzonego okna, kliknij 'Nowa karta' w prawym górnym rogu aby uruchomić aplikację samodzielnie."
       }
     }
   },
@@ -1588,7 +1679,8 @@ export const translations = {
         features: "Funkcie",
         models: "AI Modely",
         ratios: "Pomer strán",
-        privacy: "Súkromie & API"
+        privacy: "Súkromie & API",
+        drive: "Google Disk"
       },
       overview: {
         title: "Vitajte vo Vision Forge",
@@ -1640,6 +1732,18 @@ export const translations = {
         item1Text: "Vaše tajné API kľúče pre Gemini a OpenAI sú držané výhradne vo vašom prehliadači (úložisko localStorage) a nikdy neodchádzają na servery tretích strán.",
         item2Title: "Okamžité zmazanie",
         item2Text: "Kedykoľvek môžete kľúče vymazať kliknutím na ikonu krížika v paneli nastavení, čím sa permanentne vymažú z vášho lokálneho prehliadača."
+      },
+      drive: {
+        title: "Cloudové úložisko Google Disk",
+        intro: "Vision Forge zahŕňa plnú integráciu cloudového zálohovania Google Disk, čo vám umožňuje bezpečne ukladať a pristupovať k vašim výtvorom kdekoľvek.",
+        item1Title: "1. Zálohovanie na pozadí",
+        item1Text: "Zálohujte svoje vygenerované obrázky, vlastné dizajny a celé kinematografické sekvencie .mp4 priamo na svoj osobný Google Disk jediným kliknutím.",
+        item2Title: "2. Karta Cloud a prieskumník",
+        item2Text: "Pristupujte k svojim cloudovým zálohám priamo cez sekciu histórie. Môžete si prezerať všetky uložené položky, otvoriť ich priamo v Google Disku alebo ich odstrániť.",
+        item3Title: "3. Automatické zálohovanie",
+        item3Text: "Zapnite automatické cloudové zálohovanie. Po aktivácii sa každý úspešne vygenerovaný obrázok alebo video okamžite nahrá na váš Google Disk na pozadí.",
+        item4Title: "4. Riešenie pre cookies a iframe",
+        item4Text: "Ak je externé overenie zablokované kvôli obmedzeniam prehliadača alebo ochrane iframe, stačí použiť funkciu 'Nový panel' na spustenie v samostatnom okne."
       }
     }
   }

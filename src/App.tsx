@@ -4,6 +4,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import gifshot from 'gifshot';
 import { translations, Language } from './translations';
 import { VIDEO_STYLES, VideoStyle } from './constants';
+import { User } from 'firebase/auth';
+import { 
+  initAuth, 
+  googleSignIn, 
+  logoutDrive, 
+  uploadFileToDrive, 
+  listDriveFiles, 
+  deleteDriveFile, 
+  getAccessToken,
+  setAccessToken
+} from './googleDrive';
 
 interface HistoryItem {
   id: string;
@@ -67,13 +78,256 @@ export default function App() {
   const [customDurationValue, setCustomDurationValue] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showDocumentation, setShowDocumentation] = useState(false);
-  const [activeDocTab, setActiveDocTab] = useState<'overview' | 'features' | 'models' | 'ratios' | 'privacy'>('overview');
+  const [activeDocTab, setActiveDocTab] = useState<'overview' | 'features' | 'models' | 'ratios' | 'privacy' | 'drive'>('overview');
   const [showCreativeSettings, setShowCreativeSettings] = useState(false);
   const [showAdvancedVideoSettings, setShowAdvancedVideoSettings] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Google Drive states and functions
+  const [driveUser, setDriveUser] = useState<User | null>(null);
+  const [driveToken, setDriveToken] = useState<string | null>(null);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
+  const [isDriveLoading, setIsDriveLoading] = useState(false);
+  const [isUploadingToDrive, setIsUploadingToDrive] = useState<{ [itemId: string]: boolean }>({});
+  const [uploadedDriveIds, setUploadedDriveIds] = useState<{ [itemId: string]: { id: string, link: string } }>({});
+  const [autoUploadToDrive, setAutoUploadToDrive] = useState(false);
+
+  const fetchDriveFiles = async (token: string) => {
+    setIsDriveLoading(true);
+    try {
+      const files = await listDriveFiles(token);
+      setDriveFiles(files);
+    } catch (e: any) {
+      console.error("Failed to load files from Google Drive:", e);
+    } finally {
+      setIsDriveLoading(false);
+    }
+  };
+
+  const handleDriveLogin = async () => {
+    try {
+      const result = await googleSignIn();
+      if (result) {
+        setDriveUser(result.user);
+        setDriveToken(result.accessToken);
+        fetchDriveFiles(result.accessToken);
+      }
+    } catch (err: any) {
+      console.error("Google Drive connection failed:", err);
+      setError(language === 'sk' ? `Pripojenie k disku zlyhalo: ${err.message}` : `Google Drive connection failed: ${err.message}`);
+    }
+  };
+
+  const handleDriveLogout = async () => {
+    await logoutDrive();
+    setDriveUser(null);
+    setDriveToken(null);
+    setDriveFiles([]);
+  };
+
+  const saveItemToDrive = async (item: HistoryItem) => {
+    const token = driveToken || getAccessToken();
+    if (!token) {
+      setError(language === 'sk' ? "Najprv sa prihláste do služby Google Drive." : "Please connect to Google Drive first.");
+      return;
+    }
+
+    setIsUploadingToDrive(prev => ({ ...prev, [item.id]: true }));
+    try {
+      const extension = item.type === 'video' ? 'mp4' : 'png';
+      const cleanPrompt = item.prompt.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_') || 'creation';
+      const fileName = `VisionForge_${cleanPrompt}_${Date.now()}.${extension}`;
+      const mimeType = item.type === 'video' ? 'video/mp4' : 'image/png';
+
+      const uploadResult = await uploadFileToDrive(token, fileName, mimeType, item.url);
+      
+      setUploadedDriveIds(prev => ({ 
+        ...prev, 
+        [item.id]: { id: uploadResult.id, link: uploadResult.webViewLink } 
+      }));
+
+      // Refresh files list
+      fetchDriveFiles(token);
+    } catch (err: any) {
+      console.error("Failed to upload to Google Drive:", err);
+      setError(language === 'sk' ? `Nahrávanie na disk zlyhalo: ${err.message}` : `Drive upload failed: ${err.message}`);
+    } finally {
+      setIsUploadingToDrive(prev => ({ ...prev, [item.id]: false }));
+    }
+  };
+
+  const deleteItemFromDrive = async (fileId: string, fileName: string) => {
+    const confirmed = window.confirm(
+      language === 'sk' 
+        ? `Naozaj chcete vymazať súbor "${fileName}" z Google Drive? Táto akcia je nezvratná.`
+        : `Are you sure you want to delete "${fileName}" from Google Drive? This action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    const token = driveToken || getAccessToken();
+    if (!token) return;
+
+    try {
+      await deleteDriveFile(token, fileId);
+      // Refresh the files
+      fetchDriveFiles(token);
+    } catch (err: any) {
+      console.error("Failed to delete from Google Drive:", err);
+      setError(language === 'sk' ? `Zmazanie z disku zlyhalo: ${err.message}` : `Drive deletion failed: ${err.message}`);
+    }
+  };
+
+  const driveTranslations: any = {
+    en: {
+      driveTabLocal: "Local History",
+      driveTabCloud: "Google Drive Cloud Backups",
+      driveConnectBtn: "Connect Google Drive",
+      driveConnectedAs: "Connected to Google Drive as",
+      driveDisconnect: "Disconnect",
+      driveFolder: "Folder",
+      driveAutoBackup: "Auto Cloud Backup",
+      driveAutoBackupDesc: "Automatically back up newly generated frames and cinematic sequences",
+      driveUploadBtn: "Save to Drive",
+      driveUploading: "Saving...",
+      driveSaved: "Saved to Drive",
+      driveOpenLink: "Open in Drive",
+      driveDeleteBtn: "Delete",
+      driveDescription: "Securely backup your premium Imagen & Veo creations to your personal Google Drive in the background.",
+      driveEmptyCloud: "No backed up assets found. Save any creation to Google Drive to list it here.",
+      driveLoading: "Connecting to Google Drive container..."
+    },
+    sk: {
+      driveTabLocal: "Lokálna história",
+      driveTabCloud: "Zálohy Google Disk",
+      driveConnectBtn: "Pripojiť Google Disk",
+      driveConnectedAs: "Pripojené k disku Google ako",
+      driveDisconnect: "Odpojiť",
+      driveFolder: "Priečinok",
+      driveAutoBackup: "Automatické zálohovanie",
+      driveAutoBackupDesc: "Automaticky zálohovať novovygenerované snímky a filmové sekvencie",
+      driveUploadBtn: "Uložiť na Disk",
+      driveUploading: "Ukladá sa...",
+      driveSaved: "Uložené na Disku",
+      driveOpenLink: "Otvoriť Disk",
+      driveDeleteBtn: "Zmazať",
+      driveDescription: "Bezpečne zálohujte svoje prémiové výtvory Imagen & Veo na svoj osobný Google Disk v pozadí.",
+      driveEmptyCloud: "Nenašli sa žiadne zálohované súbory. Uložte ľubovoľný výtvor do cloudu a zobrazí sa tu.",
+      driveLoading: "Pripája sa k úložisku Google Disk..."
+    },
+    de: {
+      driveTabLocal: "Lokaler Verlauf",
+      driveTabCloud: "Google Drive-Sicherungen",
+      driveConnectBtn: "Google Drive verbinden",
+      driveConnectedAs: "Mit Google Drive verbunden als",
+      driveDisconnect: "Trennen",
+      driveFolder: "Ordner",
+      driveAutoBackup: "Automatische Cloud-Sicherung",
+      driveAutoBackupDesc: "Neu generierte Bilder und Filmsequenzen automatisch sichern",
+      driveUploadBtn: "In Drive speichern",
+      driveUploading: "Wird gespeichert...",
+      driveSaved: "In Drive gespeichert",
+      driveOpenLink: "In Drive öffnen",
+      driveDeleteBtn: "Löschen",
+      driveDescription: "Sichern Sie Ihre hochwertigen Imagen- & Veo-Kreationen im Hintergrund sicher auf Ihrem Google Drive.",
+      driveEmptyCloud: "Keine gesicherten Dateien gefunden. Speichern Sie eine Kreation in Drive, um sie hier aufzulisten.",
+      driveLoading: "Verbindung mit Google Drive wird geladen..."
+    },
+    fr: {
+      driveTabLocal: "Historique local",
+      driveTabCloud: "Sauvegardes Google Drive",
+      driveConnectBtn: "Connecter Google Drive",
+      driveConnectedAs: "Connecté à Google Drive en tant que",
+      driveDisconnect: "Déconnecter",
+      driveFolder: "Dossier",
+      driveAutoBackup: "Sauvegarde cloud automatique",
+      driveAutoBackupDesc: "Sauvegarder automatiquement les nouvelles images et séquences générées",
+      driveUploadBtn: "Enregistrer sur Drive",
+      driveUploading: "Enregistrement...",
+      driveSaved: "Enregistré sur Drive",
+      driveOpenLink: "Ouvrir dans Drive",
+      driveDeleteBtn: "Supprimer",
+      driveDescription: "Sauvegardez en toute sécurité vos créations premium Imagen & Veo sur votre Google Drive personnel en arrière-plan.",
+      driveEmptyCloud: "Aucun fichier sauvegardé trouvé. Enregistrez une création sur Google Drive pour l'afficher ici.",
+      driveLoading: "Connexion au conteneur Google Drive..."
+    },
+    it: {
+      driveTabLocal: "Cronologia locale",
+      driveTabCloud: "Backup di Google Drive",
+      driveConnectBtn: "Connetti Google Drive",
+      driveConnectedAs: "Connesso a Google Drive come",
+      driveDisconnect: "Disconnetti",
+      driveFolder: "Cartella",
+      driveAutoBackup: "Backup cloud automatico",
+      driveAutoBackupDesc: "Salva automaticamente in background le nuove immagini e sequenze video generate",
+      driveUploadBtn: "Salva su Drive",
+      driveUploading: "Salvataggio...",
+      driveSaved: "Salvato su Drive",
+      driveOpenLink: "Apri in Drive",
+      driveDeleteBtn: "Elimina",
+      driveDescription: "Esegui il backup sicuro delle tue creazioni premium Imagen e Veo sul tuo Google Drive personale in background.",
+      driveEmptyCloud: "Nessun file di backup trovato. Salva una creazione su Google Drive per visualizzarla qui.",
+      driveLoading: "Connessione in corso a Google Drive..."
+    },
+    es: {
+      driveTabLocal: "Historial local",
+      driveTabCloud: "Copias de seguridad de Google Drive",
+      driveConnectBtn: "Conectar Google Drive",
+      driveConnectedAs: "Conectado a Google Drive como",
+      driveDisconnect: "Desconectar",
+      driveFolder: "Carpeta",
+      driveAutoBackup: "Copia de seguridad automática",
+      driveAutoBackupDesc: "Guarda automáticamente las nuevas imágenes y secuencias cinematográficas generadas",
+      driveUploadBtn: "Guardar en Drive",
+      driveUploading: "Guardando...",
+      driveSaved: "Guardado en Drive",
+      driveOpenLink: "Abrir en Drive",
+      driveDeleteBtn: "Eliminar",
+      driveDescription: "Realiza copias de seguridad de forma segura de tus creaciones premium de Imagen y Veo en tu Google Drive personal en segundo plano.",
+      driveEmptyCloud: "No se encontraron archivos respaldados. Guarda cualquier creación en Google Drive para verla aquí.",
+      driveLoading: "Conectando al contenedor de Google Drive..."
+    },
+    pt: {
+      driveTabLocal: "Histórico local",
+      driveTabCloud: "Backups do Google Drive",
+      driveConnectBtn: "Conectar ao Google Drive",
+      driveConnectedAs: "Conectado ao Google Drive como",
+      driveDisconnect: "Desconectar",
+      driveFolder: "Pasta",
+      driveAutoBackup: "Backup automático na nuvem",
+      driveAutoBackupDesc: "Salva automaticamente as novas imagens e sequências geradas no Drive",
+      driveUploadBtn: "Salvar no Drive",
+      driveUploading: "Salvando...",
+      driveSaved: "Salvo no Drive",
+      driveOpenLink: "Abrir no Drive",
+      driveDeleteBtn: "Excluir",
+      driveDescription: "Faça backup de forma segura de suas criações premium Imagen & Veo no seu Google Drive pessoal em segundo plano.",
+      driveEmptyCloud: "Nenhum arquivo de backup encontrado. Salve qualquer criação no Google Drive para listá-la aqui.",
+      driveLoading: "Conectando ao Google Drive..."
+    },
+    pl: {
+      driveTabLocal: "Lokalna historia",
+      driveTabCloud: "Kopie zapasowe Google Drive",
+      driveConnectBtn: "Połącz z Google Drive",
+      driveConnectedAs: "Połączono z Google Drive jako",
+      driveDisconnect: "Rozłącz",
+      driveFolder: "Folder",
+      driveAutoBackup: "Automatyczna kopia zapasowa",
+      driveAutoBackupDesc: "Automatycznie zapisuj nowo wygenerowane obrazy i sekwencje filmowe",
+      driveUploadBtn: "Zapisz na Drive",
+      driveUploading: "Zapisywanie...",
+      driveSaved: "Zapisano na Drive",
+      driveOpenLink: "Otvórz w Drive",
+      driveDeleteBtn: "Usuń",
+      driveDescription: "Bezpiecznie zapisuj swoje wyjątkowe kreacje Imagen i Veo na osobistym dysku Google Drive w tle.",
+      driveEmptyCloud: "Nie znaleziono zapisanych plików. Zapisz dowolne dzieło na Google Drive, aby je tu zobaczyć.",
+      driveLoading: "Łączenie z Google Drive..."
+    }
+  };
+
+  const [activeHistoryTab, setActiveHistoryTab] = useState<'local' | 'drive'>('local');
+  const dt = driveTranslations[language] || driveTranslations['sk'] || driveTranslations['en'];
   const t = translations[language];
 
   useEffect(() => {
@@ -102,6 +356,12 @@ export default function App() {
       if (translations[browserLang]) {
         setLanguage(browserLang);
       }
+    }
+
+    // Load Drive auto-upload preference
+    const savedAutoUpload = localStorage.getItem('drive_auto_upload');
+    if (savedAutoUpload === 'true') {
+      setAutoUploadToDrive(true);
     }
 
     // Screen Resolution Detection
@@ -147,6 +407,23 @@ export default function App() {
         console.error("Failed to load history", e);
       }
     }
+
+    // Initialize Google Drive Authentication state listener
+    const unsubscribe = initAuth(
+      (user, token) => {
+        setDriveUser(user);
+        setDriveToken(token);
+        fetchDriveFiles(token);
+      },
+      () => {
+        setDriveUser(null);
+        setDriveToken(null);
+      }
+    );
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const saveToHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
@@ -348,6 +625,19 @@ export default function App() {
           style: selectedStyle.label
         }
       });
+
+      // Background auto upload to Google Drive if connected and active
+      if (autoUploadToDrive) {
+        const token = driveToken || getAccessToken();
+        if (token) {
+          const extension = 'png';
+          const cleanPrompt = imagePrompt.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_') || 'image';
+          const fileName = `VisionForge_${cleanPrompt}_${Date.now()}.${extension}`;
+          uploadFileToDrive(token, fileName, 'image/png', data.image)
+            .then(() => fetchDriveFiles(token))
+            .catch(e => console.error("Auto-backup image failed:", e));
+        }
+      }
 
       const res = await fetch(data.image);
       const blob = await res.blob();
@@ -551,6 +841,19 @@ export default function App() {
         }
       });
 
+      // Background auto upload to Google Drive if connected and active
+      if (autoUploadToDrive) {
+        const token = driveToken || getAccessToken();
+        if (token) {
+          const extension = 'mp4';
+          const cleanPrompt = prompt.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_') || 'video';
+          const fileName = `VisionForge_${cleanPrompt}_${Date.now()}.${extension}`;
+          uploadFileToDrive(token, fileName, 'video/mp4', url)
+            .then(() => fetchDriveFiles(token))
+            .catch(e => console.error("Auto-backup video failed:", e));
+        }
+      }
+
       setIsGenerating(false);
     } catch (err: any) {
       setError(err.message);
@@ -742,7 +1045,8 @@ export default function App() {
                     { id: 'features', label: (t as any).documentation?.tabs?.features || "Core Features", icon: Layers },
                     { id: 'models', label: (t as any).documentation?.tabs?.models || "AI Models", icon: Film },
                     { id: 'ratios', label: (t as any).documentation?.tabs?.ratios || "Aspect Ratios", icon: Monitor },
-                    { id: 'privacy', label: (t as any).documentation?.tabs?.privacy || "Privacy & API", icon: Key }
+                    { id: 'privacy', label: (t as any).documentation?.tabs?.privacy || "Privacy & API", icon: Key },
+                    { id: 'drive', label: (t as any).documentation?.tabs?.drive || "Google Drive", icon: Cloud }
                   ].map((tab) => {
                     const TabIcon = tab.icon;
                     const isActive = activeDocTab === tab.id;
@@ -933,6 +1237,48 @@ export default function App() {
                             <span className="font-bold text-white block">{(t as any).documentation?.privacy?.item2Title || ""}</span>
                             <span>{(t as any).documentation?.privacy?.item2Text || ""}</span>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeDocTab === 'drive' && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Cloud className="w-5 h-5 text-emerald-400" />
+                        {(t as any).documentation?.drive?.title || "Google Drive Cloud Backup"}
+                      </h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {(t as any).documentation?.drive?.intro || ""}
+                      </p>
+                      
+                      <div className="space-y-4">
+                        <div className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl">
+                          <h4 className="font-bold text-emerald-400 text-sm mb-1">{(t as any).documentation?.drive?.item1Title || ""}</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            {(t as any).documentation?.drive?.item1Text || ""}
+                          </p>
+                        </div>
+
+                        <div className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl">
+                          <h4 className="font-bold text-emerald-400 text-sm mb-1">{(t as any).documentation?.drive?.item2Title || ""}</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            {(t as any).documentation?.drive?.item2Text || ""}
+                          </p>
+                        </div>
+
+                        <div className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl">
+                          <h4 className="font-bold text-emerald-400 text-sm mb-1">{(t as any).documentation?.drive?.item3Title || ""}</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            {(t as any).documentation?.drive?.item3Text || ""}
+                          </p>
+                        </div>
+
+                        <div className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl">
+                          <h4 className="font-bold text-emerald-400 text-sm mb-1">{(t as any).documentation?.drive?.item4Title || ""}</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            {(t as any).documentation?.drive?.item4Text || ""}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1928,20 +2274,21 @@ export default function App() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="space-y-8 pb-20"
         >
-          <div className="flex items-center justify-between px-2">
+          {/* Header block with title & Clear buttons */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
             <div className="flex items-center gap-4">
               <div className="p-4 rounded-3xl bg-slate-900 border border-white/10 text-emerald-400">
                  <History className="w-6 h-6" />
               </div>
               <div>
                 <h2 className="text-3xl font-extrabold tracking-tight text-white">{(t as any).historyTitle}</h2>
-                <p className="text-slate-500 text-sm">Review your cinematic creations</p>
+                <p className="text-slate-500 text-sm">Review your creations, download assets, or back them up securely.</p>
               </div>
             </div>
-            {history.length > 0 && (
+            {history.length > 0 && activeHistoryTab === 'local' && (
               <button 
                 onClick={clearHistory}
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-bold w-full md:w-auto"
               >
                 <Trash2 className="w-4 h-4" />
                 {(t as any).clearHistory}
@@ -1949,133 +2296,378 @@ export default function App() {
             )}
           </div>
 
-          {history.length === 0 ? (
-            <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-20 text-center backdrop-blur-3xl">
-              <div className="w-20 h-20 bg-slate-950 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-slate-800">
-                <Clock className="w-8 h-8 text-slate-700" />
+          {/* Google Drive Connection & Custom Configuration Banner */}
+          <div className="bg-gradient-to-r from-slate-950 to-slate-900 border border-white/5 rounded-3xl p-6 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden backdrop-blur-3xl shadow-xl shadow-slate-950/40">
+            <div className="flex items-start gap-4">
+              <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex-shrink-0">
+                <Cloud className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-400 mb-2">{(t as any).historyEmpty}</h3>
+              <div className="space-y-1 text-left">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Google Drive Cloud
+                </span>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  {driveUser ? `${dt.driveConnectedAs} ${driveUser.displayName || 'User'}` : dt.driveConnectBtn}
+                </h3>
+                <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+                  {dt.driveDescription}
+                </p>
+              </div>
             </div>
-          ) : (
-            <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <AnimatePresence>
-                {history.map((item) => (
-                  <motion.div 
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                    className="group relative bg-slate-900/60 border border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-3xl transition-all hover:border-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/5 ring-1 ring-white/5"
-                  >
-                  <div 
-                    className="relative overflow-hidden cursor-pointer"
-                    style={{ aspectRatio: item.parameters.aspectRatio.replace(':', '/') }}
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+              {/* Auto backup Toggle */}
+              {driveUser && (
+                <div className="flex items-center justify-between gap-6 px-4 py-2.5 bg-white/5 border border-white/5 rounded-2xl">
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-white leading-tight">{dt.driveAutoBackup}</p>
+                    <p className="text-[9px] text-slate-500 mt-0.5 leading-none">{dt.driveAutoBackupDesc}</p>
+                  </div>
+                  <button
                     onClick={() => {
-                        if (item.type === 'video') {
-                          if (item.expired) {
-                            setError("Platnosť dočasného prepojenia na video vypršala z dôvodu obnovenia stránky. Parametre a popis môžete opätovne použiť kliknutím na tlačidlo 'Použiť parametre' nižšie.");
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                            return;
-                          }
-                          setVideoUrl(item.url);
-                        } else {
-                          setPreview(item.url);
-                          setSelectedPreview(item.url);
-                        }
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      const newVal = !autoUploadToDrive;
+                      setAutoUploadToDrive(newVal);
+                      localStorage.setItem('drive_auto_upload', newVal ? 'true' : 'false');
                     }}
+                    className={`w-10 h-6 rounded-full p-1 transition-colors flex-shrink-0 ${autoUploadToDrive ? 'bg-blue-500' : 'bg-slate-800'}`}
                   >
-                    {item.type === 'video' ? (
-                      item.expired ? (
-                        <div className="w-full h-full bg-slate-950/80 border border-white/5 flex flex-col items-center justify-center p-6 text-center select-none">
-                           <Film className="w-8 h-8 text-slate-700 mb-2 animate-pulse" />
-                           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Dočasný súbor vypršal</span>
-                           <span className="text-[8px] text-slate-600 mt-1.5 uppercase font-bold">Relácia ukončená</span>
-                        </div>
-                      ) : (
-                        <video 
-                          src={item.url} 
-                          className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" 
-                          muted 
-                          onMouseOver={e => {
-                            const video = e.target as HTMLVideoElement;
-                            const playPromise = video.play();
-                            if (playPromise !== undefined) {
-                              playPromise.catch(() => {
-                                // Ignore play/pause interruption errors gracefully
-                              });
-                            }
-                          }} 
-                          onMouseOut={e => { 
-                            const video = e.target as HTMLVideoElement;
-                            video.pause(); 
-                            video.currentTime = 0; 
-                          }} 
-                          onError={(e) => { (e.target as any).style.display = 'none'; }} 
-                        />
-                      )
-                    ) : (
-                      <img src={item.url} className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" alt="History" />
+                    <div className={`w-4 h-4 bg-white rounded-full transition-transform ${autoUploadToDrive ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+              )}
+
+              {/* Login/Disconnect Actions */}
+              {driveUser ? (
+                <div className="flex items-center justify-between gap-3 bg-white/5 lg:bg-transparent rounded-2xl p-2.5 lg:p-0">
+                  <div className="flex items-center gap-2">
+                    {driveUser.photoURL && (
+                      <img src={driveUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-blue-500/25 shadow-inner referrerPolicy='no-referrer'" />
                     )}
-                    <div className="absolute top-4 left-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${item.type === 'video' ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'}`}>
-                        {item.type === 'video' ? (t as any).historyTypeVideo : (t as any).historyTypeImage}
-                      </span>
+                    <div className="text-left sm:hidden lg:block">
+                      <p className="text-[10px] text-slate-500 font-bold leading-none">Status</p>
+                      <p className="text-[11px] text-emerald-400 font-bold mt-0.5">Connected</p>
                     </div>
-
                   </div>
+                  <button
+                    onClick={handleDriveLogout}
+                    className="px-5 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-xl font-bold text-xs transition-all whitespace-nowrap"
+                  >
+                    {dt.driveDisconnect}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleDriveLogin}
+                  className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 whitespace-nowrap"
+                >
+                  <Cloud className="w-4 h-4" />
+                  {dt.driveConnectBtn}
+                </button>
+              )}
+            </div>
+          </div>
 
-                  <div className="p-6 space-y-4">
-                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed font-medium">
-                      {item.prompt}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-2">
-                       <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.model}</span>
-                       <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.parameters.aspectRatio}</span>
-                       <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.parameters.resolution}</span>
-                       {item.parameters.duration && <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.parameters.duration}</span>}
-                    </div>
+          {/* Tab selectors for Local and Cloud backups */}
+          <div className="flex items-center justify-start border-b border-white/5 pb-1 gap-2">
+            <button
+              onClick={() => setActiveHistoryTab('local')}
+              className={`px-6 py-3 font-semibold text-xs transition-all flex items-center gap-2 border-b-2 relative -bottom-[2px] ${
+                activeHistoryTab === 'local'
+                  ? 'border-emerald-500 text-emerald-400 font-bold'
+                  : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              {dt.driveTabLocal}
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400">{history.length}</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveHistoryTab('drive');
+                if (driveUser && driveToken) {
+                  fetchDriveFiles(driveToken);
+                }
+              }}
+              className={`px-6 py-3 font-semibold text-xs transition-all flex items-center gap-2 border-b-2 relative -bottom-[2px] ${
+                activeHistoryTab === 'drive'
+                  ? 'border-blue-500 text-blue-400 font-bold'
+                  : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              <Cloud className="w-4 h-4" />
+              {dt.driveTabCloud}
+              {driveUser && (
+                <span className="ml-1 px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px]">{driveFiles.length}</span>
+              )}
+            </button>
+          </div>
 
-                    <div className="pt-2 flex items-center gap-2">
-                      <button 
-                        onClick={() => useHistoryItem(item)}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white text-slate-400 hover:text-slate-950 border border-white/5 transition-all text-[10px] font-bold"
-                        title={(t as any).useParameters}
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        {(t as any).useParameters}
-                      </button>
-                      {item.type === 'image' && (
-                        <button 
-                          onClick={() => {
-                            setEditingBaseImage(item.url);
-                            setIsEditMode(true);
-                            setInputMode("generate");
-                            window.scrollTo({ top: 300, behavior: 'smooth' });
-                          }}
-                          className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 border border-emerald-500/20 transition-all"
-                          title={(t as any).editImage}
-                        >
-                          <Palette className="w-4 h-4" />
-                        </button>
-                      )}
-                      <button 
+          {/* ACTIVE TAB RENDERINGS */}
+          {activeHistoryTab === 'local' ? (
+            history.length === 0 ? (
+              <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-20 text-center backdrop-blur-3xl">
+                <div className="w-20 h-20 bg-slate-950 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-slate-800">
+                  <Clock className="w-8 h-8 text-slate-700" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-400 mb-2">{(t as any).historyEmpty}</h3>
+              </div>
+            ) : (
+              <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <AnimatePresence>
+                  {history.map((item) => (
+                    <motion.div 
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                      className="group relative bg-slate-900/60 border border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-3xl transition-all hover:border-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/5 ring-1 ring-white/5"
+                    >
+                      <div 
+                        className="relative overflow-hidden cursor-pointer"
+                        style={{ aspectRatio: item.parameters.aspectRatio.replace(':', '/') }}
                         onClick={() => {
-                          navigator.clipboard.writeText(item.prompt);
+                            if (item.type === 'video') {
+                              if (item.expired) {
+                                setError("Platnosť dočasného prepojenia na video vypršala z dôvodu obnovenia stránky. Parametre a popis môžete opätovne použiť kliknutím na tlačidlo 'Použiť parametre' nižšie.");
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                return;
+                              }
+                              setVideoUrl(item.url);
+                            } else {
+                              setPreview(item.url);
+                              setSelectedPreview(item.url);
+                            }
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="p-2.5 rounded-xl bg-white/5 hover:bg-emerald-500 text-slate-400 hover:text-slate-950 border border-white/5 transition-all"
-                        title={(t as any).copyPrompt}
                       >
-                        <Copy className="w-4 h-4" />
-                      </button>
+                        {item.type === 'video' ? (
+                          item.expired ? (
+                            <div className="w-full h-full bg-slate-950/80 border border-white/5 flex flex-col items-center justify-center p-6 text-center select-none">
+                               <Film className="w-8 h-8 text-slate-700 mb-2 animate-pulse" />
+                               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Dočasný súbor vypršal</span>
+                               <span className="text-[8px] text-slate-600 mt-1.5 uppercase font-bold">Relácia ukončená</span>
+                            </div>
+                          ) : (
+                            <video 
+                              src={item.url} 
+                              className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" 
+                              muted 
+                              onMouseOver={e => {
+                                const video = e.target as HTMLVideoElement;
+                                const playPromise = video.play();
+                                if (playPromise !== undefined) {
+                                  playPromise.catch(() => {
+                                    // Ignore play/pause interruption errors gracefully
+                                  });
+                                }
+                              }} 
+                              onMouseOut={e => { 
+                                const video = e.target as HTMLVideoElement;
+                                video.pause(); 
+                                video.currentTime = 0; 
+                              }} 
+                              onError={(e) => { (e.target as any).style.display = 'none'; }} 
+                            />
+                          )
+                        ) : (
+                          <img src={item.url} className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" alt="History" />
+                        )}
+                        <div className="absolute top-4 left-4">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${item.type === 'video' ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'}`}>
+                            {item.type === 'video' ? (t as any).historyTypeVideo : (t as any).historyTypeImage}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-6 space-y-4 text-left">
+                        <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed font-medium">
+                          {item.prompt}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2">
+                           <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.model}</span>
+                           <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.parameters.aspectRatio}</span>
+                           <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.parameters.resolution}</span>
+                           {item.parameters.duration && <span className="px-2 py-1 rounded-lg bg-slate-950/50 border border-white/5 text-[9px] font-bold text-slate-500">{item.parameters.duration}</span>}
+                        </div>
+
+                        <div className="pt-2 flex items-center gap-2">
+                          <button 
+                            onClick={() => useHistoryItem(item)}
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white text-slate-400 hover:text-slate-950 border border-white/5 transition-all text-[10px] font-bold"
+                            title={(t as any).useParameters}
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            {(t as any).useParameters}
+                          </button>
+                          
+                          {/* SAVE TO GOOGLE DRIVE CLOUD TRIGGER */}
+                          {uploadedDriveIds[item.id] ? (
+                            <a
+                              href={uploadedDriveIds[item.id].link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2.5 rounded-xl bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-slate-950 border border-blue-500/30 transition-all flex items-center justify-center"
+                              title={dt.driveOpenLink}
+                            >
+                              <span className="text-[10px] font-extrabold mr-1">✓</span>
+                              <Cloud className="w-4 h-4" />
+                            </a>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                if (!driveUser) {
+                                  handleDriveLogin();
+                                } else {
+                                  saveItemToDrive(item);
+                                }
+                              }}
+                              disabled={isUploadingToDrive[item.id]}
+                              className={`p-2.5 rounded-xl border transition-all flex items-center justify-center ${
+                                isUploadingToDrive[item.id]
+                                  ? 'bg-blue-500/10 border-blue-500/20 text-blue-400/50'
+                                  : 'bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-slate-950 border border-blue-500/20'
+                              }`}
+                              title={!driveUser ? dt.driveConnectBtn : isUploadingToDrive[item.id] ? dt.driveUploading : dt.driveUploadBtn}
+                            >
+                              {isUploadingToDrive[item.id] ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Cloud className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          )}
+
+                          {item.type === 'image' && (
+                            <button 
+                              onClick={() => {
+                                setEditingBaseImage(item.url);
+                                setIsEditMode(true);
+                                setInputMode("generate");
+                                window.scrollTo({ top: 300, behavior: 'smooth' });
+                              }}
+                              className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 border border-emerald-500/20 transition-all"
+                              title={(t as any).editImage}
+                            >
+                              <Palette className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.prompt);
+                            }}
+                            className="p-2.5 rounded-xl bg-white/5 hover:bg-emerald-500 text-slate-400 hover:text-slate-950 border border-white/5 transition-all"
+                            title={(t as any).copyPrompt}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )
+          ) : (
+            /* GOOGLE DRIVE BACKUPS TAB VIEW */
+            !driveUser ? (
+              <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-16 text-center backdrop-blur-3xl space-y-6">
+                <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 text-blue-400">
+                  <Cloud className="w-8 h-8 animate-bounce" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-white">{dt.driveConnectBtn}</h3>
+                  <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                    {dt.driveDescription}
+                  </p>
+                </div>
+                <button
+                  onClick={handleDriveLogin}
+                  className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs transition-colors inline-flex items-center gap-2 shadow-lg shadow-blue-500/20"
+                >
+                  <Cloud className="w-4 h-4" />
+                  {dt.driveConnectBtn}
+                </button>
+              </div>
+            ) : isDriveLoading ? (
+              <div className="py-20 text-center space-y-4">
+                <Loader2 className="w-10 h-10 text-blue-400 animate-spin mx-auto" />
+                <p className="text-xs text-slate-500 font-bold tracking-wider uppercase">{dt.driveLoading}</p>
+              </div>
+            ) : driveFiles.length === 0 ? (
+              <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-20 text-center backdrop-blur-3xl space-y-4">
+                <div className="w-16 h-16 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto border border-slate-800 text-slate-600">
+                  <Box className="w-6 h-6" />
+                </div>
+                <p className="text-sm text-slate-400 max-w-md mx-auto">{dt.driveEmptyCloud}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {driveFiles.map((file) => {
+                  const isVideo = file.mimeType?.includes('video');
+                  return (
+                    <div 
+                      key={file.id} 
+                      className="group relative bg-slate-900/60 border border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-3xl transition-all hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/5 ring-1 ring-white/5 flex flex-col justify-between"
+                    >
+                      <div className="relative aspect-video bg-slate-950 flex items-center justify-center overflow-hidden border-b border-white/5">
+                        {file.thumbnailLink ? (
+                          <img 
+                            src={file.thumbnailLink.replace('=s220', '=s600')} 
+                            alt={file.name} 
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 referrerPolicy='no-referrer'" 
+                          />
+                        ) : (
+                          <div className="text-slate-600">
+                            {isVideo ? <Film className="w-10 h-10" /> : <Camera className="w-10 h-10" />}
+                          </div>
+                        )}
+                        <div className="absolute top-4 left-4">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${isVideo ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'}`}>
+                            {isVideo ? 'Video' : 'Image'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="p-6 space-y-4 flex-1 flex flex-col justify-between text-left">
+                        <div className="space-y-1.5">
+                          <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug break-all" title={file.name}>
+                            {file.name}
+                          </h4>
+                          <div className="flex items-center gap-2 text-[10px] text-slate-500 font-semibold">
+                            <Clock className="w-3.5 h-3.5" />
+                            {new Date(file.createdTime).toLocaleDateString()}
+                            {file.size && ` • ${(parseInt(file.size) / (1024 * 1024)).toFixed(2)} MB`}
+                          </div>
+                        </div>
+
+                        <div className="pt-4 flex items-center gap-2">
+                          <a 
+                            href={file.webViewLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-slate-950 border border-blue-500/20 transition-all text-[10px] font-bold"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {dt.driveOpenLink}
+                          </a>
+                          
+                          {/* DESTRUCTION VERIFIED CONFIRM COMMAND */}
+                          <button
+                            onClick={() => deleteItemFromDrive(file.id, file.name)}
+                            className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 transition-all"
+                            title={dt.driveDeleteBtn}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                  );
+                })}
+              </div>
+            )
           )}
         </motion.section>
       </div>
