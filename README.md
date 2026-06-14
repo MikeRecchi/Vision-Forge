@@ -1,82 +1,82 @@
-# 🌋 Vision Forge — Používateľská Dokumentácia & Sprievodca Funkciami
+# 🌋 Vision Forge — User Documentation & Feature Guide
 
-Vitajte v **Vision Forge**, pokročilej aplikácii na kinematografickú AI tvorbu, ktorá premeňa textové predlohy alebo statické obrázky na dychberúce generované sekvencie. Aplikácia spája technologickú silu popredných modelov od spoločností **Google (Gemini/Veo/Imagen)** a **OpenAI** do jedného intuitívneho, vizuálne vyladeného a responzívneho prostredia.
-
----
-
-## 🚀 Hlavné Architektonické Funkcie
-
-Aplikácia **Vision Forge** ponúka komplexný súbor nástrojov pre režisérov, dizajnérov a kreatívcov. Nižšie nájdete podrobný prehľad a popis všetkých jej kľúčových možností:
-
-### 1. Duálny Režim Vstupu (Input Mode)
-- **Generovať (Text-to-Video)**: 
-  Umožňuje vytvoriť video z čistého textového popisu. Na základe vášho popisu obrázka AI najprv vytvorí vysoko detailný podkladový obrázok a následne ho oživí do podoby pohyblivého kinematografického videa.
-- **Nahrať (Image-to-Video)**:
-  Umožňuje nahrať vlastný obrázok priamo z vášho zariadenia pomocou funkcie drag-and-drop alebo kliknutím na pole nahrávania. Aplikácia automaticky zistí a prispôsobí pomer strán pôvodného dizajnu, aby sa predišlo deformáciám pri tvorbe videa.
-
-### 2. Široký Výber Popredných AI Modelov
-Svoje projekty môžete prispôsobiť výberom špecializovaných modelov:
-- **Video Modely**:
-  - `Google Veo 3.1 Lite`: Najnovší, optimalizovaný model na generovanie plynulých kinematografických scén s vysokou vernosťou detailov a verným zachovaním fyziky pohybu.
-  - `Google Veo 2.0`: Stabilný a efektívny model pre rôzne druhy animácie a prechodov.
-- **Obrazové Modely**:
-  - `Google Imagen 3`: Špičkový model pre generovanie realistických, detailných a esteticky prepracovaných obrázkov na základe textových pokynov.
-  - `Gemini 3.1 Flash Image`: Rýchly a spoľahlivý model prepájajúci kontextuálny popis s rýchlym vyrenderovaním.
-  - `OpenAI GPT Image 1.5 & GPT Image 2`: Alternatívne modely pre rôzne typy textových interpretácií a vizuálnych štýlov.
-
-### 3. Pomer Strán na Mieru (Aspect Ratio)
-Vision Forge je plne pripravené na tvorbu pre akúkoľvek platformu s podporou nasledovných formátov:
-- **16:9** — Štandard pre YouTube, prezentácie a tradičnú televíziu.
-- **9:16** — Formát pre vertikálne videá (TikTok, Instagram Reels, YouTube Shorts).
-- **1:1** — Štvorcový formát ideálny pre platformu Instagram a feed príspevky.
-- **4:5** — Predĺžený portrét optimalizovaný pre sociálne siete.
-- **4:3** — Klasický formát pre tradičné prezentácie a retro vizuál.
-- **21:9** — Širokouhlý kino-formát (Cinemascope) pre filmovú atmosféru.
-- **3:2** — Štandardný formát klasickej fotografie.
-
-### 4. Kreatívne a Kinematografické Štýly
-Na jedno kliknutie môžete zmeniť celkovú estetiku vašich generovaných vizuálov pomocou trinástich prednastavených umeleckých štýlov, ktoré automaticky dopĺňajú a optimalizujú váš textový dopyt:
-- **Cinematický (Cinematic)**: Dramatické filmové nasvietenie, hĺbka ostrosti a farebná úprava.
-- **Hyper-Realistický (Photorealistic)**: Neuveriteľné detaily textúr, svetelných odrazov a autenticity.
-- **Cyberpunk**: Futurizmus prežiarený neónmi, retro-technológiami a tmavou mestskou atmosférou.
-- **Vintage Film**: Nostalgický nádych s filmovým zrnom a teplými analógovými tónmi.
-- **Anime Ghibli**: Klasická, ručne kreslená estetika legendárneho japonského štúdia.
-- **Dronový Záber (Drone Shot)**: Perspektíva z vtáčej perspektívy s tiahlym, dychberúcim panoramatickým pohybom.
-- **Makro Detail (Macro)**: Extrémne priblíženie s precíznym zaostrením na mikroštruktúry.
-- **Film Noir**: Temná čiernobiela estetika s vysokým kontrastom a tieňohrami.
-- **Disney/Pixar**: Kúzelné rodinné 3D animácie s priateľskými charaktermi.
-- **3D Digitálne Umenie**: Moderné trojrozmerné vyrenderované prvky a abstraktná geometria.
-- **Minimalistický & Abstraktný**: Dôraz na jednoduchosť, čisté tvary, emóciu a hru farieb.
-- **Dokumentárny & Surrealistický**: Reálny reportážny vizuál alebo naopak snová, nespútaná fantázia snov.
-
-### 5. Rozšírené Parametre Videa (Advanced Settings)
-- **Vlastná dĺžka videa**: Možnosť určiť presné trvanie v sekundách (napr. pre optimálnu dĺžku vašich záberov).
-- **Rozlíšenie videa**: Výber medzi štandardnými formátmi s inteligentnou možnosťou **Auto**, ktorá prispôsobuje rozlíšenie podľa vašej obrazovky.
-- **Stabilizácia videa**: Pokročilý filter, ktorý aktívne vyhladzuje otrasy virtuálnej kamery, čím zabezpečuje hladký, stabilný záber s filmovou gráciou.
-
-### 6. Export a sťahovanie
-- **Export do formátu GIF**: Integrovaný konverzný modul (využívajúci knižnicu `gifshot`), ktorý vygenerovanú sekvenciu rýchlo premení na animáciu `.gif`. Nastaviť môžete cieľové rozlíšenie, snímkovú frekvenciu (FPS) a želaný pomer strán.
-- **Sťahovanie videa**: Možnosť jedným kliknutím stiahnuť finálne vygenerované video vo formáte `.mp4` priamo do úložiska vášho zariadenia.
-
-### 7. Lokálna História a Uchovanie Parametrov
-- Každé úspešné vygenerovanie sa okamžite uloží do **Histórie generovaní** na vašom zariadení.
-- História uchováva vygenerované médiá, pôvodný textový dopyt, použitý model, rozlíšenie, dĺžku a ďalšie nastavenia.
-- Možnosť kliknúť na **Použiť parametre** (Use parameters), čím sa celá konfigurácia predošlého videa okamžite načíta späť do ovládacieho panela pre rýchle iterácie.
-
-### 8. Bezpečnosť a Súkromie pod Kontrolou
-- **API Nastavenia**: Aplikácia funguje na základe vašich vlastných API kľúčov pre platformy **Google Gemini** a **OpenAI**.
-- **Miestne úložisko**: API kľúče sa ukladajú výhradne lokálne vo vašom prehliadači prostredníctvom `localStorage`. Nikdy neodchádzajú na cudzie servery, čo zaručuje 100% ochranu pred zneužitím.
+Welcome to **Vision Forge**, an advanced cinematic AI creation application that transforms text prompts or static images into breathtaking generated sequences. The application combines the technological power of leading models from **Google (Gemini/Veo/Imagen)** and **OpenAI** into a single intuitive, visually polished, and responsive environment.
 
 ---
 
-## 🛠️ Užitočné Riešenia pre Iframe a Cookies
+## 🚀 Core Architectural Features
 
-Keďže aplikácia môže bežať vo vnútri zabudovaného okna (iframe) vývojárskeho alebo vzdelávacieho prostredia, niektoré moderné prehliadače môžu kvôli striktnej ochrane súkromia zablokovať cookies tretích strán potrebné pre overenie. 
+The **Vision Forge** application offers a comprehensive suite of tools for directors, designers, and creatives. Below is a detailed overview and description of its key capabilities:
 
-Aplikácia **Vision Forge** ponúka elegantné elegantné riešenia na prekonanie týchto prekážok:
-- **Tlačidlo "Nový panel"**: Nachádza sa v pravom hornom rohu hlavičky. Jedným kliknutím otvorí aplikáciu na samostatnej karte vo vašom prehliadači, čím okamžite obíde akékoľvek obmedzenia iframe a zaistí plnú funkčnosť.
-- **Inteligentný prepínač jazyka**: Vstupný klikateľný dropdown umožňujúci zvoliť preferovaný preklad rozhrania (s podporou 8 svetových jazykov vrátane slovenčiny, angličtiny, nemčiny, francúzštiny či španielčiny), ktorý pri zmene automaticky udržuje kontext celého používateľského prostredia.
+### 1. Dual Input Mode
+- **Generate (Text-to-Video)**:
+  Allows you to create a video from a pure text description. Based on your image prompt, the AI first generates a highly detailed asset using Imagen, and then animates it into a cinematic, moving video.
+- **Upload (Image-to-Video)**:
+  Allows you to upload your own image directly from your device using drag-and-drop or by clicking the upload area. The application automatically detects and respects the aspect ratio of the original design to avoid distortion during video creation.
+
+### 2. Wide Selection of Leading AI Models
+You can tailor your projects by choosing specialized models:
+- **Video Models**:
+  - `Google Veo 3.1 Lite`: The latest, optimized model for generating smooth, high-fidelity cinematic scenes with realistic physical motion.
+  - `Google Veo 2.0`: A stable and efficient model for various animations and transitions.
+- **Image Models**:
+  - `Google Imagen 3`: A state-of-the-art model for generating realistic, detailed, and aesthetically complex images from text instructions.
+  - `Gemini 3.1 Flash Image`: A fast and reliable model combining contextual prompt adherence with rapid rendering.
+  - `OpenAI GPT Image 1.5 & GPT Image 2`: Alternative models for different types of text interpretation and visual styles.
+
+### 3. Tailored Aspect Ratios
+Vision Forge is fully prepared to create content for any platform, supporting the following crop formats:
+- **16:9** — The standard for YouTube, presentations, and traditional widescreen media.
+- **9:16** — Vertical smartphone orientation tailored specifically for mobile-first content (TikTok, Instagram Reels, YouTube Shorts).
+- **1:1** — A symmetric, balanced layout ideal for Instagram posts and profile feeds.
+- **4:5** — An extended portrait crop optimized for social feeds.
+- **4:3** — A classic ratio for traditional presentation styles or retro visuals.
+- **21:9** — An immersive ultrawide Cinemascope format bringing a premium film aesthetic to your screens.
+- **3:2** — The standard ratio for classic fine-art photography.
+
+### 4. Creative & Cinematic Styles
+With a single click, you can transform the overall aesthetic of your generated visuals using thirteen pre-configured artistic styles that automatically enhance and optimize your prompt:
+- **Cinematic**: Dramatic film lighting, depth of field, and color grade.
+- **Photorealistic**: Incredible texture details, realistic light reflections, and authentic real-world fidelity.
+- **Cyberpunk**: A futurism-inspired setting saturated with neon lights, retro-technologies, and dark urban environments.
+- **Vintage Film**: A nostalgic touch featuring film grain and warm, analog color tones.
+- **Anime Ghibli**: The classic, hand-drawn aesthetic of the legendary Japanese dynamic animation studio.
+- **Drone Shot**: A breathtaking bird's-eye view perspective with sweeping, majestic camera pans.
+- **Macro**: Extreme close-up with precise focus on micro-structures and tiny details.
+- **Film Noir**: A dark, high-contrast, black-and-white aesthetic highlighting dramatic shadows.
+- **Disney/Pixar**: Magical 3D family animation aesthetics featuring friendly, expressive characters.
+- **3D Digital Art**: Modern three-dimensional renders with abstract geometry.
+- **Minimalist & Abstract**: Pure simplicity, clean shapes, raw emotion, and custom color harmonies.
+- **Documentary & Surrealist**: Honest documentary-style realism or dreamlike, limitless surreal concepts.
+
+### 5. Advanced Video Parameters
+- **Custom Duration**: Specify the exact runtime in seconds to suit your visual pacing.
+- **Video Resolution**: Choose between standard output resolutions with an intelligent **Auto** mode that adapts to your screen layout.
+- **Video Stabilization**: An advanced hardware-simulation filter that actively smooths camera shakes to deliver sleek, stable cinematic pans.
+
+### 6. Export and Download Controls
+- **GIF Export Engine**: An integrated conversion module (utilizing the `gifshot` library) that quickly packs your generated video into a web-optimized, looping `.gif` container. You can adjust the target FPS, resolution, and crop ratio on-the-fly.
+- **Video Downloads**: Download the final generated high-quality `.mp4` video directly to your device with a single click.
+
+### 7. Local History & Creative Vault
+- Every successful generation is immediately saved in your local **Generation History**.
+- The archive securely preserves the media itself alongside its core metadata: the original text description, selected model, output resolution, custom duration, and style configurations.
+- Use the **Use parameters** option to instantly reload a past configuration back into your primary workspace panel for fast, iterative improvements.
+
+### 8. Privacy & Token Safety
+- **Laid-back API Config**: The application runs directly on your own API keys for **Google Gemini** and **OpenAI**.
+- **LocalStorage Storage**: Your secret developer API keys are stored exclusively inside your browser's sandboxed `localStorage` environment and never leave your local workspace—ensuring 100% protection and peace of mind.
 
 ---
 
-*Začnite prebúdzať svoje predstavy a vytvorte svoj prvý filmový záber s Vision Forge ešte dnes!*
+## 🛠️ Sandbox, Iframe & Cookie Troubleshooting
+
+Since the preview application may reside within a sandboxed development environment iframe or learning platform, some strict, modern browsers could block the necessary third-party cookies or pop-up requests.
+
+**Vision Forge** has built-in features to easily bypass these limits:
+- **"New Tab" Redirect**: Located at the top right of the application header. A single click opens the application in a standalone browser tab, immediately bypassing any sandboxed iframe blocks and guaranteeing full feature operations.
+- **Multilingual Support**: Switch layouts instantly using the customizable language selector dropdown (supporting 8 languages including English, Slovak, German, French, and Spanish). This ensures local instructions match your visual workflow while carrying over all application states.
+
+---
+
+*Bring your creative imagination to life and render your first cinematic sequence with Vision Forge today!*
