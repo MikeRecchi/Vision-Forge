@@ -129,6 +129,8 @@ export const translations = {
     openNewTab: "New Tab",
     openNewTabTooltip: "Open in a new tab (Solution for iframe cookie check)",
     openNewTabButton: "Open in New Tab",
+    donate: "Support (Tip)",
+    donateTooltip: "Support the creator via Ko-fi!",
     errorIframeCookie: "Access was blocked by the platform (Cookie check / iframe block). Your browser blocks security cookies for embedded windows (iframe). Please click on \"New Tab\" in the top right to open the application in a standalone window without restrictions.",
     errorServerRestarting: "The server is currently restarting or waking up. Please wait 5-10 seconds and try again.",
     errorUnexpectedResponseImage: "The server returned an unexpected response while generating the image.",
@@ -215,7 +217,9 @@ export const translations = {
         item3Title: "3. Automatic Backup Option",
         item3Text: "Enable automatic background cloud backups. When active, every successfully generated image or video is immediately uploaded to your Google Drive in the background.",
         item4Title: "4. Sandbox & Cookie Solutions",
-        item4Text: "If external authentication is blocked by browser restrictions or iframe protections, simply use the 'New Tab' feature to load the app in a dedicated standalone window."
+        item4Text: "If external authentication is blocked by browser restrictions or iframe protections, simply use the 'New Tab' feature to load the app in a dedicated standalone window.",
+        item5Title: "5. Direct Cloud Download",
+        item5Text: "Download any backed-up video or image directly from your Google Drive storage tab back to your local device with a single click."
       }
     }
   },
@@ -347,6 +351,8 @@ export const translations = {
     openNewTab: "Neues Tab",
     openNewTabTooltip: "In neuem Tab öffnen (Lösung für Iframe-Cookie-Prüfung)",
     openNewTabButton: "In neuem Tab öffnen",
+    donate: "Unterstützen (Tipp)",
+    donateTooltip: "Unterstütze den Entwickler auf Ko-fi!",
     errorIframeCookie: "Der Zugriff wurde von der Plattform blockiert (Cookie-Prüfung / Iframe-Blockierung). Ihr Browser blockiert Sicherheits-Cookies für eingebettete Fenster (Iframe). Bitte klicken Sie oben rechts auf „Neues Tab“, um die Anwendung in einem separaten Fenster ohne Einschränkungen zu öffnen.",
     errorServerRestarting: "Der Server wird derzeit neu gestartet oder aufgeweckt. Bitte warten Sie 5-10 Sekunden und versuchen Sie es erneut.",
     errorUnexpectedResponseImage: "Der Server hat beim Generieren des Bildes eine unerwartete Antwort zurückgegeben.",
@@ -433,7 +439,9 @@ export const translations = {
         item3Title: "3. Automatische Cloud-Sicherung",
         item3Text: "Aktivieren Sie das automatische Backup. Jedes erfolgreich generierte Bild oder Video wird sofort im Hintergrund auf Ihr Google Drive hochgeladen.",
         item4Title: "4. Standalone-Fenster-Option",
-        item4Text: "Verwenden Sie bei Cookie- oder Iframe-Blockaden die Option 'Neues Tab', um die Autorisierung reibungslos in einem separaten Fenster durchzuführen."
+        item4Text: "Verwenden Sie bei Cookie- oder Iframe-Blockaden die Option 'Neues Tab', um die Autorisierung reibungslos in einem separaten Fenster durchzuführen.",
+        item5Title: "5. Direkter Cloud-Download",
+        item5Text: "Laden Sie jedes gesicherte Video oder Bild mit einem einzigen Klick direkt von Ihrer Google Drive-Registerkarte auf Ihr lokales Gerät herunter."
       }
     }
   },
@@ -565,6 +573,8 @@ export const translations = {
     openNewTab: "Nouvel onglet",
     openNewTabTooltip: "Ouvrir dans un nouvel onglet (Solution pour la vérification des cookies iframe)",
     openNewTabButton: "Ouvrir dans un nouvel onglet",
+    donate: "Soutenir (Café)",
+    donateTooltip: "Soutenir le créateur sur Ko-fi !",
     errorIframeCookie: "L'accès a été bloqué par la plateforme (vérification des cookies / blocage iframe). Votre navigateur bloque les cookies de sécurité pour les fenêtres incrustées (iframe). Veuillez cliquer sur « Nouvel onglet » en haut à droite pour ouvrir l'application dans une fenêtre autonome sans restrictions.",
     errorServerRestarting: "Le serveur est actuellement en cours de redémarrage ou de réactivation. Veuillez patienter 5 à 10 secondes puis réessayez.",
     errorUnexpectedResponseImage: "Le serveur a renvoyé une réponse inattendue lors de la génération de l'image.",
@@ -651,7 +661,9 @@ export const translations = {
         item3Title: "3. Sauvegarde Cloud Automatique",
         item3Text: "Activez la sauvegarde cloud automatique. Une fois activée, chaque création réussie est immédiatement envoyée vers Google Drive.",
         item4Title: "4. Solutions Iframe & Cookie",
-        item4Text: "Si la connexion est bloquée par les restrictions de l'iframe, utilisez la fonction 'Nouvel onglet' pour charger l'application de manière autonome."
+        item4Text: "Si la connexion est bloquée par les restrictions de l'iframe, utilisez la fonction 'Nouvel onglet' pour charger l'application de manière autonome.",
+        item5Title: "5. Téléchargement cloud direct",
+        item5Text: "Téléchargez n'importe quelle vidéo ou image sauvegardée directement depuis votre onglet de stockage Google Drive sur votre appareil local en un seul clic."
       }
     }
   },
@@ -783,6 +795,8 @@ export const translations = {
     openNewTab: "Nuova scheda",
     openNewTabTooltip: "Apri in una nuova scheda (Soluzione per il controllo dei cookie iframe)",
     openNewTabButton: "Apri in una nuova scheda",
+    donate: "Supporta (Caffè)",
+    donateTooltip: "Sostieni il creatore su Ko-fi!",
     errorIframeCookie: "L'accesso è stato bloccato dalla piattaforma (controllo cookie / blocco iframe). Il browser blocca i cookie di sicurezza per le finestre incorporate (iframe). Fai clic su \"Nuova scheda\" in alto a destra per aprire l'applicazione in una finestra separata senza restrizioni.",
     errorServerRestarting: "Il server si sta riavviando o riattivando. Attendi 5-10 secondi e riprova.",
     errorUnexpectedResponseImage: "Il server ha restituito una risposta inaspettata durante la generazione dell'immagine.",
@@ -869,7 +883,9 @@ export const translations = {
         item3Title: "3. Backup automatico cloud",
         item3Text: "Attiva il backup automatico in background per salvare immediatamente ogni immagine o video generato sul tuo Google Drive.",
         item4Title: "4. Bypass dei blocchi iframe",
-        item4Text: "Se l'accesso è limitato dall'iframe del browser, seleziona 'Nuova scheda' per caricare l'applicazione in una finestra dedicata."
+        item4Text: "Se l'accesso è limitato dall'iframe del browser, seleziona 'Nuova scheda' per caricare l'applicazione in una finestra dedicata.",
+        item5Title: "5. Download diretto dal Cloud",
+        item5Text: "Scarica qualsiasi video o immagine di backup direttamente dalla scheda di memoria di Google Drive sul tuo dispositivo locale con un solo clic."
       }
     }
   },
@@ -1001,6 +1017,8 @@ export const translations = {
     openNewTab: "Nueva pestaña",
     openNewTabTooltip: "Abrir en una nueva pestaña (Solución para la verificación de cookies del iframe)",
     openNewTabButton: "Abrir en nueva pestaña",
+    donate: "Apoyar (Café)",
+    donateTooltip: "¡Apoya al creador en Ko-fi!",
     errorIframeCookie: "La plataforma bloqueó el acceso (verificación de cookies / bloqueo de iframe). Su navegador bloquea las cookies de seguridad para las ventanas incrustadas (iframe). Haga clic en \"Nueva pestaña\" en la sección superior derecha para abrir la aplicación en una ventana independiente sin restricciones.",
     errorServerRestarting: "El servidor se está reiniciando o activando. Espere de 5 a 10 segundos e inténtelo de nuevo.",
     errorUnexpectedResponseImage: "El servidor devolvió una respuesta inesperada al generar la imagen.",
@@ -1087,7 +1105,9 @@ export const translations = {
         item3Title: "3. Respaldo Automático en la Nube",
         item3Text: "Active la copia de seguridad automática. Cada imagen o video generado se cargará de inmediato a su Google Drive en segundo plano.",
         item4Title: "4. Solución Iframe y cookies",
-        item4Text: "Si la verificación de cookies bloquea la conexión, use el botón 'Nueva pestaña' para cargar la aplicación de forma independiente."
+        item4Text: "Si la verificación de cookies bloquea la conexión, use el botón 'Nueva pestaña' para cargar la aplicación de forma independiente.",
+        item5Title: "5. Descarga directa desde la nube",
+        item5Text: "Descargue cualquier video o imagen respaldado directamente desde su pestaña de almacenamiento de Google Drive en su dispositivo local con un solo clic."
       }
     }
   },
@@ -1219,6 +1239,8 @@ export const translations = {
     openNewTab: "Nova aba",
     openNewTabTooltip: "Abrir em uma nova aba (Solução para verificação de cookies do iframe)",
     openNewTabButton: "Abrir em nova aba",
+    donate: "Apoiar (Café)",
+    donateTooltip: "Apoie o criador no Ko-fi!",
     errorIframeCookie: "O acesso foi bloqueado pela plataforma (verificação de cookies / bloqueio de iframe). Seu navegador bloqueia cookies de segurança para janelas incorporadas (iframe). Clique em \"Nova aba\" no canto superior direito para abrir o aplicativo em uma janela independente sem restrições.",
     errorServerRestarting: "O servidor está reiniciando ou acordando. Aguarde de 5 a 10 segundos e tente novamente.",
     errorUnexpectedResponseImage: "O servidor retornou uma resposta inesperada ao gerar a imagem.",
@@ -1305,7 +1327,9 @@ export const translations = {
         item3Title: "3. Cópia automática na nuvem",
         item3Text: "Ative a opção de backup automático para enviar todas as novas criações imediatamente para o seu Google Drive.",
         item4Title: "4. Soluções para Iframe & Cookies",
-        item4Text: "Se a conexão externa for bloqueada pelas restrições do iframe, recarregue o app em uma 'Nova aba' independente."
+        item4Text: "Se a conexão externa for bloqueada pelas restrições do iframe, recarregue o app em uma 'Nova aba' independente.",
+        item5Title: "5. Download direto da nuvem",
+        item5Text: "Baixe qualquer vídeo ou imagem salvo diretamente de sua guia de armazenamento do Google Drive de volta para seu dispositivo local com um único clique."
       }
     }
   },
@@ -1437,6 +1461,8 @@ export const translations = {
     openNewTab: "Nowa karta",
     openNewTabTooltip: "Otwórz w nowej karcie (Rozwiązanie problemu cookie w iframe)",
     openNewTabButton: "Otwórz w nowej karcie",
+    donate: "Wsparcie (Kawa)",
+    donateTooltip: "Wesprzyj twórcę przez Ko-fi!",
     errorIframeCookie: "Dostęp został zablokowany przez platformę (błąd plików cookie / blokada iframe). Twoja przeglądarka blokuje pliki cookie bezpieczeństwa w osadzonych oknach (iframe). Kliknij „Nowa karta” w prawym górnym rogu, aby otworzyć aplikację w osobnym oknie bez ograniczeń.",
     errorServerRestarting: "Serwer właśnie się restartuje lub uruchamia. Odczekaj 5-10 sekund i spróbuj ponownie.",
     errorUnexpectedResponseImage: "Serwer zwrócił nieoczekiwaną odpowiedź podczas generowania obrazu.",
@@ -1523,7 +1549,9 @@ export const translations = {
         item3Title: "3. Automatyczny zapis w chmurze",
         item3Text: "Włącz automatyczną kopię zapasową w tle. Nowe obrazy i filmy zostaną automatycznie przesłane na Twój dysk zaraz po wygenerowaniu.",
         item4Title: "4. Rozwiązanie blokad iframe",
-        item4Text: "W przypadku blokad przeglądania wewnątrz osadzonego okna, kliknij 'Nowa karta' w prawym górnym rogu aby uruchomić aplikację samodzielnie."
+        item4Text: "W przypadku blokad przeglądania wewnątrz osadzonego okna, kliknij 'Nowa karta' w prawym górnym rogu aby uruchomić aplikację samodzielnie.",
+        item5Title: "5. Bezpośrednie pobieranie z chmury",
+        item5Text: "Pobierz dowolny zapisany film lub obraz bezpośrednio z karty dysku Google Drive na swoje lokalne urządzenie jednym kliknięciem."
       }
     }
   },
@@ -1657,6 +1685,8 @@ export const translations = {
     openNewTab: "Nový panel",
     openNewTabTooltip: "Otvoriť v novom paneli (Riešenie pre iframe cookie check)",
     openNewTabButton: "Otvoriť nový panel",
+    donate: "Prispieť (Tip)",
+    donateTooltip: "Podporte tvorcu na Ko-fi!",
     errorIframeCookie: "Prístup bol zablokovaný platformou (Cookie check / iframe block). Váš prehliadač blokuje bezpečnostné cookies pre vložené okná (iframe). Prosím, kliknite na \"Nový panel\" vpravo hore, čím aplikáciu otvoríte v samostatnom okne bez obmedzení.",
     errorServerRestarting: "Server sa práve reštartuje alebo prebúdza. Prosím, počkajte 5-10 sekúnd a skúste to znova.",
     errorUnexpectedResponseImage: "Server vrátil neočakávanú odpoveď pri generovaní obrázka.",
@@ -1743,7 +1773,9 @@ export const translations = {
         item3Title: "3. Automatické zálohovanie",
         item3Text: "Zapnite automatické cloudové zálohovanie. Po aktivácii sa každý úspešne vygenerovaný obrázok alebo video okamžite nahrá na váš Google Disk na pozadí.",
         item4Title: "4. Riešenie pre cookies a iframe",
-        item4Text: "Ak je externé overenie zablokované kvôli obmedzeniam prehliadača alebo ochrane iframe, stačí použiť funkciu 'Nový panel' na spustenie v samostatnom okne."
+        item4Text: "Ak je externé overenie zablokované kvôli obmedzeniam prehliadača alebo ochrane iframe, stačí použiť funkciu 'Nový panel' na spustenie v samostatnom okne.",
+        item5Title: "5. Priame stiahnutie z cloudu",
+        item5Text: "Stiahnite si akékoľvek zálohované video alebo obrázok priamo z karty úložiska Google Disk do svojho lokálneho zariadenia jediným kliknutím."
       }
     }
   }

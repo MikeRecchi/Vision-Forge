@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen } from 'lucide-react';
+import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import gifshot from 'gifshot';
 import { translations, Language } from './translations';
+// @ts-ignore
+import kofiButtonImg from './assets/images/kofi_button_1781474671190.jpg';
 import { VIDEO_STYLES, VideoStyle } from './constants';
 import { User } from 'firebase/auth';
 import { 
@@ -78,7 +80,7 @@ export default function App() {
   const [customDurationValue, setCustomDurationValue] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showDocumentation, setShowDocumentation] = useState(false);
-  const [activeDocTab, setActiveDocTab] = useState<'overview' | 'features' | 'models' | 'ratios' | 'privacy' | 'drive'>('overview');
+  const [activeDocTab, setActiveDocTab] = useState<'overview' | 'features' | 'models' | 'ratios' | 'styles' | 'privacy' | 'drive' | 'changelog'>('overview');
   const [showCreativeSettings, setShowCreativeSettings] = useState(false);
   const [showAdvancedVideoSettings, setShowAdvancedVideoSettings] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
@@ -91,6 +93,7 @@ export default function App() {
   const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [isDriveLoading, setIsDriveLoading] = useState(false);
   const [isUploadingToDrive, setIsUploadingToDrive] = useState<{ [itemId: string]: boolean }>({});
+  const [isDownloadingFromDrive, setIsDownloadingFromDrive] = useState<{ [fileId: string]: boolean }>({});
   const [uploadedDriveIds, setUploadedDriveIds] = useState<{ [itemId: string]: { id: string, link: string } }>({});
   const [autoUploadToDrive, setAutoUploadToDrive] = useState(false);
 
@@ -179,6 +182,39 @@ export default function App() {
     }
   };
 
+  const downloadFromDrive = async (fileId: string, fileName: string, mimeType: string) => {
+    const token = driveToken || getAccessToken();
+    if (!token) {
+      setError(language === 'sk' ? "Najprv sa prihláste do služby Google Drive." : "Please connect to Google Drive first.");
+      return;
+    }
+
+    setIsDownloadingFromDrive(prev => ({ ...prev, [fileId]: true }));
+    try {
+      const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        throw new Error(language === 'sk' ? "Nepodarilo sa stiahnuť súbor z Google Drive." : "Failed to download file from Google Drive.");
+      }
+      const blob = await res.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+    } catch (err: any) {
+      console.error("Failed to download from Google Drive:", err);
+      setError(language === 'sk' ? `Sťahovanie z disku zlyhalo: ${err.message}` : `Drive download failed: ${err.message}`);
+    } finally {
+      setIsDownloadingFromDrive(prev => ({ ...prev, [fileId]: false }));
+    }
+  };
+
   const driveTranslations: any = {
     en: {
       driveTabLocal: "Local History",
@@ -194,9 +230,10 @@ export default function App() {
       driveSaved: "Saved to Drive",
       driveOpenLink: "Open in Drive",
       driveDeleteBtn: "Delete",
-      driveDescription: "Securely backup your premium Imagen & Veo creations to your personal Google Drive in the background.",
+      driveDescription: "Securely backup your premium creations to your personal Google Drive in the background.",
       driveEmptyCloud: "No backed up assets found. Save any creation to Google Drive to list it here.",
-      driveLoading: "Connecting to Google Drive container..."
+      driveLoading: "Connecting to Google Drive container...",
+      driveDownloadBtn: "Download"
     },
     sk: {
       driveTabLocal: "Lokálna história",
@@ -212,9 +249,10 @@ export default function App() {
       driveSaved: "Uložené na Disku",
       driveOpenLink: "Otvoriť Disk",
       driveDeleteBtn: "Zmazať",
-      driveDescription: "Bezpečne zálohujte svoje prémiové výtvory Imagen & Veo na svoj osobný Google Disk v pozadí.",
+      driveDescription: "Bezpečne zálohujte svoje prémiové výtvory na svoj osobný Google Disk v pozadí.",
       driveEmptyCloud: "Nenašli sa žiadne zálohované súbory. Uložte ľubovoľný výtvor do cloudu a zobrazí sa tu.",
-      driveLoading: "Pripája sa k úložisku Google Disk..."
+      driveLoading: "Pripája sa k úložisku Google Disk...",
+      driveDownloadBtn: "Stiahnuť"
     },
     de: {
       driveTabLocal: "Lokaler Verlauf",
@@ -230,9 +268,10 @@ export default function App() {
       driveSaved: "In Drive gespeichert",
       driveOpenLink: "In Drive öffnen",
       driveDeleteBtn: "Löschen",
-      driveDescription: "Sichern Sie Ihre hochwertigen Imagen- & Veo-Kreationen im Hintergrund sicher auf Ihrem Google Drive.",
+      driveDescription: "Sichern Sie Ihre hochwertigen Kreationen im Hintergrund sicher auf Ihrem Google Drive.",
       driveEmptyCloud: "Keine gesicherten Dateien gefunden. Speichern Sie eine Kreation in Drive, um sie hier aufzulisten.",
-      driveLoading: "Verbindung mit Google Drive wird geladen..."
+      driveLoading: "Verbindung mit Google Drive wird geladen...",
+      driveDownloadBtn: "Herunterladen"
     },
     fr: {
       driveTabLocal: "Historique local",
@@ -248,9 +287,10 @@ export default function App() {
       driveSaved: "Enregistré sur Drive",
       driveOpenLink: "Ouvrir dans Drive",
       driveDeleteBtn: "Supprimer",
-      driveDescription: "Sauvegardez en toute sécurité vos créations premium Imagen & Veo sur votre Google Drive personnel en arrière-plan.",
+      driveDescription: "Sauvegardez en toute sécurité vos créations premium sur votre Google Drive personnel en arrière-plan.",
       driveEmptyCloud: "Aucun fichier sauvegardé trouvé. Enregistrez une création sur Google Drive pour l'afficher ici.",
-      driveLoading: "Connexion au conteneur Google Drive..."
+      driveLoading: "Connexion au conteneur Google Drive...",
+      driveDownloadBtn: "Télécharger"
     },
     it: {
       driveTabLocal: "Cronologia locale",
@@ -266,9 +306,10 @@ export default function App() {
       driveSaved: "Salvato su Drive",
       driveOpenLink: "Apri in Drive",
       driveDeleteBtn: "Elimina",
-      driveDescription: "Esegui il backup sicuro delle tue creazioni premium Imagen e Veo sul tuo Google Drive personale in background.",
+      driveDescription: "Esegui il backup sicuro delle tue creazioni premium sul tuo Google Drive personale in background.",
       driveEmptyCloud: "Nessun file di backup trovato. Salva una creazione su Google Drive per visualizzarla qui.",
-      driveLoading: "Connessione in corso a Google Drive..."
+      driveLoading: "Connessione in corso a Google Drive...",
+      driveDownloadBtn: "Scarica"
     },
     es: {
       driveTabLocal: "Historial local",
@@ -284,9 +325,10 @@ export default function App() {
       driveSaved: "Guardado en Drive",
       driveOpenLink: "Abrir en Drive",
       driveDeleteBtn: "Eliminar",
-      driveDescription: "Realiza copias de seguridad de forma segura de tus creaciones premium de Imagen y Veo en tu Google Drive personal en segundo plano.",
+      driveDescription: "Realiza copias de seguridad de forma segura de tus creaciones premium en tu Google Drive personal en segundo plano.",
       driveEmptyCloud: "No se encontraron archivos respaldados. Guarda cualquier creación en Google Drive para verla aquí.",
-      driveLoading: "Conectando al contenedor de Google Drive..."
+      driveLoading: "Conectando al contenedor de Google Drive...",
+      driveDownloadBtn: "Descargar"
     },
     pt: {
       driveTabLocal: "Histórico local",
@@ -302,9 +344,10 @@ export default function App() {
       driveSaved: "Salvo no Drive",
       driveOpenLink: "Abrir no Drive",
       driveDeleteBtn: "Excluir",
-      driveDescription: "Faça backup de forma segura de suas criações premium Imagen & Veo no seu Google Drive pessoal em segundo plano.",
+      driveDescription: "Faça backup de forma segura de suas criações premium no seu Google Drive pessoal em segundo plano.",
       driveEmptyCloud: "Nenhum arquivo de backup encontrado. Salve qualquer criação no Google Drive para listá-la aqui.",
-      driveLoading: "Conectando ao Google Drive..."
+      driveLoading: "Conectando ao Google Drive...",
+      driveDownloadBtn: "Baixar"
     },
     pl: {
       driveTabLocal: "Lokalna historia",
@@ -320,9 +363,10 @@ export default function App() {
       driveSaved: "Zapisano na Drive",
       driveOpenLink: "Otvórz w Drive",
       driveDeleteBtn: "Usuń",
-      driveDescription: "Bezpiecznie zapisuj swoje wyjątkowe kreacje Imagen i Veo na osobistym dysku Google Drive w tle.",
+      driveDescription: "Bezpiecznie zapisuj swoje wyjątkowe kreacje na osobistym dysku Google Drive w tle.",
       driveEmptyCloud: "Nie znaleziono zapisanych plików. Zapisz dowolne dzieło na Google Drive, aby je tu zobaczyć.",
-      driveLoading: "Łączenie z Google Drive..."
+      driveLoading: "Łączenie z Google Drive...",
+      driveDownloadBtn: "Pobierz"
     }
   };
 
@@ -1045,8 +1089,25 @@ export default function App() {
                     { id: 'features', label: (t as any).documentation?.tabs?.features || "Core Features", icon: Layers },
                     { id: 'models', label: (t as any).documentation?.tabs?.models || "AI Models", icon: Film },
                     { id: 'ratios', label: (t as any).documentation?.tabs?.ratios || "Aspect Ratios", icon: Monitor },
+                    { 
+                      id: 'styles', 
+                      label: (() => {
+                        switch(language) {
+                          case 'sk': return "Kinematografické štýly";
+                          case 'de': return "Kinematografische Stile";
+                          case 'fr': return "Styles cinématographiques";
+                          case 'it': return "Stili cinematografici";
+                          case 'es': return "Estilos cinematográficos";
+                          case 'pt': return "Estilos cinematográficos";
+                          case 'pl': return "Style filmowe";
+                          default: return "Cinematic Styles";
+                        }
+                      })(), 
+                      icon: Palette 
+                    },
                     { id: 'privacy', label: (t as any).documentation?.tabs?.privacy || "Privacy & API", icon: Key },
-                    { id: 'drive', label: (t as any).documentation?.tabs?.drive || "Google Drive", icon: Cloud }
+                    { id: 'drive', label: (t as any).documentation?.tabs?.drive || "Google Drive", icon: Cloud },
+                    { id: 'changelog', label: language === 'sk' ? "Changelog" : "Changelog", icon: History }
                   ].map((tab) => {
                     const TabIcon = tab.icon;
                     const isActive = activeDocTab === tab.id;
@@ -1065,6 +1126,34 @@ export default function App() {
                       </button>
                     );
                   })}
+
+                  {/* Persistent Ko-fi box in sidebar (only on desktop) */}
+                  <div className="hidden md:flex flex-col gap-3 mt-auto pt-4 border-t border-white/5">
+                    <div className="p-3.5 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex flex-col gap-3 items-center text-center">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        {language === 'sk' ? "Podporte prácu" : "Support My Work"}
+                      </span>
+                      <a
+                        href="https://ko-fi.com/C1W320AXYA"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative block overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all duration-300 hover:border-slate-700 shadow-md active:scale-95 w-full max-w-[93px]"
+                        title={(t as any).donateTooltip || "Support on Ko-fi"}
+                      >
+                        <img
+                          src={kofiButtonImg}
+                          alt="Support me on Ko-fi"
+                          className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                          referrerPolicy="no-referrer"
+                        />
+                      </a>
+                      <p className="text-[10px] text-slate-400 leading-relaxed px-1">
+                        {language === 'sk'
+                          ? "Vision Forge je nezávislý projekt. Prispejte na kávu pre vývojára!"
+                          : "Vision Forge is an independent project. Buy me a coffee!"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Content Panel */}
@@ -1097,17 +1186,113 @@ export default function App() {
                           </li>
                         </ul>
                       </div>
+
+
                     </div>
                   )}
 
                   {activeDocTab === 'features' && (
-                    <div className="space-y-4 font-sans">
+                    <div className="space-y-4 font-sans animate-fadeIn">
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <Layers className="w-5 h-5 text-emerald-400" />
-                        {(t as any).documentation?.features?.title || "Core Features"}
+                        {language === 'sk' ? "Prehľad všetkých funkcií" : "Full Features Directory"}
                       </h3>
                       
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+                        {[
+                          {
+                            id: 1,
+                            icon: Upload,
+                            titleEn: "1. Dual Input Mode",
+                            titleSk: "1. Duálny režim vstupu",
+                            textEn: "Switch between 'Generate' (Text-to-Video where high-fidelity image is created using Imagen first) and 'Upload' (Image-to-Video mode). The aspect ratio of your upload is automatically detected and respected to ensure consistent motion.",
+                            textSk: "Prepínajte medzi režimom 'Generovať' (Text-to-Video, kde sa podkladový obrázok najprv vytvorí pomocou Imagen 3) a režimom 'Nahrať' (Image-to-Video). Rozpoznanie pomeru strán nahraného obrázka chráni vaše diela pred deformáciou."
+                          },
+                          {
+                            id: 2,
+                            icon: Sparkles,
+                            titleEn: "2. Wide Selection of Leading AI Models",
+                            titleSk: "2. Široký výber špičkových modelov",
+                            textEn: "Tailor projects with premium video models (Google Veo 3.1 Lite & 2.0) and high-quality image engines (Google Imagen 3, Gemini 3.1 Flash, OpenAI GPT Image series) depending on your needs.",
+                            textSk: "Vyberte si špecializované video modely (Google Veo 3.1 Lite & 2.0) a obrazové motory (Google Imagen 3, Gemini 3.1 Flash, séria OpenAI GPT Image) presne pre požiadavky vášho projektu."
+                          },
+                          {
+                            id: 3,
+                            icon: Monitor,
+                            titleEn: "3. Tailored Aspect Ratios",
+                            titleSk: "3. Prispôsobené pomery strán",
+                            textEn: "Perfectly prepared for any platform with layout presets like 16:9 (YouTube), 9:16 (TikTok/Reels), 1:1 (Square), 4:5 (Social feeds), 4:3 (Retro/Presentations), 21:9 (CinemaScope), and 3:2 (Photography).",
+                            textSk: "Pripravte obsah pre ľubovoľnú platformu vďaka podpore formátov 16:9 (YouTube), 9:16 (TikTok/Reels), 1:1 (Štvorec), 4:5 (Sociálne siete), 4:3 (Retro), 21:9 (CinemaScope) a 3:2 (Fotografia)."
+                          },
+                          {
+                            id: 4,
+                            icon: Palette,
+                            titleEn: "4. Creative & Cinematic Styles",
+                            titleSk: "4. Kreatívne & kinematografické štýly",
+                            textEn: "Transform design vibes with single-click pre-configured prompts including Cinematic, Photorealistic, Cyberpunk, Vintage Film, Anime Ghibli, Drone Shot, Macro, Film Noir, Disney/Pixar, 3D Digital, Minimalist, Documentary, and Surreal.",
+                            textSk: "Premeňte estetiku vizuálov jedným kliknutím pomocou 13 predvolieb ako Kinematografický, Fotorealistický, Cyberpunk, Retro film, Anime Ghibli, Záber z dronu, Makro, Film Noir, Disney/Pixar, 3D render, Minimalistický, Dokumentárny a Surrealistický."
+                          },
+                          {
+                            id: 5,
+                            icon: Settings,
+                            titleEn: "5. Advanced Video Parameters",
+                            titleSk: "5. Pokročilé parametre videa",
+                            textEn: "Control fine-grained generation variables such as custom duration, exact resolution modes (including intelligent Auto layout), and a hardware-stabilization simulation filter.",
+                            textSk: "Prispôsobte si generovanie na mieru určením vlastnej dĺžky videa, presného rozlíšenia (vrátane inteligentného automatického režimu Auto) a povolením zabudovaného filtra hardvérovej stabilizácie snímok."
+                          },
+                          {
+                            id: 6,
+                            icon: Download,
+                            titleEn: "6. Export and Download Controls",
+                            titleSk: "6. Kontrola exportu a sťahovania",
+                            textEn: "Convert renders into web-optimized, loopable GIFs via the integrated gifshot module with real-time FPS & crop presets, or download pristine .mp4 copies directly to your personal workspace.",
+                            textSk: "Preveďte videosekvenciu na optimalizovanú opakujúcu sa animáciu .gif pomocou vstavaného modulu gifshot s nastavením FPS a orezov, alebo si stiahhnite originálny súbor .mp4 priamo do pamäte zariadenia."
+                          },
+                          {
+                            id: 7,
+                            icon: History,
+                            titleEn: "7. Local History & Creative Vault",
+                            titleSk: "7. Lokálna história a trezor",
+                            textEn: "All generation details and media files are stored locally in the browser history. Instantly copy or restore accurate settings with the 'Use parameters' button.",
+                            textSk: "Záznamy o každom úspešnom výtvore vrátane detailných nastavení sú bezpečne uložené v prehliadači. Pomocou tlačidla 'Použiť parametre' môžete konfigurácie bleskovo obnoviť."
+                          },
+                          {
+                            id: 8,
+                            icon: Cloud,
+                            titleEn: "8. Google Drive Cloud Backup Integration",
+                            titleSk: "8. Integrácia cloudového zálohovania Google Disk",
+                            textEn: "Sync files in the background, set auto-uploads, explore assets in a dedicated Google Drive folder tab with options to view, download, or remove backups without leaving the application.",
+                            textSk: "Zálohovajte obrázky i videá na pozadí, aktivujte automatické nahrávanie a organizujte svoje cloudové súbory v prehľadnom interaktívnom prieskumníkovi s možnosťami zobrazenia, stiahnutia či vymazania."
+                          },
+                          {
+                            id: 9,
+                            icon: Key,
+                            titleEn: "9. Privacy & Token Safety",
+                            titleSk: "9. Súkromie a bezpečnosť kľúčov",
+                            textEn: "Highly secure local environment where your secret developer keys for Gemini and OpenAI are kept inside sandboxed localStorage and are never relayed to any external server.",
+                            textSk: "Záruka absolútneho súkromia. Vaše osobné vývojárske kľúče pre Gemini a OpenAI sú uložené výhradne v lokálnom úložisku prehliadača (localStorage) a nikdy sa neodosielajú na externé servery."
+                          }
+                        ].map((feat) => {
+                          const FeatIcon = feat.icon;
+                          return (
+                            <div key={feat.id} className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl flex gap-3 items-start hover:border-white/10 transition-colors">
+                              <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
+                                <FeatIcon className="w-4 h-4" />
+                              </div>
+                              <div className="space-y-1 flex-1">
+                                <h4 className="font-bold text-white text-sm">
+                                  {language === 'sk' ? feat.titleSk : feat.titleEn}
+                                </h4>
+                                <p className="text-xs text-slate-400 leading-relaxed">
+                                  {language === 'sk' ? feat.textSk : feat.textEn}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {false && (
+                        <>
                         <div className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl">
                           <h4 className="font-bold text-white text-sm mb-1">{(t as any).documentation?.features?.item1Title || ""}</h4>
                           <p className="text-xs text-slate-400 leading-relaxed">
@@ -1135,80 +1320,611 @@ export default function App() {
                             {(t as any).documentation?.features?.item4Text || ""}
                           </p>
                         </div>
-                      </div>
+                        </>
+                      )}
                     </div>
                   )}
 
                   {activeDocTab === 'models' && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-fadeIn">
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <Film className="w-5 h-5 text-emerald-400" />
-                        {(t as any).documentation?.models?.title || "Generative AI Models"}
+                        {language === 'sk' ? "Prehľad generatívnych modelov AI" : "Generative AI Models Overview"}
                       </h3>
-                      <p className="text-xs text-slate-400">
-                        {(t as any).documentation?.models?.intro || ""}
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {language === 'sk' 
+                          ? "Vision Forge spája najpokročilejšie svetové modely pre tvorbu statických obrázkov a plynulých filmových záberov do jedného prostredia." 
+                          : "Vision Forge brings together the world's most advanced image synthesis and cinematic motion models into a unified creative suite."}
                       </p>
 
-                      <div className="grid grid-cols-1 gap-3 text-xs">
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5">
-                          <span className="font-bold text-emerald-400">{(t as any).documentation?.models?.item1Title || "Google Veo 3.1 & 2.0"}</span>
-                          <p className="text-slate-400 mt-1">{(t as any).documentation?.models?.item1Text || ""}</p>
+                      <div className="space-y-4 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+                        {/* Video Models section */}
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                            {language === 'sk' ? "Video modely" : "Video Models"}
+                          </h4>
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center flex-wrap gap-2">
+                                <span className="font-bold text-emerald-400 text-sm">Google Veo 3.1 Lite</span>
+                                <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Google Video</span>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {language === 'sk' 
+                                  ? "Najnovší, vysoko optimalizovaný video model vyvinutý spoločnosťou Google. Je určený na tvorbu ultra-plynulých filmových scén s presným fyzikálnym pohybom, verným nanášaním svetla a realistickým správaním kamery." 
+                                  : "The latest high-performance optimized cinematic model by Google. Engineered for ultra-smooth motion synthesis, precise physical simulation, advanced scene lighting, and highly realistic camera sweeps."}
+                              </p>
+                            </div>
+
+                            <div className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center flex-wrap gap-2">
+                                <span className="font-bold text-emerald-400 text-sm">Google Veo 2.0</span>
+                                <span className="text-[9px] bg-slate-800 text-slate-400 border border-white/5 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Google Video</span>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {language === 'sk' 
+                                  ? "Klasická preverená verzia stabilného video generátora. Vyniká vysokou spoľahlivosťou pohybových vzorcov, stálosťou kompozície medzi jednotlivými snímkami a čistými vizuálnymi prechodmi." 
+                                  : "A robust, stable generation pipeline by Google. Highly reliable for maintaining consistent motion vectors, frame-to-frame integrity, and clean style coherence."}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5">
-                          <span className="font-bold text-emerald-400">{(t as any).documentation?.models?.item2Title || "Google Imagen 3"}</span>
-                          <p className="text-slate-400 mt-1">{(t as any).documentation?.models?.item2Text || ""}</p>
-                        </div>
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5">
-                          <span className="font-bold text-emerald-400">{(t as any).documentation?.models?.item3Title || "Gemini 3.1 Flash Image"}</span>
-                          <p className="text-slate-400 mt-1">{(t as any).documentation?.models?.item3Text || ""}</p>
-                        </div>
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5">
-                          <span className="font-bold text-emerald-400">{(t as any).documentation?.models?.item4Title || "OpenAI Series"}</span>
-                          <p className="text-slate-400 mt-1">{(t as any).documentation?.models?.item4Text || ""}</p>
+
+                        {/* Image Models section */}
+                        <div className="space-y-2 pt-2">
+                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                            {language === 'sk' ? "Obrazové modely (Generovanie podkladov)" : "Image Models (Base Generation)"}
+                          </h4>
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center flex-wrap gap-2">
+                                <span className="font-bold text-emerald-400 text-sm">Google Imagen 3</span>
+                                <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Google Image</span>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {language === 'sk' 
+                                  ? "Vlajková loď medzi modelmi pre premenu textu na obraz. Vytvára neuveriteľne detailné, esteticky vyvážené a fotorealistické snímky s bezkonkurenčnou schopnosťou dodržať vami zadaný štýl a inštrukcie v prompte." 
+                                  : "Google's flagship text-to-image engine. Generates hyper-detailed, aesthetically stunning, photorealistic imagery with masterful prompt coherence and outstanding texture fidelity."}
+                              </p>
+                            </div>
+
+                            <div className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center flex-wrap gap-2">
+                                <span className="font-bold text-emerald-400 text-sm">Gemini 3.1 Flash Image</span>
+                                <span className="text-[9px] bg-slate-800 text-slate-400 border border-white/5 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Google Image</span>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {language === 'sk' 
+                                  ? "Bleskový a inteligentný model kombinujúci hlboké chápanie textového kontextu s okamžitým časom vykreslenia. Vynikajúci na rýchle iterácie, testovanie nápadov či promptov." 
+                                  : "An incredibly fast, highly intelligent model combining deep context understanding with instant rendering speeds. Optimal for rapid prototype iterations and real-time conceptual testing."}
+                              </p>
+                            </div>
+
+                            <div className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center flex-wrap gap-2">
+                                <span className="font-bold text-sky-400 text-sm">OpenAI GPT Image 1.5</span>
+                                <span className="text-[9px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded font-mono font-bold uppercase">OpenAI Image</span>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {language === 'sk' 
+                                  ? "Prémiový grafický model od OpenAI s výnimočnou flexibilitou. Skvele interpretuje zložité umelecké zadania a je navrhnutý pre multi-subjektové kompozície, kde je potrebné držať presnú štruktúru scény." 
+                                  : "A premium graphics model from OpenAI providing robust flexibility. Excels at interpreting rich artistic queries and complex scenarios with multiple distinct objects or actors."}
+                              </p>
+                            </div>
+
+                            <div className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center flex-wrap gap-2">
+                                <span className="font-bold text-sky-400 text-sm">OpenAI GPT Image 2</span>
+                                <span className="text-[9px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded font-mono font-bold uppercase">OpenAI Image</span>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                {language === 'sk' 
+                                  ? "Najnovšia generácia obrazového motora OpenAI s pokročilým umeleckým cítením. Vyniká v abstraktných štýloch, digitálnom 3D umení a detailných kinematografických kompozíciách obohatených o komplexné vzorce." 
+                                  : "OpenAI's latest generation imagery engine featuring deep artistic styling capabilities. Highly advanced in interpreting abstract concepts, digital 3D renders, and cinematic layouts with complex details."}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
 
                   {activeDocTab === 'ratios' && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-fadeIn">
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <Monitor className="w-5 h-5 text-emerald-400" />
-                        {(t as any).documentation?.ratios?.title || "Optimized Crop Formats"}
+                        {language === 'sk' ? "Podporované pomery strán" : "Supported Aspect Ratios"}
                       </h3>
-                      <p>
-                        {(t as any).documentation?.ratios?.intro || ""}
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {language === 'sk' 
+                          ? "Vision Forge ponúka plnú podporu širokej škály formátov pre akúkoľvek platformu. Nižšie nájdete prehľad ich optimálneho využitia:" 
+                          : "Vision Forge offers native layouts tailored for every single display style. Below is an overview of the supported aspect ratios and their best-suited use cases:"}
                       </p>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5 flex items-center gap-3">
-                          <div className="p-2 rounded bg-slate-900 font-bold text-emerald-400 w-12 text-center">16:9</div>
-                          <div>
-                            <span className="font-bold block text-white">{(t as any).documentation?.ratios?.item1Title || ""}</span>
-                            <span className="text-slate-500">{(t as any).documentation?.ratios?.item1Text || ""}</span>
+                      <div className="grid grid-cols-1 gap-3 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+                        {[
+                          {
+                            ratio: "16:9",
+                            labelEn: "Widescreen / Landscape",
+                            labelSk: "Na šírku / Širokouhlý",
+                            descEn: "The absolute standard for global video sharing (YouTube), traditional projection layouts, computer monitor wallpapers, and cinema screens.",
+                            descSk: "Hlavný štandard pre klasické videá na YouTube, firemné prezentácie, širokoúhle monitory a tradičné zobrazenie na šírku."
+                          },
+                          {
+                            ratio: "9:16",
+                            labelEn: "Portrait / Mobile",
+                            labelSk: "Na výšku / Mobilný",
+                            descEn: "Designed specifically for modern smartphones. Essential for high-reach social feeds including TikTok, Instagram Reels, YouTube Shorts, and Snapchat.",
+                            descSk: "Určený špeciálne pre mobilné zariadenia držané na výšku. Nevyhnutný formát pre TikTok, Instagram Reels, YouTube Shorts a stories."
+                          },
+                          {
+                            ratio: "1:1",
+                            labelEn: "Square",
+                            labelSk: "Štvorec / Symetrický",
+                            descEn: "A perfectly balanced layout. Widely used for Instagram profile grids, artwork covers, digital badges, and central subject focus.",
+                            descSk: "Dokonale vyvážený symetrický rozmer. Ideálny pre hlavný feed Instagramu, obaly albumov, profilové obrázky a stredové kompozície."
+                          },
+                          {
+                            ratio: "4:5",
+                            labelEn: "Social Feed Portrait",
+                            labelSk: "Sociálny feed na výšku",
+                            descEn: "A slightly elongated portrait view. Maximizes organic real-estate and view time on Instagram and Facebook scrolling feeds.",
+                            descSk: "Predĺžený formát na výšku, ktorý zaberá maximum vertikálnej plochy v mobilnom feede na Facebooku a Instagrame."
+                          },
+                          {
+                            ratio: "4:3",
+                            labelEn: "Retro / Classic",
+                            labelSk: "Retro / Klasický",
+                            descEn: "The traditional broadcast standard. Great for analogue-style photography, nostalgic mockups, documentary themes, and legacy displays.",
+                            descSk: "Tradičný rozmer starších televízorov a monitorov. Skvelý pre projekty s nostalgickým retro nádychom a analógovú fotografiu."
+                          },
+                          {
+                            ratio: "21:9",
+                            labelEn: "CinemaScope / Ultrawide",
+                            labelSk: "CinemaScope / Ultra-širokouhlý",
+                            descEn: "An immersive panoramic viewpoint bringing a grand film aesthetic to life. Perfect for cinematic landscapes and epic action sequences.",
+                            descSk: "Rozmer kinosálu navodzujúci prémiový filmový dojem. Výborný pre majestátne panorámy krajiny a výpravné akčné scény."
+                          },
+                          {
+                            ratio: "3:2",
+                            labelEn: "Classic Photography",
+                            labelSk: "Klasická fotografia",
+                            descEn: "The golden standard derived from traditional 35mm film and modern DSLR sensors. Gives generations a timeless, professional fine-art look.",
+                            descSk: "Osvedčený formát odvodený z 35mm kinofilmu a moderných zrkadloviek. Dodáva záberom nadčasový a profesionálny fotografický vzhľad."
+                          }
+                        ].map((item, idx) => (
+                          <div key={idx} className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 flex gap-4 items-center hover:border-white/10 transition-colors">
+                            <div className="w-16 h-10 shrink-0 bg-slate-900 border border-white/10 rounded-lg flex items-center justify-center font-mono font-black text-sm text-emerald-400 shadow-inner select-none">
+                              {item.ratio}
+                            </div>
+                            <div className="space-y-1">
+                              <span className="font-bold text-white text-xs block">
+                                {language === 'sk' ? item.labelSk : item.labelEn}
+                              </span>
+                              <p className="text-[11px] text-slate-400 leading-relaxed">
+                                {language === 'sk' ? item.descSk : item.descEn}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5 flex items-center gap-3">
-                          <div className="p-2 rounded bg-slate-900 font-bold text-emerald-400 w-12 text-center">9:16</div>
-                          <div>
-                            <span className="font-bold block text-white">{(t as any).documentation?.ratios?.item2Title || ""}</span>
-                            <span className="text-slate-500">{(t as any).documentation?.ratios?.item2Text || ""}</span>
-                          </div>
-                        </div>
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5 flex items-center gap-3">
-                          <div className="p-2 rounded bg-slate-900 font-bold text-emerald-400 w-12 text-center">1:1</div>
-                          <div>
-                            <span className="font-bold block text-white">{(t as any).documentation?.ratios?.item3Title || ""}</span>
-                            <span className="text-slate-500">{(t as any).documentation?.ratios?.item3Text || ""}</span>
-                          </div>
-                        </div>
-                        <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5 flex items-center gap-3">
-                          <div className="p-2 rounded bg-slate-900 font-bold text-emerald-400 w-12 text-center">21:9</div>
-                          <div>
-                            <span className="font-bold block text-white">{(t as any).documentation?.ratios?.item4Title || ""}</span>
-                            <span className="text-slate-500">{(t as any).documentation?.ratios?.item4Text || ""}</span>
-                          </div>
-                        </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeDocTab === 'styles' && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Palette className="w-5 h-5 text-emerald-400" />
+                        {(() => {
+                          switch(language) {
+                            case 'sk': return "Kinematografické štýly";
+                            case 'de': return "Kinematografische Stile";
+                            case 'fr': return "Styles cinématographiques";
+                            case 'it': return "Stili cinematografici";
+                            case 'es': return "Estilos cinematográficos";
+                            case 'pt': return "Estilos cinematográficos";
+                            case 'pl': return "Style filmowe";
+                            default: return "Cinematic Styles";
+                          }
+                        })()}
+                      </h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {(() => {
+                          switch(language) {
+                            case 'sk': return "Vision Forge ponúka predkonfigurované kreatívne a filmové štýly. Jedným kliknutím premeníte vizuálnu atmosféru vašich diel pomocou pokročilých promptov.";
+                            case 'de': return "Vision Forge bietet vorkonfigurierte kreative und filmische Stile. Ändern Sie die visuelle Atmosphäre Ihrer Kreation mit nur einem Klick.";
+                            case 'fr': return "Vision Forge propose des styles créatifs et cinématographiques préconfigurés. Changez l'ambiance visuelle de vos créations d'un simple clic.";
+                            case 'it': return "Vision Forge offre stili creativi e cinematografici preconfigurati. Cambia l'atmosfera visiva delle tue creazioni con un solo clic.";
+                            case 'es': return "Vision Forge ofrece estilos cinematográficos y creativos preconfigurados. Cambie la atmósfera visual de sus creaciones con un solo clic.";
+                            case 'pt': return "O Vision Forge oferece estilos criativos e cinematográficos pré-configurados. Mude a atmosfera visual das suas criações com um único clique.";
+                            case 'pl': return "Vision Forge oferuje wstępnie skonfigurowane style kreatywne i filmowe. Zmień wizualną atmosferę swoich prac za pomocą jednego kliknięcia.";
+                            default: return "Vision Forge offers pre-configured creative and cinematic styles. Change the visual atmosphere of your creations with single-click advanced prompts.";
+                          }
+                        })()}
+                      </p>
+
+                      <div className="space-y-3.5 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+                        {[
+                          {
+                            id: "none",
+                            icon: Square,
+                            label: {
+                              sk: "Žiadny",
+                              en: "None",
+                              de: "Keiner",
+                              fr: "Aucun",
+                              it: "Nessuno",
+                              es: "Ninguno",
+                              pt: "Nenhum",
+                              pl: "Brak"
+                            },
+                            desc: {
+                              sk: "Žiadne dodatočné smerovanie umeleckého štýlu. Vykreslí sa presný surový popis, ktorý napíšete do promptu.",
+                              en: "No additional artistic style direction. Renders the exact raw physical description written in your prompt.",
+                              de: "Keine zusätzliche künstlerische Stilrichtung. Rendert die genaue physische Beschreibung aus Ihrem Prompt.",
+                              fr: "Aucune direction artistique supplémentaire. Rend la description physique exacte écrite dans votre prompt.",
+                              it: "Nessuna direzione artistica aggiuntiva. Genera l'esatta descrizione fisica grezza del prompt.",
+                              es: "Sin dirección artística adicional. Renderiza exactamente la descripción escrita en el prompt.",
+                              pt: "Sem direção de estilo artístico adicional. Renderiza a descrição exata gravada no seu prompt.",
+                              pl: "Brak dodatkowego stylu artystycznego. Tworzy obraz na podstawie dokładnego opisu w monicie."
+                            }
+                          },
+                          {
+                            id: "cinematic",
+                            icon: Film,
+                            label: {
+                              sk: "Kinematografický",
+                              en: "Cinematic",
+                              de: "Kinematografisch",
+                              fr: "Cinématique",
+                              it: "Cinematografico",
+                              es: "Cinematográfico",
+                              pt: "Cinematográfico",
+                              pl: "Kinowy"
+                            },
+                            desc: {
+                              sk: "Vysoký kontrast, dramatické osvetlenie, vzhľad natáčaný na 35mm film, anamorfné šošovky a profesionálne filmové ladenie farieb.",
+                              en: "High contrast, dramatic lighting, shot on 35mm film aesthetic, anamorphic lenses, and professional cinematic color grading.",
+                              de: "Hoher Kontrast, dramatische Beleuchtung, Ästhetik von 35mm-Film, anamorphe Linsen und professionelle Farbkorrektur.",
+                              fr: "Contraste élevé, éclairage dramatique, esthétique film 35mm, objectifs anamorphiques et étalonnage des couleurs cinématographique.",
+                              it: "Alto contrasto, illuminazione drammatica, estetica da pellicola 35mm, lenti anamorfiche e color grading professionale.",
+                              es: "Alto contraste, iluminación dramática, estética de película de 35mm, lentes anamórficas y gradación de color profesional.",
+                              pt: "Alto contraste, iluminação dramática, estética cinematográfica de 35mm, lentes anamórficas e gradação de cores profissional.",
+                              pl: "Wysoki kontrast, oświetlenie dramatyczne, estetyka taśmy 35 mm, soczewki anamorficzne i profesjonalny grading filmowy."
+                            }
+                          },
+                          {
+                            id: "photorealistic",
+                            icon: Camera,
+                            label: {
+                              sk: "Hyper-Realistický",
+                              en: "Photorealistic",
+                              de: "Fotorealistisch",
+                              fr: "Photoréaliste",
+                              it: "Fotorealistico",
+                              es: "Fotorrealista",
+                              pt: "Fotorrealista",
+                              pl: "Fotorealistyczny"
+                            },
+                            desc: {
+                              sk: "Mimoriadne detailný 8K záber so zameraním na jemné organické textúry, vyvážené sledovanie svetelných lúčov a ostré zaostrenie.",
+                              en: "Ultra-detailed 8k resolution with focus on complex organic textures, sophisticated ray tracing, and surgically sharp focus.",
+                              de: "Extrem detaillierte 8K-Auflösung mit Fokus auf organische Texturen, hochentwickeltes Raytracing und messerscharfen Fokus.",
+                              fr: "Résolution 8K ultra-détaillée, textures organiques complexes, lancer de rayons (ray-tracing) avancé et mise au point ultra-nette.",
+                              it: "Risoluzione 8K ultra-dettagliata con focus su trame complesse, ray tracing sofisticato e messa a fuoco incredibilmente nitida.",
+                              es: "Resolución 8K ultradetallada enfocada en texturas orgánicas complejas, trazado de rayos sofisticado y enfoque nítido.",
+                              pt: "Resolução 8k ultra-detalhada com foco em texturas complexas, ray tracing sofisticado e foco nítido.",
+                              pl: "Niezwykle szczegółowa rozdzielczość 8K, z naciskiem na tekstury organiczne, zaawansowany ray tracing i ostrość obrazu."
+                            }
+                          },
+                          {
+                            id: "cyberpunk",
+                            icon: Zap,
+                            label: {
+                              sk: "Cyberpunk",
+                              en: "Cyberpunk",
+                              de: "Cyberpunk",
+                              fr: "Cyberpunk",
+                              it: "Cyberpunk",
+                              es: "Cyberpunk",
+                              pt: "Cyberpunk",
+                              pl: "Cyberpunk"
+                            },
+                            desc: {
+                              sk: "Nočný futurizmus plný svietiacich neónov, sýtych ružovo-modrých tónov, syntetickej estetiky a pokročilej mestskej architektúry.",
+                              en: "Nocturnal futurism packed with neon lights, saturated pink-blue color palettes, synthwave aesthetics, and high-tech urban architecture.",
+                              de: "Nächtlicher Futurismus mit Neonlichtern, gesättigten Pink-Blau-Farbtönen, Synthwave-Ästhetik und Hightech-Architektur.",
+                              fr: "Futurisme nocturne rempli de néons, palettes rose-bleu saturées, esthétique synthwave et architecture urbaine high-tech.",
+                              it: "Futurismo notturno ricco di luci al neon, palette di colori rosa-blu saturi, estetica synthwave e architettura urbana high-tech.",
+                              es: "Futurismo nocturno con luces de neón, paletas saturadas de color rosa y azul, estética synthwave y arquitectura urbana de alta tecnología.",
+                              pt: "Futurismo noturno repleto de luzes de neon, paleta rosa-azulada saturada, estética synthwave e arquitetura urbana.",
+                              pl: "Mroczna, futurystyczna noc z neonami, nasyconymi różowo-niebieskimi tonami, estetyką synthwave i nowoczesną architekturą."
+                            }
+                          },
+                          {
+                            id: "vintage",
+                            icon: History,
+                            label: {
+                              sk: "Vintage Film",
+                              en: "Vintage Film",
+                              de: "Vintage-Film",
+                              fr: "Film Vintage",
+                              it: "Film Vintage",
+                              es: "Cine Vintage",
+                              pt: "Filme Vintage",
+                              pl: "Film Vintage"
+                            },
+                            desc: {
+                              sk: "Nostalgický retro záber imitujúci zrnitosť 16mm filmu, tlmené zemité odtiene s občasným pretekaním svetla a jemným chvením.",
+                              en: "Nostalgic retro visuals simulating 16mm film grain, muted earthy color tones, organic light leaks, and analog screen flicker.",
+                              de: "Nostalgische Retro-Visuals, die 16mm-Filmkorn, gedämpfte Erdtöne, organische Lichtlecks und analoges Flackern simulieren.",
+                              fr: "Visuels rétro nostalgiques simulant le grain de film 16mm, tons de couleurs terreux atténués, fuites de lumière et scintillement analogique.",
+                              it: "Immagini retrò nostalgiche che simulano la grana della pellicola 16mm, toni caldi attenuati, infiltrazioni di luce e sfarfallio analogico.",
+                              es: "Visuales nostálgicos retro que simulan el grano de película de 16mm, tonos apagados, fugas de luz y fluctuación analógica.",
+                              pt: "Visuais retrô nostálgicos simulando granulação de filme 16mm, tons de terra suaves, vazamentos de luz e cintilação analógica.",
+                              pl: "Nostalgiczny obraz retro imitujący ziarno filmu 16 mm, stonowane barwy ziemi z efektami prześwietlenia i delikatnym drżeniem."
+                            }
+                          },
+                          {
+                            id: "anime",
+                            icon: Palette,
+                            label: {
+                              sk: "Anime Ghibli",
+                              en: "Anime Ghibli",
+                              de: "Anime Ghibli",
+                              fr: "Anime Ghibli",
+                              it: "Anime Ghibli",
+                              es: "Anime Ghibli",
+                              pt: "Anime Ghibli",
+                              pl: "Anime Ghibli"
+                            },
+                            desc: {
+                              sk: "Pôvabný štýl ručne kreslenej tradičnej animácie inšpirovaný veľkolepým japonským štúdiom Ghibli s pastelovými a snovými scenériami.",
+                              en: "Ethereal hand-drawn classic animation style inspired by Japan's iconic Studio Ghibli, featuring lush, dreamy pastel landscapes.",
+                              de: "Ätherischer handgezeichneter klassischer Animationsstil, inspiriert von Studio Ghibli, mit üppigen, verträumten Pastelllandschaften.",
+                              fr: "Style d'animation classique dessiné à la main inspiré par le Studio Ghibli, avec des paysages pastel luxuriants et idylliques.",
+                              it: "Stile di animazione classica disegnato a mano ispirato allo Studio Ghibli, con lussureggianti e sognanti paesaggi pastello.",
+                              es: "Estilo de animación clásico dibujado a mano inspirado por el icónico Studio Ghibli, con paisajes pastel exuberantes y de ensueño.",
+                              pt: "Estilo de animação clássico desenhado à mão, inspirado no Studio Ghibli, com paisagens pastel exuberantes e sonhadoras.",
+                              pl: "Uroczy styl ręcznie rysowanej animacji inspirowany Studio Ghibli, z pastelowymi, sennymi krajobrazami."
+                            }
+                          },
+                          {
+                            id: "drone",
+                            icon: Wind,
+                            label: {
+                              sk: "Dronový Záber",
+                              en: "Drone Shot",
+                              de: "Drohnenaufnahme",
+                              fr: "Prise de vue par drone",
+                              it: "Ripresa con Drone",
+                              es: "Toma con Dron",
+                              pt: "Plano de Drone",
+                              pl: "Ujęcie z drona"
+                            },
+                            desc: {
+                              sk: "Letecká panoramatická perspektíva s plynulým kĺzavým obletom kamery, zachycujúca impozantné rozľahlé horizonty a prostredie.",
+                              en: "Aerial wide-angle sweeping perspective capturing grand horizons, dynamic geographical scale, and smooth hovering motion.",
+                              de: "Luftbild-Weitwinkelperspektive, die weite Horizonte, dynamische geografische Maßstäbe und sanfte Schwebefunktionen erfasst.",
+                              fr: "Perspective de survol aérien à grand angle capturant d'immenses horizons, une échelle géographique dynamique et un mouvement fluide.",
+                              it: "Prospettiva aerea panoramica ad ampio raggio con movimento fluido, utile per catturare orizzonti imponenti e maestosi.",
+                              es: "Perspectiva panorámica aérea que captura horizontes espectaculares y una escala geográfica con un movimiento de planeo fluido.",
+                              pt: "Perspectiva panorâmica aérea de grande escala, com movimentos de voo suaves capturando horizontes imponentes.",
+                              pl: "Panoramiczna kamera z lotu ptaka z płynnym przelotem, pokazująca majestatyczne horyzonty i krajobrazy."
+                            }
+                          },
+                          {
+                            id: "macro",
+                            icon: Search,
+                            label: {
+                              sk: "Makro Detail",
+                              en: "Macro Detail",
+                              de: "Makro-Detail",
+                              fr: "Détail Macro",
+                              it: "Dettaglio Macro",
+                              es: "Detalle Macro",
+                              pt: "Detalhe Macro",
+                              pl: "Detal Makro"
+                            },
+                            desc: {
+                              sk: "Extrémny detail zameraný na mikroskopické prvky s úzkou hĺbkou ostrosti, výrazným rozostreným pozadím a prirodzeným mäkkým svetlom.",
+                              en: "Extreme close-up prioritizing microscopic details, ultra-shallow depth of field with beautiful bokeh, and soft organic lighting.",
+                              de: "Extreme Nahaufnahme mit Priorisierung mikroskopischer Details, flacher Tiefenschärfe mit wunderschönem Bokeh und weichem Licht.",
+                              fr: "Gros plan extrême privilégiant les détails microscopiques, profondeur de champ ultra-faible avec un superbe bokeh et lumière douce.",
+                              it: "Inquadratura ravvicinata estrema che enfatizza dettagli microscopici, profondità di campo ridotta con splendido bokeh e luce morbida.",
+                              es: "Primer plano extremo que prioriza detalles microscópicos, profundidad de campo reducida con bokeh y luz natural suave.",
+                              pt: "Macro extrema com foco em detalhes microscópicos, profundidade de campo muito reduzida com efeito de bokeh suave.",
+                              pl: "Ekstremalne zbliżenie na mikroskopijne krawędzie z małą głębią ostrości, rozmytym tłem (bokeh) i miękkim światłem naturalnym."
+                            }
+                          },
+                          {
+                            id: "noir",
+                            icon: Moon,
+                            label: {
+                              sk: "Film Noir",
+                              en: "Film Noir",
+                              de: "Film Noir",
+                              fr: "Film Noir",
+                              it: "Film Noir",
+                              es: "Cine Noir",
+                              pt: "Filme Noir",
+                              pl: "Film Noir"
+                            },
+                            desc: {
+                              sk: "Čiernobiela detektívna dráma s hlbokými tieňmi, vysokým kontrastom, dymovou atmosférou a tajomnou retro štylizáciou.",
+                              en: "Gritty black and white cinematic composition with steep dramatic shadows, high contrast gradients, smoky textures, and mystery.",
+                              de: "Dramatische Schwarz-Weiß-Komposition mit tiefen Schatten, hohem Kontrast, rauchiger Atmosphäre und geheimnisvoller Retro-Ästhetik.",
+                              fr: "Composition cinématographique brute en noir et blanc, ombres marquées, contraste élevé, fumée ambiante et tension mystérieuse.",
+                              it: "Composizione cinematografica in bianco e nero con ombre nette, contrasto elevatissimo, fumo d'atmosfera ed estetica misteriosa.",
+                              es: "Composición cinematográfica en blanco y negro con sombras dramáticas marcadas, alto contraste, texturas nebulosas y misterio.",
+                              pt: "Composição monocromática dramática com sombras marcadas sob alto contraste, névoa e atmosfera intrigante de mistério.",
+                              pl: "Czarno-biała klasyka z głębokimi cieniami, wysokim kontrastem, dymną atmosferą i aurą tajemniczości."
+                            }
+                          },
+                          {
+                            id: "disney-animation",
+                            icon: Sparkles,
+                            label: {
+                              sk: "Disney Animácia",
+                              en: "Disney/Pixar",
+                              de: "Disney-Animation",
+                              fr: "Animation Disney",
+                              it: "Animazione Disney",
+                              es: "Animación Disney",
+                              pt: "Animação Disney",
+                              pl: "Animacja Disney"
+                            },
+                            desc: {
+                              sk: "Moderná hravá 3D animácia v štýle animovaných filmov od štúdií Disney a Pixar s veľkými výraznými očami a dokonalým mäkkým tieňovaním.",
+                              en: "Modern, playful 3D animation style inspired by Disney & Pixar, characterized by expressive features, soft lighting, and vibrant tones.",
+                              de: "Moderner, verspielter 3D-Animationsstil, inspiriert von Disney und Pixar, mit ausdrucksstarken Figuren und weichem Rendering.",
+                              fr: "Style d'animation 3D moderne et joyeux inspiré par Disney et Pixar, avec des personnages expressifs et un rendu doux.",
+                              it: "Stile moderno di animazione 3D ispirato a Disney e Pixar, caratterizzato da tratti espressivi e gradazioni di colore vivaci.",
+                              es: "Estilo moderno de animación 3D inspirado en Disney y Pixar, caracterizado por personajes expresivos e iluminación suave.",
+                              pt: "Estilo de animação 3D moderno e carismático inspirado na Disney & Pixar, com feições expressivas e superfícies polidas.",
+                              pl: "Współczesna, kolorowa animacja 3D w stylu produkcji Disney i Pixar z dużymi, ekspresyjnymi oczami i gładkim cieniowaniem."
+                            }
+                          },
+                          {
+                            id: "abstract",
+                            icon: Layers,
+                            label: {
+                              sk: "Abstraktný",
+                              en: "Abstract",
+                              de: "Abstrakt",
+                              fr: "Abstrait",
+                              it: "Astratto",
+                              es: "Abstracto",
+                              pt: "Abstrato",
+                              pl: "Abstrakcyjny"
+                            },
+                            desc: {
+                              sk: "Abstraktný a nekonvenčný umelecký záber spájajúci fluidné prelievajúce sa tvary, geometriu a dynamické umelecké farebné prechody.",
+                              en: "Conceptual and avant-garde non-representational art merging fluid physical shapes, surreal geometry, and vibrant pigments.",
+                              de: "Konzeptionelle und avantgardistische Kunst, die flüssige Formen, surreale Geometrie und lebhafte Pigmente vereint.",
+                              fr: "Art abstrait conceptuel fusionnant des formes fluides, une géométrie surréelle et des pigments de couleurs saisissants.",
+                              it: "Arte astratta concettuale che unisce forme fluide, geometrie insolite e combinazioni cromatiche avanguardistiche.",
+                              es: "Arte conceptual y vanguardista no representativo que fusiona formas físicas fluidas, geometría surrealista y pigmentos expresivos.",
+                              pt: "Arte abstrata não representativa mesclando formas fluidas, geometria surrealista e cores de vanguarda.",
+                              pl: "Abstrakcyjny i niekonwencjonalny kierunek artystyczny łączący płynne formy, geometrię i nasycone barwy."
+                            }
+                          },
+                          {
+                            id: "minimalist",
+                            icon: Minimize,
+                            label: {
+                              sk: "Minimalistický",
+                              en: "Minimalist",
+                              de: "Minimal",
+                              fr: "Minimaliste",
+                              it: "Minimale",
+                              es: "Minimalista",
+                              pt: "Minimalista",
+                              pl: "Minimalistyczny"
+                            },
+                            desc: {
+                              sk: "Dokonalá čistota kompozície eliminujúca rušivé vplyvy pomocou výrazného prázdnego priestoru a obmedzenej, no elegantnej palety.",
+                              en: "Pristine visual composure eliminating noise through deliberate negative space, elegant minimal layouts, and highly restricted palettes.",
+                              de: "Makellose visuelle Gelassenheit, die Rauschen durch bewussten Freiraum, elegantes Design und eine sehr begrenzte Palette eliminiert.",
+                              fr: "Sobriété visuelle éliminant tout bruit via un espace négatif délibéré, des mises en page minimales et des palettes très limitées.",
+                              it: "Estrema pulizia visiva che riduce al minimo il rumore visivo sfruttando lo spazio vuoto negativo e combinazioni cromatiche sobrie.",
+                              es: "Compostura visual que elimina el ruido a través del uso de espacio negativo y paletas de colores refinadas y limitadas.",
+                              pt: "Limpeza visual intencional fundamentada em espaço negativo generoso, contornos elegantes e paleta de cores limitada.",
+                              pl: "Czystość kompozycji eliminująca zbędne szczegóły dzięki dużej przestrzeni ujemnej i stonowanej, eleganckiej palecie barw."
+                            }
+                          },
+                          {
+                            id: "documentary",
+                            icon: Tv,
+                            label: {
+                              sk: "Dokumentárny",
+                              en: "Documentary",
+                              de: "Dokumentarfilm",
+                              fr: "Documentaire",
+                              it: "Documentario",
+                              es: "Documental",
+                              pt: "Documentário",
+                              pl: "Dokumentalny"
+                            },
+                            desc: {
+                              sk: "Autentický, realistický filmový záber, verná ručná kamera z pohľadu prvej osoby, prirodzené svetlo a živé bezprostredné scény.",
+                              en: "Authentic first-person handheld aesthetic with raw, unedited camera frames, natural environments, and candid spontaneous moments.",
+                              de: "Authentische Handkamera-Ästhetik aus der Ich-Perspektive mit unbearbeiteten Rahmen, natürlichem Licht und spontanen Momenten.",
+                              fr: "Esthétique de caméra portable authentique en vue subjective, lumière naturelle brute et moments spontanés réalistes.",
+                              it: "Estetica documentaristica realistica ripresa a mano, caratterizzata da luce naturale e cattura di attimi autentici e spontanei.",
+                              es: "Estética realista de cámara en mano, con luz natural y captura espontánea de situaciones cotidianas y auténticas.",
+                              pt: "Estética realista de câmera na mão com luz natural crua, transmitindo autenticidade e capturando instantes espontâneos.",
+                              pl: "Autentyczny styl reportażowy z ręki z surowym kadrowaniem, naturalnym oświetleniem i szczerymi, żywymi momentami."
+                            }
+                          },
+                          {
+                            id: "surrealist",
+                            icon: Cloud,
+                            label: {
+                              sk: "Surrealistický",
+                              en: "Surrealist",
+                              de: "Surrealistisch",
+                              fr: "Surréaliste",
+                              it: "Surrealista",
+                              es: "Surrealista",
+                              pt: "Surrealista",
+                              pl: "Surrealistyczny"
+                            },
+                            desc: {
+                              sk: "Bizarná atmosféra inšpirovaná snami a dielom Salvadora Dalího plná roztápajúcich sa objektov a priestorovo nemožnej geometrie.",
+                              en: "Dreamlike subconscious environments directly inspired by Salvador Dalí, showcasing melting objects and impossible geometry.",
+                              de: "Traumhafte Umgebungen, direkt inspiriert von Salvador Dalí, mit schmelzenden Objekten und unmöglicher Geometrie.",
+                              fr: "Environnements de rêve inspirés de Salvador Dalí, présentant des objets fondants et une géométrie spatiale impossible.",
+                              it: "Atmosfere oniriche ispirate a Salvador Dalì con oggetti fluttuanti o deformati e geometrie spazialmente impossibili.",
+                              es: "Entornos oníricos del subconsciente directamente inspirados en Salvador Dalí, con objetos derretidos y geometría imposible.",
+                              pt: "Ambientes oníricos e surreais inspirados em Salvador Dalí, exibindo objetos deformados e impossibilidades geométricas.",
+                              pl: "Sennikowa, intrygująca atmosfera inspirowana Salvadorem Dalí z roztapiającymi się obiektami i niemożliwą geometrią."
+                            }
+                          },
+                          {
+                            id: "digital-art",
+                            icon: Box,
+                            label: {
+                              sk: "3D Digitálne Umenie",
+                              en: "3D Digital Art",
+                              de: "3D-Digitalgrafik",
+                              fr: "Art numérique 3D",
+                              it: "Grafica 3D",
+                              es: "Arte digital 3D",
+                              pt: "Arte Digital 3D",
+                              pl: "Grafika 3D"
+                            },
+                            desc: {
+                              sk: "Moderný 3D render s využitím filmového volumetrického svetla z prostredia Unreal Engine 5 s krištáľovo ostrým zaostrením.",
+                              en: "High-end 3D graphics rendered with cinematic volumetric light in Octane or Unreal Engine 5, boasting razor-sharp focal layers.",
+                              de: "High-End-3D-Grafik, gerendert mit filmischem volumetrischem Licht in Unreal Engine 5, mit extrem scharfen Fokusebenen.",
+                              fr: "Graphismes 3D haut de gamme rendus avec une lumière volumétrique sous Octane ou Unreal Engine 5, avec mise au point ultra-précise.",
+                              it: "Grafica 3D ad altissimo livello con illuminazione volumetrica cinematografica in Unreal Engine 5 e messa a fuoco nitidissima.",
+                              es: "Gráficos 3D avanzados renderizados con luz volumétrica cinematográfica en Unreal Engine 5, con nitidez de enfoque extrema.",
+                              pt: "Arte digital tridimensional realista gerada no Unreal Engine 5 ou Octane, com iluminação volumétrica e nitidez soberba.",
+                              pl: "Zaawansowany render 3D z filmowym oświetleniem wolumetrycznym z silników typu Unreal Engine 5 o niesamowitej ostrości szczegółów."
+                            }
+                          }
+                        ].map((item, idx) => {
+                          const StyleIcon = item.icon;
+                          const selectedLabel = item.label[language as string] || item.label['en'];
+                          const selectedDesc = item.desc[language as string] || item.desc['en'];
+                          return (
+                            <div key={idx} className="p-3.5 bg-slate-950/45 rounded-2xl border border-white/5 flex gap-4 items-center hover:border-white/10 transition-colors">
+                              <div className="w-12 h-12 shrink-0 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                                <StyleIcon className="w-5 h-5" />
+                              </div>
+                              <div className="space-y-1 col-span-3">
+                                <span className="font-bold text-white text-xs block">
+                                  {selectedLabel}
+                                </span>
+                                <p className="text-[11px] text-slate-400 leading-relaxed">
+                                  {selectedDesc}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -1278,6 +1994,96 @@ export default function App() {
                           <h4 className="font-bold text-emerald-400 text-sm mb-1">{(t as any).documentation?.drive?.item4Title || ""}</h4>
                           <p className="text-xs text-slate-400 leading-relaxed">
                             {(t as any).documentation?.drive?.item4Text || ""}
+                          </p>
+                        </div>
+
+                        {((t as any).documentation?.drive?.item5Title) && (
+                          <div className="p-4 bg-slate-950/30 border border-white/5 rounded-2xl">
+                            <h4 className="font-bold text-emerald-400 text-sm mb-1">{(t as any).documentation?.drive?.item5Title}</h4>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                              {(t as any).documentation?.drive?.item5Text}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeDocTab === 'changelog' && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <History className="w-5 h-5 text-emerald-400" />
+                        {language === 'sk' ? "História verzií" : "Application Changelog"}
+                      </h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {language === 'sk' 
+                          ? "Sledujte najnovšie vylepšenia, aktualizácie a vydania aplikácie Vision Forge." 
+                          : "Track the latest improvements, fixes, and release logs of the Vision Forge creative studio."}
+                      </p>
+
+                      <div className="space-y-6 pt-2">
+                        {/* v1.2.0 */}
+                        <div className="relative pl-6 border-l-2 border-emerald-500/30 space-y-2">
+                          <div className="absolute w-3 h-3 rounded-full bg-emerald-400 -left-[7px] top-[5px] ring-4 ring-emerald-950" />
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-bold text-white">v1.2.0</span>
+                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">Current Release</span>
+                            <span className="text-xs text-slate-500">2026-06-15</span>
+                          </div>
+                          <ul className="list-disc list-inside space-y-1 text-xs text-slate-300">
+                            {language === 'sk' ? (
+                              <>
+                                <li><strong>Prepracovaná terminológia disku</strong>: Vynechané explicitné popisy "Imagen & Veo", keďže prebieha univerzálna záloha všetkých vytvorených médií (vrátane OpenAI modelov).</li>
+                                <li><strong>Zmenšená veľkosť darovacích tlačidiel</strong>: Tlačidlá podpory Ko-fi boli zredukované o 33%, čím získali čistý, minimalistický vzhľad.</li>
+                                <li><strong>Geometrické zarovnanie v záhlaví</strong>: Support tlačidlo v hlavičke bolo posunuté tak, aby lícovalo s horným okrajom badge statusu.</li>
+                                <li><strong>Vyčistenie dokumentácie</strong>: Odstránené prebytočné tlačidlo z pravého panela v "Overview Tab".</li>
+                                <li><strong>História verzií</strong>: Implementované plné sledovanie Changelogu na Githube aj priamo v rozhraní aplikácie.</li>
+                              </>
+                            ) : (
+                              <>
+                                <li><strong>Refined Backup terms</strong>: Generalised backup wording across all languages to support all models instead of limiting to "Imagen & Veo".</li>
+                                <li><strong>Compact Donations Row</strong>: Reduced Ko-fi button sizing by 33% for an elegant aesthetics profile.</li>
+                                <li><strong>Perfect Header Alignment</strong>: Positioned header sponsor CTA to sit perfectly flush with the adjacent status badge.</li>
+                                <li><strong>Modal Micro-cleanups</strong>: Eliminated redundant support elements on the documentation Overview tab.</li>
+                                <li><strong>Semantic Versioning</strong>: Standardized release tracking with custom interactive changelog interface.</li>
+                              </>
+                            )}
+                          </ul>
+                        </div>
+
+                        {/* v1.1.0 */}
+                        <div className="relative pl-6 border-l-2 border-slate-800 space-y-2">
+                          <div className="absolute w-3 h-3 rounded-full bg-slate-700 -left-[7px] top-[5px] ring-4 ring-slate-950" />
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-bold text-white">v1.1.0</span>
+                            <span className="text-xs text-slate-500">2026-06-12</span>
+                          </div>
+                          <ul className="list-disc list-inside space-y-1 text-xs text-slate-400">
+                            {language === 'sk' ? (
+                              <>
+                                <li>Možnosť pripojenia osobného Google Disku so stavovým indikátorom.</li>
+                                <li>Nový flexibilný prieskumník zálohovaných súborov s priamym sťahovaním a odstraňovaním.</li>
+                                <li>Pridaná podpora pre 8 európskych jazykov s rýchlym prepínaním.</li>
+                              </>
+                            ) : (
+                              <>
+                                <li>Added Google Drive persistent sync with interactive cloud manager tab.</li>
+                                <li>Automatic background backups configuration.</li>
+                                <li>Multi-lingual translation layer (8 major European locales).</li>
+                              </>
+                            )}
+                          </ul>
+                        </div>
+
+                        {/* v1.0.0 */}
+                        <div className="relative pl-6 border-l-2 border-slate-800 space-y-2">
+                          <div className="absolute w-3 h-3 rounded-full bg-slate-800 -left-[7px] top-[5px] ring-4 ring-slate-950" />
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-bold text-slate-400">v1.0.0</span>
+                            <span className="text-xs text-slate-500">2026-06-01</span>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            {language === 'sk' ? "Prvé spustenie kreatívneho štúdia Vision Forge s modelmi Veo, Imagen a OpenAI." : "Initial deployment of the Vision Forge generative creation suite with advanced layout engines."}
                           </p>
                         </div>
                       </div>
@@ -1376,19 +2182,40 @@ export default function App() {
 
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 relative border-b border-white/5 pb-10">
-          <div className="space-y-4">
+        <header className="flex flex-col gap-6 relative border-b border-white/5 pb-10 pt-2">
+          {/* Top Row with Badge and Ko-fi Button */}
+          <div className="flex justify-between items-start w-full gap-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
               <Video className="w-4 h-4" />
               {t.heroBadge}
             </div>
-            <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent font-display leading-tight py-2">
-              {t.title}
-            </h1>
-            <p className="text-slate-400 text-lg md:text-xl max-w-2xl leading-relaxed">
-              {t.description}
-            </p>
+            {/* Support button shrunk by 1/3 (w-28 sm:w-32) */}
+            <a
+              href="https://ko-fi.com/C1W320AXYA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block overflow-hidden rounded-xl border border-slate-800/80 bg-slate-900/40 hover:bg-slate-900 transition-all duration-300 hover:border-slate-700 shadow-md active:scale-95 w-28 sm:w-32 shrink-0"
+              title={(t as any).donateTooltip || "Support on Ko-fi"}
+            >
+              <img
+                src={kofiButtonImg}
+                alt="Support me on Ko-fi"
+                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                referrerPolicy="no-referrer"
+              />
+            </a>
           </div>
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+            <div className="space-y-4 w-full">
+              <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent font-display leading-tight py-2 flex flex-wrap items-baseline gap-3 sm:gap-4">
+                <span>{t.title}</span>
+                <span className="text-xs sm:text-sm font-mono text-slate-500 font-semibold tracking-normal uppercase bg-slate-950/40 border border-white/5 px-2.5 py-1 rounded-xl select-none align-middle">v1.2.0</span>
+              </h1>
+              <p className="text-slate-400 text-lg md:text-xl max-w-2xl leading-relaxed">
+                {t.description}
+              </p>
+            </div>
           
           <div className="flex items-center gap-2">
             <div className="relative" ref={languageDropdownRef}>
@@ -1448,6 +2275,7 @@ export default function App() {
             >
               <Settings className="w-5 h-5" />
             </button>
+          </div>
           </div>
         </header>
 
@@ -2642,21 +3470,35 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="pt-4 flex items-center gap-2">
+                        <div className="pt-4 flex items-center gap-2 w-full">
+                          <button
+                            onClick={() => downloadFromDrive(file.id, file.name, file.mimeType)}
+                            disabled={isDownloadingFromDrive[file.id]}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 border border-emerald-500/20 transition-all text-[10px] font-bold disabled:opacity-50"
+                            title={dt.driveDownloadBtn}
+                          >
+                            {isDownloadingFromDrive[file.id] ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Download className="w-3.5 h-3.5" />
+                            )}
+                            {dt.driveDownloadBtn}
+                          </button>
+
                           <a 
                             href={file.webViewLink} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-slate-950 border border-blue-500/20 transition-all text-[10px] font-bold"
+                            className="p-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-slate-950 border border-blue-500/20 transition-all flex items-center justify-center"
+                            title={dt.driveOpenLink}
                           >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            {dt.driveOpenLink}
+                            <ExternalLink className="w-4 h-4" />
                           </a>
                           
                           {/* DESTRUCTION VERIFIED CONFIRM COMMAND */}
                           <button
                             onClick={() => deleteItemFromDrive(file.id, file.name)}
-                            className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 transition-all"
+                            className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 transition-all flex items-center justify-center"
                             title={dt.driveDeleteBtn}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -2670,6 +3512,38 @@ export default function App() {
             )
           )}
         </motion.section>
+
+        {/* Global Footer */}
+        <footer className="pt-16 pb-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-slate-500 text-xs shrink-0">
+          <div className="flex flex-col gap-2 items-center md:items-start text-center md:text-left">
+            <div className="flex items-center gap-2">
+              <span className="font-bold tracking-wider text-slate-300 uppercase font-display text-sm">Vision Forge AI</span>
+              <span className="text-[9px] bg-slate-950 text-slate-400 border border-white/5 px-1.5 py-0.5 rounded font-mono select-none">v1.2.0</span>
+            </div>
+            <span className="text-[11px] leading-relaxed max-w-md text-slate-500">
+              {language === 'sk'
+                ? "© 2026. Tvorba poháňaná špičkovými generatívnymi modelmi Google Gemini, Imagen 3, Veo a OpenAI. Všetky práva vyhradené."
+                : "© 2026. Powered by Google Gemini, Imagen, Veo & OpenAI. All rights reserved."}
+            </span>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-4">
+            <a
+              href="https://ko-fi.com/C1W320AXYA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block overflow-hidden rounded-xl border border-slate-800/80 bg-slate-900/40 hover:bg-slate-900 transition-all duration-300 hover:border-slate-700 shadow-xl active:scale-95 w-[117px]"
+              title={(t as any).donateTooltip || "Support on Ko-fi"}
+            >
+              <img
+                src={kofiButtonImg}
+                alt="Support me on Ko-fi"
+                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                referrerPolicy="no-referrer"
+              />
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
   );

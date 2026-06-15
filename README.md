@@ -1,9 +1,9 @@
 # 🌋 Vision Forge — User Documentation & Feature Guide
 
+**Direct Application Link:** [https://vision-forge-624723311103.europe-west2.run.app](https://vision-forge-624723311103.europe-west2.run.app)
+
 Welcome to **Vision Forge**, an advanced cinematic AI creation application that transforms text prompts or static images into breathtaking generated sequences. The application combines the technological power of leading models from **Google (Gemini/Veo/Imagen)** and **OpenAI** into a single intuitive, visually polished, and responsive environment.
 
-
-https://vision-forge-624723311103.europe-west2.run.app/
 ---
 
 ## 🚀 Core Architectural Features
@@ -69,6 +69,7 @@ With a single click, you can transform the overall aesthetic of your generated v
 - **Background Backups**: Securely back up your generated images, custom base designs, and full `.mp4` cinematic sequences to your personal Google Drive in the background.
 - **Auto Cloud Backup**: When enabled, newly generated assets and films are automatically uploaded to Google Drive as soon as they are successfully synthesized.
 - **Dedicated Cloud Storage Tab**: Filter between your "Local History" (offline-first browser state) and "Google Drive Cloud Backups" (an interactive explorer showing all backed-up assets inside your dedicated folder).
+- **Direct Cloud Download**: Download any backed-up file directly from your Google Drive cloud backups tab back to your local device with a single click, saving bandwidth and offering instant access.
 - **File Management & Sharing**: Open any backed-up video or image directly in Google Drive with a single click, or safely delete files from your cloud backup repository from inside the Vision Forge interface.
 
 ### 9. Privacy & Token Safety
