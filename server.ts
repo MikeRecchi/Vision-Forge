@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, GenerateVideosOperation } from "@google/genai";
 import multer from "multer";
@@ -141,6 +142,298 @@ async function startServer() {
       res.json(results);
     } catch (e: any) {
       res.status(500).json({ error: e.message || "Validation error" });
+    }
+  });
+
+  const parseChangelog = (): any[] => {
+    const filePath = path.join(process.cwd(), "CHANGELOG.md");
+    if (!fs.existsSync(filePath)) {
+      return [];
+    }
+    const content = fs.readFileSync(filePath, "utf-8");
+    const releases: any[] = [];
+    
+    const sections = content.split(/##\s+\[/);
+    
+    const staticReleaseTranslations: { [key: string]: { sk: string[], en: string[] } } = {
+      "1.2.0": {
+        sk: [
+          "**Prepracovaná terminológia disku**: Vynechané explicitné popisy \"Imagen & Veo\", keďže prebieha univerzálna záloha všetkých vytvorených médií (vrátane OpenAI modelov).",
+          "**Zmenšená veľkosť darovacích tlačidiel**: Tlačidlá podpory Ko-fi boli zredukované o 33%, čím získali čistý, minimalistický vzhľad.",
+          "**Geometrické zarovnanie v záhlaví**: Support tlačidlo v hlavičke bolo posunuté tak, aby lícovalo s horným okrajom badge statusu.",
+          "**Vyčistenie dokumentácie**: Odstránené prebytočné tlačidlo z pravého panela v \"Overview Tab\".",
+          "**História verzií**: Implementované plné sledovanie Changelogu na Githube aj priamo v rozhraní aplikácie."
+        ],
+        en: [
+          "**Refined Backup terms**: Generalised backup wording across all languages to support all models instead of limiting to \"Imagen & Veo\".",
+          "**Compact Donations Row**: Reduced Ko-fi button sizing by 33% for an elegant aesthetics profile.",
+          "**Perfect Header Alignment**: Positioned header sponsor CTA to sit perfectly flush with the adjacent status badge.",
+          "**Modal Micro-cleanups**: Eliminated redundant support elements on the documentation Overview tab.",
+          "**Semantic Versioning**: Standardized release tracking with custom interactive changelog interface."
+        ]
+      },
+      "1.1.0": {
+        sk: [
+          "Možnosť pripojenia osobného Google Disku so stavovým indikátorom.",
+          "Nový flexibilný prieskumník zálohovaných súborov s priamym sťahovaním a odstraňovaním.",
+          "Pridaná podpora pre 8 európskych jazykov s rýchlym prepínaním."
+        ],
+        en: [
+          "Added Google Drive persistent sync with interactive cloud manager tab.",
+          "Automatic background backups configuration.",
+          "Multi-lingual translation layer (8 major European locales)."
+        ]
+      },
+      "1.0.0": {
+        sk: [
+          "Prvé spustenie kreatívneho štúdia Vision Forge s modelmi Veo, Imagen a OpenAI."
+        ],
+        en: [
+          "Initial deployment of the Vision Forge generative creation suite with advanced layout engines."
+        ]
+      }
+    };
+    
+    for (let i = 1; i < sections.length; i++) {
+      const sec = sections[i];
+      const match = sec.match(/^([^\]]+)\]\s*-\s*([^\n\r]+)/);
+      if (match) {
+        const version = match[1].trim();
+        const date = match[2].trim();
+        const rest = sec.slice(match[0].length).trim();
+        
+        let enBullets: string[] = [];
+        let skBullets: string[] = [];
+        
+        if (staticReleaseTranslations[version]) {
+          enBullets = staticReleaseTranslations[version].en;
+          skBullets = staticReleaseTranslations[version].sk;
+        } else {
+          if (rest.includes("### English") || rest.includes("### Slovak") || rest.includes("### Angličtina") || rest.includes("### Slovenčina")) {
+            const enPart = rest.match(/###\s*(English|Angličtina)[\s\S]*?(?=###\s*(Slovak|Slovenčina)|$)/i);
+            const skPart = rest.match(/###\s*(Slovak|Slovenčina)[\s\S]*?(?=###\s*(English|Angličtina)|$)/i);
+            
+            if (enPart) {
+              const lines = enPart[0].split("\n");
+              for (const line of lines) {
+                const clean = line.replace(/^[-*+]\s*/, "").trim();
+                if (clean && (line.trim().startsWith("-") || line.trim().startsWith("*")) && !line.includes("###")) {
+                  enBullets.push(clean);
+                }
+              }
+            }
+            if (skPart) {
+              const lines = skPart[0].split("\n");
+              for (const line of lines) {
+                const clean = line.replace(/^[-*+]\s*/, "").trim();
+                if (clean && (line.trim().startsWith("-") || line.trim().startsWith("*")) && !line.includes("###")) {
+                  skBullets.push(clean);
+                }
+              }
+            }
+          } else {
+            const lines = rest.split("\n");
+            let currentSectionType = "";
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith("###")) {
+                currentSectionType = trimmed.toLowerCase();
+              } else if (trimmed.startsWith("-") || trimmed.startsWith("*")) {
+                const clean = trimmed.replace(/^[-*+]\s*/, "").trim();
+                if (clean) {
+                  if (currentSectionType.includes("slovak") || currentSectionType.includes("slovenčina")) {
+                    skBullets.push(clean);
+                  } else {
+                    enBullets.push(clean);
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        releases.push({
+          version,
+          date,
+          isCurrent: i === 1,
+          changesEn: enBullets,
+          changesSk: skBullets
+        });
+      }
+    }
+    return releases;
+  };
+
+  const getBackendOrUserGeminiClient = (req: express.Request) => {
+    const userKey = req.headers["x-gemini-key"] as string;
+    const systemKey = process.env.GEMINI_API_KEY;
+    const keyToUse = userKey || systemKey;
+    if (!keyToUse) {
+      throw new Error("Kľúč Gemini API chýba. Prosím vložte ho v nastaveniach aplikácie.");
+    }
+    return new GoogleGenAI({
+      apiKey: keyToUse,
+      httpOptions: {
+        headers: {
+          "User-Agent": "aistudio-build",
+        },
+        timeout: 120000,
+      },
+    });
+  };
+
+  const runChangelogGeneration = async (req: express.Request) => {
+    const ai = getBackendOrUserGeminiClient(req);
+    const filePath = path.join(process.cwd(), "CHANGELOG.md");
+    if (!fs.existsSync(filePath)) {
+      throw new Error("Súbor CHANGELOG.md nebol nájdený.");
+    }
+    const changelogContent = fs.readFileSync(filePath, "utf-8");
+    
+    const appPath = path.join(process.cwd(), "src", "App.tsx");
+    let appContent = "";
+    if (fs.existsSync(appPath)) {
+      appContent = fs.readFileSync(appPath, "utf-8");
+    }
+    
+    const serverPath = path.join(process.cwd(), "server.ts");
+    let serverContent = "";
+    if (fs.existsSync(serverPath)) {
+      serverContent = fs.readFileSync(serverPath, "utf-8");
+    }
+    
+    const releases = parseChangelog();
+    const latestRelease = releases[0];
+    const today = new Date().toISOString().slice(0, 10);
+    
+    if (latestRelease && latestRelease.date === today) {
+      return { 
+        success: true, 
+        message: "Changelog pre dnešný deň (" + today + ") už je zaznamenaný.", 
+        releases 
+      };
+    }
+    
+    let nextVersion = "1.3.0";
+    if (latestRelease) {
+      const parts = latestRelease.version.split(".");
+      if (parts.length === 3) {
+        const minor = parseInt(parts[1], 10);
+        nextVersion = `${parts[0]}.${minor + 1}.0`;
+      }
+    }
+    
+    const synthesisPrompt = `
+      You are an expert AI release engineer and technical copywriter for "Vision Forge".
+      Your task is to analyze the current codebase files and generate a new changelog release entry (formatted in Markdown) based on what has changed or been improved compared to the existing entries in CHANGELOG.md.
+
+      We have the following files to check:
+      1. CHANGELOG.md (current content)
+      \`\`\`markdown
+      ${changelogContent}
+      \`\`\`
+
+      2. src/App.tsx (current codebase main component)
+      Since src/App.tsx is very large, here is its content or structure. Look at the key tabs, components, and languages:
+      ${appContent.slice(0, 80000)} ... (remaining content truncated)
+
+      3. server.ts (current backend server entry point)
+      ${serverContent.slice(0, 40000)} ...
+
+      Analyze what new visual assets, documentation tabs (like the new "Cinematic Styles" / "styles" tab with Palette icon), or configurations exist in the current codebase that are NOT documented yet in the CHANGELOG.md.
+
+      If you find new changes, design a beautiful release log block for version ${nextVersion} dated ${today}.
+      And if there are no new features, generate a minor maintenance release celebrating general stability improvements and performance optimizations.
+
+      The release header MUST follow this exact format:
+      ## [${nextVersion}] - ${today}
+
+      Under the release header, you MUST output two distinct sections for English and Slovak users, styled identically with bullet points:
+
+      ### English
+      - **[Feature Category]**: Description of the feature in English.
+      - ...
+
+      ### Slovak
+      - **[Kategória funkcie]**: Description of the feature in Slovak.
+      - ...
+
+      Output ONLY the new markdown release block of text (starts with "## [" and ends with the Slovak bullet points). Do NOT include any other commentary, preamble, or code blocks.
+    `;
+    
+    console.log("Generating automated changelog release via Gemini...");
+    const result = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: [{ parts: [{ text: synthesisPrompt }] }]
+    });
+    
+    const generatedBlock = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+    if (!generatedBlock || !generatedBlock.startsWith("## [")) {
+      console.error("Invalid response from Gemini:", generatedBlock);
+      throw new Error("Model vygeneroval neplatný formát changelogu.");
+    }
+    
+    const separatorIndex = changelogContent.indexOf("---");
+    if (separatorIndex !== -1) {
+      const insertPos = separatorIndex + 3;
+      const updatedContent = 
+        changelogContent.slice(0, insertPos) + 
+        "\n\n" + 
+        generatedBlock + 
+        "\n\n" + 
+        changelogContent.slice(insertPos);
+      
+      fs.writeFileSync(filePath, updatedContent, "utf-8");
+      console.log("Successfully appended new release to CHANGELOG.md on disk!");
+      
+      const newReleases = parseChangelog();
+      return { 
+        success: true, 
+        message: "Changelog bol úspešne aktualizovaný na verziu " + nextVersion + ".", 
+        releases: newReleases 
+      };
+    } else {
+      throw new Error("V súbore CHANGELOG.md chýba horizontálny oddelovač '---'.");
+    }
+  };
+
+  app.get("/api/changelog", async (req, res) => {
+    try {
+      let releases = parseChangelog();
+      const latestRelease = releases[0];
+      if (latestRelease) {
+        const latestDateObj = new Date(latestRelease.date);
+        const currentDateObj = new Date();
+        const diffTime = Math.abs(currentDateObj.getTime() - latestDateObj.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        const userKey = req.headers["x-gemini-key"] as string;
+        const systemKey = process.env.GEMINI_API_KEY;
+        
+        if (diffDays >= 3 && (userKey || systemKey)) {
+          console.log(`Automatic changelog update triggered: ${diffDays} days since last update.`);
+          try {
+            const result = await runChangelogGeneration(req);
+            releases = result.releases;
+          } catch (genError) {
+            console.error("Automatic background changelog generation failed:", genError);
+          }
+        }
+      }
+      res.json({ releases });
+    } catch (e: any) {
+      console.error("Error reading changelog:", e);
+      res.status(500).json({ error: "Nepodarilo sa načítať changelog." });
+    }
+  });
+
+  app.post("/api/changelog/generate", async (req, res) => {
+    try {
+      const result = await runChangelogGeneration(req);
+      res.json(result);
+    } catch (e: any) {
+      console.error("Changelog generation failed:", e);
+      res.status(500).json({ error: e.message || "Nepodarilo sa automaticky vygenerovať zhrnutie zmien." });
     }
   });
 

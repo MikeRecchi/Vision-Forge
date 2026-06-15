@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart } from 'lucide-react';
+import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import gifshot from 'gifshot';
 import { translations, Language } from './translations';
@@ -55,6 +55,10 @@ export default function App() {
   const [imageError, setImageError] = useState<string | null>(null);
   const [userApiKey, setUserApiKey] = useState("");
   const [openaiApiKey, setOpenaiApiKey] = useState("");
+  const [changelogs, setChangelogs] = useState<any[]>([]);
+  const [isChangelogLoading, setIsChangelogLoading] = useState(false);
+  const [isGeneratingChangelog, setIsGeneratingChangelog] = useState(false);
+  const [changelogMessage, setChangelogMessage] = useState<string | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState("gemini-3.1-flash");
   const [imageResolution, setImageResolution] = useState("Auto");
   const [selectedVideoModel, setSelectedVideoModel] = useState("veo-3.1-lite");
@@ -373,6 +377,61 @@ export default function App() {
   const [activeHistoryTab, setActiveHistoryTab] = useState<'local' | 'drive'>('local');
   const dt = driveTranslations[language] || driveTranslations['sk'] || driveTranslations['en'];
   const t = translations[language];
+
+  const fetchChangelog = async (forceGenerate: boolean = false) => {
+    if (forceGenerate) {
+      setIsGeneratingChangelog(true);
+      setChangelogMessage(null);
+    } else {
+      setIsChangelogLoading(true);
+    }
+    
+    try {
+      const geminiHeader: any = userApiKey ? { "x-gemini-key": userApiKey } : {};
+      const url = forceGenerate ? "/api/changelog/generate" : "/api/changelog";
+      const options = forceGenerate ? {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...geminiHeader
+        }
+      } : {
+        method: "GET",
+        headers: {
+          ...geminiHeader
+        }
+      };
+      
+      const res = await fetch(url, options);
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || (language === 'sk' ? "Nepodarilo sa spracovať požiadavku." : "Failed to process request."));
+      }
+      
+      if (data.releases) {
+        setChangelogs(data.releases);
+      }
+      
+      if (data.message) {
+        setChangelogMessage(data.message);
+      }
+    } catch (e: any) {
+      console.error("Error with changelog:", e);
+      if (forceGenerate) {
+        setChangelogMessage(language === 'sk' ? `Chyba: ${e.message}` : `Error: ${e.message}`);
+      }
+    } finally {
+      setIsChangelogLoading(false);
+      setIsGeneratingChangelog(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showDocumentation && activeDocTab === 'changelog') {
+      fetchChangelog();
+    }
+  }, [showDocumentation, activeDocTab]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -2011,82 +2070,102 @@ export default function App() {
 
                   {activeDocTab === 'changelog' && (
                     <div className="space-y-4 animate-fadeIn">
-                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        <History className="w-5 h-5 text-emerald-400" />
-                        {language === 'sk' ? "História verzií" : "Application Changelog"}
-                      </h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        {language === 'sk' 
-                          ? "Sledujte najnovšie vylepšenia, aktualizácie a vydania aplikácie Vision Forge." 
-                          : "Track the latest improvements, fixes, and release logs of the Vision Forge creative studio."}
-                      </p>
-
-                      <div className="space-y-6 pt-2">
-                        {/* v1.2.0 */}
-                        <div className="relative pl-6 border-l-2 border-emerald-500/30 space-y-2">
-                          <div className="absolute w-3 h-3 rounded-full bg-emerald-400 -left-[7px] top-[5px] ring-4 ring-emerald-950" />
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-white">v1.2.0</span>
-                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">Current Release</span>
-                            <span className="text-xs text-slate-500">2026-06-15</span>
-                          </div>
-                          <ul className="list-disc list-inside space-y-1 text-xs text-slate-300">
-                            {language === 'sk' ? (
-                              <>
-                                <li><strong>Prepracovaná terminológia disku</strong>: Vynechané explicitné popisy "Imagen & Veo", keďže prebieha univerzálna záloha všetkých vytvorených médií (vrátane OpenAI modelov).</li>
-                                <li><strong>Zmenšená veľkosť darovacích tlačidiel</strong>: Tlačidlá podpory Ko-fi boli zredukované o 33%, čím získali čistý, minimalistický vzhľad.</li>
-                                <li><strong>Geometrické zarovnanie v záhlaví</strong>: Support tlačidlo v hlavičke bolo posunuté tak, aby lícovalo s horným okrajom badge statusu.</li>
-                                <li><strong>Vyčistenie dokumentácie</strong>: Odstránené prebytočné tlačidlo z pravého panela v "Overview Tab".</li>
-                                <li><strong>História verzií</strong>: Implementované plné sledovanie Changelogu na Githube aj priamo v rozhraní aplikácie.</li>
-                              </>
-                            ) : (
-                              <>
-                                <li><strong>Refined Backup terms</strong>: Generalised backup wording across all languages to support all models instead of limiting to "Imagen & Veo".</li>
-                                <li><strong>Compact Donations Row</strong>: Reduced Ko-fi button sizing by 33% for an elegant aesthetics profile.</li>
-                                <li><strong>Perfect Header Alignment</strong>: Positioned header sponsor CTA to sit perfectly flush with the adjacent status badge.</li>
-                                <li><strong>Modal Micro-cleanups</strong>: Eliminated redundant support elements on the documentation Overview tab.</li>
-                                <li><strong>Semantic Versioning</strong>: Standardized release tracking with custom interactive changelog interface.</li>
-                              </>
-                            )}
-                          </ul>
-                        </div>
-
-                        {/* v1.1.0 */}
-                        <div className="relative pl-6 border-l-2 border-slate-800 space-y-2">
-                          <div className="absolute w-3 h-3 rounded-full bg-slate-700 -left-[7px] top-[5px] ring-4 ring-slate-950" />
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-white">v1.1.0</span>
-                            <span className="text-xs text-slate-500">2026-06-12</span>
-                          </div>
-                          <ul className="list-disc list-inside space-y-1 text-xs text-slate-400">
-                            {language === 'sk' ? (
-                              <>
-                                <li>Možnosť pripojenia osobného Google Disku so stavovým indikátorom.</li>
-                                <li>Nový flexibilný prieskumník zálohovaných súborov s priamym sťahovaním a odstraňovaním.</li>
-                                <li>Pridaná podpora pre 8 európskych jazykov s rýchlym prepínaním.</li>
-                              </>
-                            ) : (
-                              <>
-                                <li>Added Google Drive persistent sync with interactive cloud manager tab.</li>
-                                <li>Automatic background backups configuration.</li>
-                                <li>Multi-lingual translation layer (8 major European locales).</li>
-                              </>
-                            )}
-                          </ul>
-                        </div>
-
-                        {/* v1.0.0 */}
-                        <div className="relative pl-6 border-l-2 border-slate-800 space-y-2">
-                          <div className="absolute w-3 h-3 rounded-full bg-slate-800 -left-[7px] top-[5px] ring-4 ring-slate-950" />
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-slate-400">v1.0.0</span>
-                            <span className="text-xs text-slate-500">2026-06-01</span>
-                          </div>
-                          <p className="text-xs text-slate-500">
-                            {language === 'sk' ? "Prvé spustenie kreatívneho štúdia Vision Forge s modelmi Veo, Imagen a OpenAI." : "Initial deployment of the Vision Forge generative creation suite with advanced layout engines."}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 pb-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <History className="w-5 h-5 text-emerald-400" />
+                            {language === 'sk' ? "História verzií" : "Application Changelog"}
+                          </h3>
+                          <p className="text-xs text-slate-400 leading-relaxed mt-0.5">
+                            {language === 'sk' 
+                              ? "Sledujte najnovšie vylepšenia, aktualizácie a vydania aplikácie Vision Forge." 
+                              : "Track the latest improvements, fixes, and release logs of the Vision Forge creative studio."}
                           </p>
                         </div>
+                        
+                        <button
+                          id="btn-trigger-changelog"
+                          disabled={isGeneratingChangelog || isChangelogLoading}
+                          onClick={() => fetchChangelog(true)}
+                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 cursor-pointer transition-all hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                        >
+                          <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingChangelog ? "animate-spin" : ""}`} />
+                          {isGeneratingChangelog 
+                            ? (language === 'sk' ? "Generujem cez Gemini..." : "Generating via Gemini...") 
+                            : (language === 'sk' ? "Skontrolovať zmeny" : "Scan for Changes")}
+                        </button>
                       </div>
+
+                      {changelogMessage && (
+                        <div id="changelog-alert-message" className="p-3 rounded-xl text-xs bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-between gap-2 animate-fadeIn">
+                          <span>{changelogMessage}</span>
+                          <button 
+                            id="btn-close-changelog-msg"
+                            className="text-slate-500 hover:text-white font-bold" 
+                            onClick={() => setChangelogMessage(null)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+
+                      {isChangelogLoading ? (
+                        <div className="space-y-4 py-8 text-center text-slate-400">
+                          <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin mx-auto mb-2" />
+                          <p className="text-xs">
+                            {language === 'sk' ? "Načítavam históriu verzií..." : "Loading version history..."}
+                          </p>
+                        </div>
+                      ) : changelogs.length === 0 ? (
+                        <div className="text-center py-12 text-slate-500 text-xs">
+                          {language === 'sk' ? "Nenašli sa žiadne verzie." : "No release entries found."}
+                        </div>
+                      ) : (
+                        <div className="space-y-6 pt-2">
+                          {changelogs.map((entry, idx) => {
+                            const isCurrent = idx === 0;
+                            const bullets = language === 'sk' ? entry.changesSk : entry.changesEn;
+                            return (
+                              <div key={entry.version} className="relative pl-6 border-l-2 border-slate-800/80 space-y-2">
+                                <div className={`absolute w-3 h-3 rounded-full -left-[7px] top-[5px] ring-4 ring-slate-950 ${isCurrent ? "bg-emerald-400 ring-emerald-950" : "bg-slate-700 ring-slate-950"}`} />
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`text-sm font-bold ${isCurrent ? "text-white" : "text-slate-400"}`}>v{entry.version}</span>
+                                  {isCurrent && (
+                                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">
+                                      {language === 'sk' ? "Aktuálna verzia" : "Current Release"}
+                                    </span>
+                                  )}
+                                  <span className="text-xs text-slate-500 font-mono">{entry.date}</span>
+                                </div>
+                                
+                                {bullets && bullets.length > 0 ? (
+                                  <ul className="list-disc list-inside space-y-1.5 text-xs text-slate-300">
+                                    {bullets.map((bullet: string, bIdx: number) => {
+                                      const boldMatch = bullet.match(/^\*\*(.*?)\*\*(.*)/);
+                                      return (
+                                        <li key={bIdx} className="leading-relaxed">
+                                          {boldMatch ? (
+                                            <>
+                                              <strong className="text-slate-200">{boldMatch[1]}</strong>
+                                              <span className="text-slate-300">{boldMatch[2]}</span>
+                                            </>
+                                          ) : (
+                                            <span className="text-slate-300">{bullet}</span>
+                                          )}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                ) : (
+                                  <p className="text-xs text-slate-500 leading-relaxed italic">
+                                    {language === 'sk' ? "Údržbové vydanie a menšie vylepšenia stability." : "General maintenance release and minor stability improvements."}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
