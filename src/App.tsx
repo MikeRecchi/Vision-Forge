@@ -58,7 +58,7 @@ export default function App() {
   const [changelogs, setChangelogs] = useState<any[]>([]);
   const [isChangelogLoading, setIsChangelogLoading] = useState(false);
   const [isGeneratingChangelog, setIsGeneratingChangelog] = useState(false);
-  const [changelogMessage, setChangelogMessage] = useState<string | null>(null);
+  const [changelogMessage, setChangelogMessage] = useState<any | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState("gemini-3.1-flash");
   const [imageResolution, setImageResolution] = useState("Auto");
   const [selectedVideoModel, setSelectedVideoModel] = useState("veo-3.1-lite");
@@ -2098,7 +2098,11 @@ export default function App() {
 
                       {changelogMessage && (
                         <div id="changelog-alert-message" className="p-3 rounded-xl text-xs bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-between gap-2 animate-fadeIn">
-                          <span>{changelogMessage}</span>
+                          <span>
+                            {typeof changelogMessage === 'object' && changelogMessage !== null
+                              ? (changelogMessage[language] || changelogMessage.en || "")
+                              : changelogMessage}
+                          </span>
                           <button 
                             id="btn-close-changelog-msg"
                             className="text-slate-500 hover:text-white font-bold" 
@@ -2124,7 +2128,8 @@ export default function App() {
                         <div className="space-y-6 pt-2">
                           {changelogs.map((entry, idx) => {
                             const isCurrent = idx === 0;
-                            const bullets = language === 'sk' ? entry.changesSk : entry.changesEn;
+                            const langField = "changes" + language.charAt(0).toUpperCase() + language.slice(1);
+                            const bullets = (entry as any)[langField] || entry.changesEn;
                             return (
                               <div key={entry.version} className="relative pl-6 border-l-2 border-slate-800/80 space-y-2">
                                 <div className={`absolute w-3 h-3 rounded-full -left-[7px] top-[5px] ring-4 ring-slate-950 ${isCurrent ? "bg-emerald-400 ring-emerald-950" : "bg-slate-700 ring-slate-950"}`} />
@@ -2289,7 +2294,6 @@ export default function App() {
             <div className="space-y-4 w-full">
               <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent font-display leading-tight py-2 flex flex-wrap items-baseline gap-3 sm:gap-4">
                 <span>{t.title}</span>
-                <span className="text-xs sm:text-sm font-mono text-slate-500 font-semibold tracking-normal uppercase bg-slate-950/40 border border-white/5 px-2.5 py-1 rounded-xl select-none align-middle">v1.2.0</span>
               </h1>
               <p className="text-slate-400 text-lg md:text-xl max-w-2xl leading-relaxed">
                 {t.description}
@@ -3597,7 +3601,6 @@ export default function App() {
           <div className="flex flex-col gap-2 items-center md:items-start text-center md:text-left">
             <div className="flex items-center gap-2">
               <span className="font-bold tracking-wider text-slate-300 uppercase font-display text-sm">Vision Forge AI</span>
-              <span className="text-[9px] bg-slate-950 text-slate-400 border border-white/5 px-1.5 py-0.5 rounded font-mono select-none">v1.2.0</span>
             </div>
             <span className="text-[11px] leading-relaxed max-w-md text-slate-500">
               {language === 'sk'
