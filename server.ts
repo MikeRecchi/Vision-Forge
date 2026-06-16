@@ -436,7 +436,7 @@ async function startServer() {
     });
   };
 
-  const runChangelogGeneration = async (req: express.Request) => {
+  const runChangelogGeneration = async (req: express.Request, isForce: boolean = false) => {
     const filePath = path.join(process.cwd(), "CHANGELOG.md");
     if (!fs.existsSync(filePath)) {
       throw new Error("Súbor CHANGELOG.md nebol nájdený.");
@@ -458,8 +458,9 @@ async function startServer() {
     const releases = parseChangelog();
     const latestRelease = releases[0];
     const today = new Date().toISOString().slice(0, 10);
+    const hasTodayRelease = latestRelease && latestRelease.date === today;
     
-    if (latestRelease && latestRelease.date === today) {
+    if (hasTodayRelease && !isForce) {
       return { 
         success: true, 
         message: {
@@ -477,7 +478,9 @@ async function startServer() {
     }
     
     let nextVersion = "1.3.0";
-    if (latestRelease) {
+    if (hasTodayRelease) {
+      nextVersion = latestRelease.version;
+    } else if (latestRelease) {
       const parts = latestRelease.version.split(".");
       if (parts.length === 3) {
         const minor = parseInt(parts[1], 10);
@@ -552,15 +555,44 @@ async function startServer() {
         Output ONLY the new markdown release block of text (starts with "## [" and ends with the Polish bullet points). Do NOT include any other commentary, preamble, or code blocks.
       `;
       
-      console.log("Generating automated changelog release via Gemini...");
-      const result = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: [{ parts: [{ text: synthesisPrompt }] }]
-      });
-      
-      generatedBlock = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      console.log("Generating automated changelog release via Gemini with failover support...");
+      const modelsToTry = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
+      let lastError: any = null;
+      let result: any = null;
+
+      for (const modelName of modelsToTry) {
+        let attempts = 3;
+        while (attempts > 0) {
+          try {
+            console.log(`Changelog generation attempt using model ${modelName} (${attempts} attempts remaining)`);
+            result = await ai.models.generateContent({
+              model: modelName,
+              contents: [{ parts: [{ text: synthesisPrompt }] }]
+            });
+            if (result?.candidates?.[0]?.content?.parts?.[0]?.text) {
+              generatedBlock = result.candidates[0].content.parts[0].text.trim();
+              break;
+            }
+          } catch (err: any) {
+            lastError = err;
+            console.log(`Temporarily skipped model ${modelName} attempt: ${err.message || err}`);
+            attempts--;
+            if (attempts > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1500)); // wait 1.5s
+            }
+          }
+        }
+        if (generatedBlock) {
+          console.log(`Successfully generated changelog using ${modelName}`);
+          break;
+        }
+      }
+
+      if (!generatedBlock) {
+        throw lastError || new Error("All model fallback attempts failed.");
+      }
     } catch (apiError: any) {
-      console.warn("Gemini API failed or unavailable. Falling back to robust local heuristic changelog generation.", apiError.message || apiError);
+      console.log("Gemini API fallback triggered. Applying pre-modeled changelog details.");
       
       generatedBlock = `## [${nextVersion}] - ${today}
 
@@ -644,16 +676,44 @@ async function startServer() {
     
     const separatorIndex = changelogContent.indexOf("---");
     if (separatorIndex !== -1) {
-      const insertPos = separatorIndex + 3;
-      const updatedContent = 
-        changelogContent.slice(0, insertPos) + 
-        "\n\n" + 
-        generatedBlock + 
-        "\n\n" + 
-        changelogContent.slice(insertPos);
+      let updatedContent = "";
+      if (hasTodayRelease) {
+        const firstReleaseIndex = changelogContent.indexOf("## [", separatorIndex);
+        if (firstReleaseIndex !== -1) {
+          const nextReleaseIndex = changelogContent.indexOf("## [", firstReleaseIndex + 4);
+          if (nextReleaseIndex !== -1) {
+            updatedContent = 
+              changelogContent.slice(0, firstReleaseIndex) + 
+              generatedBlock + 
+              "\n\n" + 
+              changelogContent.slice(nextReleaseIndex);
+          } else {
+            updatedContent = 
+              changelogContent.slice(0, firstReleaseIndex) + 
+              generatedBlock + 
+              "\n";
+          }
+        } else {
+          const insertPos = separatorIndex + 3;
+          updatedContent = 
+            changelogContent.slice(0, insertPos) + 
+            "\n\n" + 
+            generatedBlock + 
+            "\n\n" + 
+            changelogContent.slice(insertPos);
+        }
+      } else {
+        const insertPos = separatorIndex + 3;
+        updatedContent = 
+          changelogContent.slice(0, insertPos) + 
+          "\n\n" + 
+          generatedBlock + 
+          "\n\n" + 
+          changelogContent.slice(insertPos);
+      }
       
       fs.writeFileSync(filePath, updatedContent, "utf-8");
-      console.log("Successfully appended new release to CHANGELOG.md on disk!");
+      console.log("Successfully updated/appended release to CHANGELOG.md on disk!");
       
       const newReleases = parseChangelog();
       return { 
@@ -707,7 +767,7 @@ async function startServer() {
 
   app.post("/api/changelog/generate", async (req, res) => {
     try {
-      const result = await runChangelogGeneration(req);
+      const result = await runChangelogGeneration(req, true);
       res.json(result);
     } catch (e: any) {
       console.error("Changelog generation failed:", e);

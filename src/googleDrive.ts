@@ -15,7 +15,7 @@ provider.setCustomParameters({
   prompt: 'consent'
 });
 
-let cachedAccessToken: string | null = null;
+let cachedAccessToken: string | null = (typeof window !== 'undefined') ? localStorage.getItem('drive_access_token') : null;
 let isSigningIn = false;
 
 // Initialize auth state listener
@@ -34,6 +34,9 @@ export const initAuth = (
       }
     } else {
       cachedAccessToken = null;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('drive_access_token');
+      }
       if (onAuthFailure) onAuthFailure();
     }
   });
@@ -53,6 +56,9 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     }
 
     cachedAccessToken = accessToken;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('drive_access_token', accessToken);
+    }
     return { user: result.user, accessToken };
   } catch (error: any) {
     console.error('Error signing in with Google Drive scopes:', error);
@@ -66,6 +72,9 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
 export const logoutDrive = async () => {
   await signOut(auth);
   cachedAccessToken = null;
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('drive_access_token');
+  }
 };
 
 // Get current token
@@ -76,6 +85,13 @@ export const getAccessToken = (): string | null => {
 // Set token manually
 export const setAccessToken = (token: string | null) => {
   cachedAccessToken = token;
+  if (typeof window !== 'undefined') {
+    if (token) {
+      localStorage.setItem('drive_access_token', token);
+    } else {
+      localStorage.removeItem('drive_access_token');
+    }
+  }
 };
 
 /**
