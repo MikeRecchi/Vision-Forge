@@ -5,6 +5,8 @@ import gifshot from 'gifshot';
 import { translations, Language } from './translations';
 // @ts-ignore
 import kofiButtonImg from './assets/images/kofi_button_1781474671190.jpg';
+// @ts-ignore
+import appLogoImg from './assets/images/vision_forge_logo_1781644125884.jpg';
 import { VIDEO_STYLES, VideoStyle } from './constants';
 import { User } from 'firebase/auth';
 import { 
@@ -2292,7 +2294,13 @@ export default function App() {
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
             <div className="space-y-4 w-full">
-              <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent font-display leading-tight py-2 flex flex-wrap items-baseline gap-3 sm:gap-4">
+              <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent font-display leading-tight py-2 flex flex-wrap items-center gap-4 sm:gap-6">
+                <img
+                  src={appLogoImg}
+                  alt="Vision Forge Logo"
+                  className="w-14 h-14 md:w-24 md:h-24 rounded-2xl border border-white/10 shadow-2xl object-cover ring-4 ring-emerald-500/10 hover:scale-105 transition-all duration-300"
+                  referrerPolicy="no-referrer"
+                />
                 <span>{t.title}</span>
               </h1>
               <p className="text-slate-400 text-lg md:text-xl max-w-2xl leading-relaxed">
@@ -3600,6 +3608,12 @@ export default function App() {
         <footer className="pt-16 pb-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-slate-500 text-xs shrink-0">
           <div className="flex flex-col gap-2 items-center md:items-start text-center md:text-left">
             <div className="flex items-center gap-2">
+              <img
+                src={appLogoImg}
+                alt="Vision Forge Icon"
+                className="w-6 h-6 rounded-md border border-white/10 object-cover"
+                referrerPolicy="no-referrer"
+              />
               <span className="font-bold tracking-wider text-slate-300 uppercase font-display text-sm">Vision Forge AI</span>
             </div>
             <span className="text-[11px] leading-relaxed max-w-md text-slate-500">
