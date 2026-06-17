@@ -564,13 +564,12 @@ export default function App() {
       setSelectedVideoModel(item.model);
       setVideoResolution(item.parameters.resolution);
       if (item.parameters.duration) {
-        if (["5s", "10s", "15s", "30s"].includes(item.parameters.duration)) {
+        if (["5s", "6s", "8s"].includes(item.parameters.duration)) {
           setVideoDuration(item.parameters.duration);
           setIsCustomDuration(false);
         } else {
           setVideoDuration("5s");
-          setIsCustomDuration(true);
-          setCustomDurationValue(item.parameters.duration.replace('s', ''));
+          setIsCustomDuration(false);
         }
       }
       if (item.parameters.stabilization !== undefined) setStabilization(item.parameters.stabilization);
@@ -2087,14 +2086,14 @@ export default function App() {
                         
                         <button
                           id="btn-trigger-changelog"
-                          disabled={isGeneratingChangelog || isChangelogLoading}
-                          onClick={() => fetchChangelog(true)}
+                          disabled={isChangelogLoading}
+                          onClick={() => fetchChangelog(false)}
                           className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 cursor-pointer transition-all hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                         >
-                          <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingChangelog ? "animate-spin" : ""}`} />
-                          {isGeneratingChangelog 
-                            ? (language === 'sk' ? "Generujem cez Gemini..." : "Generating via Gemini...") 
-                            : (language === 'sk' ? "Skontrolovať zmeny" : "Scan for Changes")}
+                          <RefreshCw className={`w-3.5 h-3.5 ${isChangelogLoading ? "animate-spin" : ""}`} />
+                          {isChangelogLoading 
+                            ? (language === 'sk' ? "Načítavam súbor..." : "Loading changelog...") 
+                            : (language === 'sk' ? "Skontrolovať zmeny" : "Check for Changes")}
                         </button>
                       </div>
 
@@ -2782,91 +2781,19 @@ export default function App() {
                                 className="flex bg-slate-950/50 p-1 rounded-xl border border-white/5 gap-1"
                                 title={(t as any).tooltips.duration}
                               >
-                                {["5s", "10s", "15s", "30s"].map((dur) => (
+                                {["5s", "6s", "8s"].map((dur) => (
                                   <button 
                                     key={dur}
                                     onClick={() => {
                                       setVideoDuration(dur);
                                       setIsCustomDuration(false);
                                     }}
-                                    className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${!isCustomDuration && videoDuration === dur ? "bg-white/10 text-white shadow-sm ring-1 ring-white/10" : "text-slate-500 hover:text-slate-300"}`}
+                                    className={`flex-1 py-3 rounded-lg text-xs font-bold transition-all duration-300 ${!isCustomDuration && videoDuration === dur ? "bg-white/10 text-white shadow-sm ring-1 ring-white/10" : "text-slate-500 hover:text-slate-300"}`}
                                   >
                                     {dur}
                                   </button>
                                 ))}
-                                <button 
-                                  onClick={() => {
-                                    setIsCustomDuration(true);
-                                    if (!customDurationValue) {
-                                      setCustomDurationValue("15");
-                                    }
-                                  }}
-                                  className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${isCustomDuration ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/20" : "text-slate-500 hover:text-slate-300"}`}
-                                >
-                                  {t.customDuration}
-                                </button>
                               </div>
-                              {isCustomDuration && (
-                                <div className="space-y-4 p-4 bg-slate-950/40 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-top-2 duration-300">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                      {language === 'sk' ? 'Vlastné trvanie' : 'Custom Duration'}
-                                    </span>
-                                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                                      {customDurationValue || "5"} s
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4">
-                                    <span className="text-[10px] text-slate-500 font-mono">1s</span>
-                                    <input 
-                                      type="range" 
-                                      min="1" 
-                                      max="30" 
-                                      value={customDurationValue ? parseInt(customDurationValue, 10) : 5}
-                                      onChange={(e) => setCustomDurationValue(e.target.value)}
-                                      className="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-emerald-500 bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                                    />
-                                    <span className="text-[10px] text-slate-500 font-mono">30s</span>
-                                  </div>
-
-                                  <div className="flex items-center bg-slate-950/50 border border-white/5 rounded-xl overflow-hidden group focus-within:border-emerald-500 transition-colors">
-                                    <span className="text-[9px] text-slate-500 pl-3 font-semibold uppercase tracking-wider">
-                                      {language === 'sk' ? 'Presná sekunda:' : 'Exact second:'}
-                                    </span>
-                                    <input 
-                                      type="text"
-                                      value={customDurationValue}
-                                      onChange={(e) => {
-                                        const val = e.target.value.replace(/[^0-9]/g, "");
-                                        if (val === "") {
-                                          setCustomDurationValue("");
-                                          return;
-                                        }
-                                        const num = parseInt(val, 10);
-                                        if (num > 30) {
-                                          setCustomDurationValue("30");
-                                        } else {
-                                          setCustomDurationValue(val);
-                                        }
-                                      }}
-                                      onBlur={() => {
-                                        if (customDurationValue === "") {
-                                          setCustomDurationValue("1");
-                                        } else {
-                                          const num = parseInt(customDurationValue, 10);
-                                          if (num < 1) {
-                                            setCustomDurationValue("1");
-                                          }
-                                        }
-                                      }}
-                                      placeholder={t.customDurationPlaceholder}
-                                      className="w-full bg-transparent text-[10px] py-1.5 px-3 text-white outline-none text-right font-mono"
-                                    />
-                                    <span className="text-[10px] text-slate-500 pr-3 uppercase font-bold font-mono">s</span>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
 

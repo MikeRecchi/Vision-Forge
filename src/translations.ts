@@ -314,6 +314,8 @@ export const translations = {
     stabilizationDescription: "Glättet Kamera-Wackler und unruhige Bewegungen.",
     advancedSettings: "Erweiterte Video-Einstellungen",
     visualStyles: "Filmstile",
+    creativeSettings: "Format & Stil",
+    videoSettings: "Videoparameter",
     styleSelector: "Wählen Sie einen visuellen Stil aus, um Ihren Video-Prompt automatisch zu verbessern.",
     tooltips: {
       language: "Oberflächensprache ändern",
@@ -536,6 +538,8 @@ export const translations = {
     stabilizationDescription: "Lisse les tremblements de la caméra et les mouvements saccadés.",
     advancedSettings: "Paramètres vidéo avancés",
     visualStyles: "Styles cinématographiques",
+    creativeSettings: "Format & Style",
+    videoSettings: "Paramètres vidéo",
     styleSelector: "Sélectionnez un style visuel pour améliorer automatiquement votre prompt vidéo.",
     tooltips: {
       language: "Changer la langue de l'interface",
@@ -758,6 +762,8 @@ export const translations = {
     stabilizationDescription: "Attenua i tremolii della fotocamera e i movimenti instabili.",
     advancedSettings: "Impostazioni video avanzate",
     visualStyles: "Stili cinematografici",
+    creativeSettings: "Formato & Stile",
+    videoSettings: "Parametri video",
     styleSelector: "Seleziona uno stile visivo per migliorare automaticamente il tuo prompt video.",
     tooltips: {
       language: "Cambia la lingua dell'interfaccia",
@@ -980,6 +986,8 @@ export const translations = {
     stabilizationDescription: "Suaviza las sacudidas de cámara y el movimiento errático.",
     advancedSettings: "Ajustes de video avanzados",
     visualStyles: "Estilos cinematográficos",
+    creativeSettings: "Formato y Estilo",
+    videoSettings: "Parámetros de video",
     styleSelector: "Selecciona un estilo visual para mejorar automáticamente tu prompt de video.",
     tooltips: {
       language: "Cambiar el idioma de la interfaz",
@@ -1202,6 +1210,8 @@ export const translations = {
     stabilizationDescription: "Suaviza tremores de câmera e movimentos instáveis.",
     advancedSettings: "Configurações de vídeo avançadas",
     visualStyles: "Estilos cinematográficos",
+    creativeSettings: "Formato & Estilo",
+    videoSettings: "Parâmetros de vídeo",
     styleSelector: "Selecione um style visual para melhorar automaticamente seu prompt de vídeo.",
     tooltips: {
       language: "Alterar idioma da interface",
@@ -1424,6 +1434,8 @@ export const translations = {
     stabilizationDescription: "Wygładza drgania kamery i szarpany ruch.",
     advancedSettings: "Zaawansowane ustawienia wideo",
     visualStyles: "Style filmowe",
+    creativeSettings: "Format i styl",
+    videoSettings: "Parametry wideo",
     styleSelector: "Wybierz styl wizualny, aby automatycznie ulepszyć swój prompt wideo.",
     tooltips: {
       language: "Zmień język interfejsu",
