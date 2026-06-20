@@ -156,6 +156,48 @@ async function startServer() {
     const sections = content.split(/##\s+\[/);
     
     const staticReleaseTranslations: { [key: string]: { [lang: string]: string[] } } = {
+      "1.5.0": {
+        en: [
+          "**Terms of Service Implementation**: Created a beautifully styled and legal-compliant Terms of Service subpage connected cleanly across layout footers.",
+          "**GDPR & TOS Verification Checkbox**: Added a mandatory consent checkbox for Google Drive storage linking, utilizing interactive warning pulses to guarantee data safety compliance.",
+          "**Standardized Multi-language Localization**: Translated all consent agreements, error notifications, and warning systems across all 8 supported European languages."
+        ],
+        sk: [
+          "**Právny rámec a VOP**: Pridanie novej vyhradenej podstránky zmluvných podmienok (Terms of Service) a jej hlboké integrovanie do pätičky a prihlasovacích formulárov.",
+          "**Mechanizmus overenia súhlasu**: Zavedenie povinného zaškrtávacieho poľa (Checkboxu) pre vyjadrenie súhlasu so spracovaním údajov pred prihlásením do Google Drive s animovaným varovaním v reálnom čase pri vynechaní.",
+          "**Univerzálny lokalizačný systém**: Kompletný preklad všetkých právnych textov, chybových hlášok a podmienok do ôsmich podporovaných európskych jazykov."
+        ],
+        de: [
+          "**Nutzungsbedingungen & VOP**: Einführung einer ansprechend gestalteten, rechtskonformen Nutzungsbedingungen-Unterseite (Terms of Service), die nahtlos in die Fußzeile und die Anmeldeformulare integriert ist.",
+          "**Einwilligungs-Checkbox (DSGVO)**: Hinzufügen einer obligatorischen Einwilligungserklärung (Checkbox) vor dem Google Drive-Login, inklusive visueller Warnsignale bei fehlender Zustimmung.",
+          "**Mehrsprachige Lokalisierung**: Vollständige Übersetzung aller Rechtstexte, Warnmeldungen und Formularkomponenten in alle 8 unterstützten europäischen Sprachen."
+        ],
+        fr: [
+          "**Conditions d'utilisation (CGU)**: Ajout d'une sous-page dédiée aux conditions d'utilisation, élégamment intégrée dans le pied de page et les formulaires d'authentification.",
+          "**Case à cocher RGPD & CGU**: Intégration d'une case à cocher obligatoire garantissant le consentement de l'utilisateur avant la connexion à Google Drive, avec des avertissements animés en temps réel si elle est omise.",
+          "**Localisation multilingue**: Traduction complète de tous les textes juridiques, avertissements et notifications d'erreur dans les 8 langues européennes prises en charge."
+        ],
+        it: [
+          "**Termini di Servizio (VOP)**: Creazione di una sottopagina dedicata ai termini di servizio, ottimizzata dal punto di vista legale ed elegantemente integrata nel piè di pagina e nei contesti di login.",
+          "**Checkbox di Consenso Obbligatorio**: Aggiunta di una casella di controllo per l'accettazione del trattamento dei dati prima di collegare Google Drive, completa di avvisi visivi animati se deselezionata.",
+          "**Localizzazione in 8 lingue**: Traduzione completa di accordi legali, messaggi d'errore e notifiche di sicurezza in tutte le 8 lingue europee supportate."
+        ],
+        es: [
+          "**Términos de Servicio (VOP)**: Creación de una página dedicada para los términos de servicio, integrada de manera fluida y elegante en el pie de página del diseño general.",
+          "**Casilla de Verificación RGPD**: Se agregó una casilla de consentimiento obligatoria antes de iniciar sesión en Google Drive, con alertas visuales dinámicas de advertencia si no está marcada.",
+          "**Localización multilingüe**: Traducción completa de todos los acuerdos de consentimiento, errores y notificaciones de advertencia en los 8 idiomas europeos compatibles."
+        ],
+        pt: [
+          "**Termos de Serviço (VOP)**: Criação de uma subpágina de Termos de Serviço estilizada e compatível legalmente, integrada de forma limpa nos rodapés do layout geral.",
+          "**Caixa de Seleção de Consentimento**: Adicionada uma caixa de seleção obrigatória para aceitação do processamento de dados antes de se conectar ao Google Drive, com avisos pulsantes interativos.",
+          "**Localização em 8 idiomas**: Tradução completa de todos os termos, avisos de erro e interfaces de consentimento em todos os 8 idiomas europeus suportados."
+        ],
+        pl: [
+          "**Regulamin i Warunki Świadczenia Usług**: Wdrożenie dedykowanej podstrony regulaminu świadczenia usług z pełną integracją w stopce aplikacji oraz formularzach połączenia.",
+          "**Obowiązkowe Pole Zgody (RODO)**: Dodanie obowiązkowego pola wyboru (checkboxa) zgody na przetwarzanie danych przed połączeniem z Dyskiem Google z animowanymi ostrzeżeniami w czasie rzeczywistym.",
+          "**Wielojęzyczna Lokalizacja**: Kompletne tłumaczenie tekstów prawnych, komunikatów ostrzegawczych i formularzy we wszystkich 8 obsługiwanych językach europejskich."
+        ]
+      },
       "1.2.0": {
         en: [
           "**Refined Backup terms**: Generalised backup wording across all languages to support all models instead of limiting to \"Imagen & Veo\".",
@@ -335,7 +377,8 @@ async function startServer() {
               const heading = trimmed.replace(/^###\s*/, "").trim().toLowerCase();
               currentLang = null;
               for (const [lang, aliases] of Object.entries(languageKeys)) {
-                if (aliases.some(alias => heading.includes(alias))) {
+                const words = heading.split(/[\s,.\-\/]+/);
+                if (aliases.some(alias => words.includes(alias))) {
                   currentLang = lang;
                   break;
                 }
@@ -435,7 +478,7 @@ async function startServer() {
       };
     }
     
-    let nextVersion = "1.4.0";
+    let nextVersion = "1.5.0";
     if (hasTodayRelease) {
       nextVersion = latestRelease.version;
     } else if (latestRelease) {
@@ -692,6 +735,723 @@ async function startServer() {
       throw new Error("V súbore CHANGELOG.md chýba horizontálny oddeloveč '---'.");
     }
   };
+
+  app.get(["/terms", "/terms-of-service", "/zmluvne-podmienky"], (req, res) => {
+    res.send(`
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Všeobecné zmluvné podmienky (Terms of Service) | Vision Forge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-300 min-h-screen selection:bg-yellow-500/30 selection:text-yellow-300 flex flex-col justify-between">
+  <div>
+    <!-- Ambient glowing accents -->
+    <div class="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <header class="border-b border-white/5 bg-slate-950/60 backdrop-blur-md sticky top-0 z-50">
+      <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">VF</div>
+          <span class="font-bold tracking-wider text-white uppercase text-sm">Vision Forge AI</span>
+        </div>
+        
+        <div class="flex items-center border border-white/10 rounded-xl overflow-hidden p-0.5 bg-slate-900/60">
+          <button id="lang-sk" onclick="switchLang('sk')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-emerald-500/10 text-emerald-400">
+            Slovenčina
+          </button>
+          <button id="lang-en" onclick="switchLang('en')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors text-slate-400 hover:text-white">
+            English
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-12 md:py-16">
+      
+      <!-- SLOVAK LANGUAGE CONTENT -->
+      <article id="content-sk" class="space-y-10">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-yellow-500/20 bg-yellow-500/5 text-yellow-400 text-xs font-semibold">
+            Všeobecné zmluvné podmienky
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Zmluvné podmienky používania</h1>
+          <p class="text-xs text-slate-500 font-mono">Dátum poslednej aktualizácie: 19. júna 2026</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-white/5 bg-slate-900/40 backdrop-blur-xl space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            1. Úvodné ustanovenia
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Vitajte v aplikácii <strong>Vision Forge</strong> (ďalej len "Aplikácia"). Tieto Všeobecné zmluvné podmienky (ďalej len "Zmluvné podmienky" alebo "Podmienky") upravujú zmluvný vzťah, práva a povinnosti medzi Vami ako používateľom Aplikácie a prevádzkovateľom. Vstupom do Aplikácie, jej spustením alebo využívaním jej funkcií dobrovoľne vyjadrujete svoj bezvýhradný súhlas s týmito Podmienkami.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            2. Prevádzkovateľ služby
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Prevádzkovateľom Aplikácie a poskytovateľom technického riešenia je:
+          </p>
+          <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 text-sm space-y-2">
+            <p class="font-bold text-white">Michal Richvalský</p>
+            <p>E-mailový kontakt: <a href="mailto:mrichvalsky@gmail.com" class="text-emerald-400 hover:underline">mrichvalsky@gmail.com</a></p>
+            <p class="text-xs text-slate-400">V prípade akýchkoľvek pripomienok, dotazov alebo hlásení chýb nás neváhajte kontaktovať prostredníctvom priloženého e-mailu.</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            3. Popis služieb a technické riešenie
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Vision Forge je kreatívny editor a asistenčný portál určený na generovanie digitálneho obsahu (obrázkov, textových podkladov, video kompozícií) za pomoci veľkých výpočtových modelov umelej inteligencie spoločností Google (Gemini, Imagen) a OpenAI.
+          </p>
+          <ul class="list-disc list-inside space-y-2 pl-2 text-sm text-slate-300">
+            <li>Aplikácia funguje ako <strong>otvorené rozhranie (Client-Side Application)</strong>, ktoré odosiela požiadavky na externé neurónové siete.</li>
+            <li>Využitie generovania je podmienené integráciou Vašich vlastných kľúčov API (Google Gemini / OpenAI), čím máte plnú kontrolu nad prebiehajúcimi nákladmi a limitmi.</li>
+            <li>Zálohovanie a ukladanie Vašich výtvorov je plne zabezpečené prostredníctvom prepojenia s cloudovým úložiskom Google Disk používateľa pomocou zabezpečeného protokolu Google OAuth 2.0.</li>
+          </ul>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            4. Vlastníctvo obsahu a Autorské práva
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Otázka vlastníctva vygenerovaných materiálov je kľúčová pre slobodnú umeleckú i komerčnú tvorbu:
+          </p>
+          <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 text-sm space-y-3">
+            <p class="font-bold text-emerald-400 text-xs tracking-wider uppercase">Plná kontrola a suverenita používateľa</p>
+            <p class="leading-relaxed">
+              Všetky autorské práva, vlastnícke práva a akékoľvek iné duševné vlastníctvo vygenerovaných médií (obrázky, texty a videá), ktoré vytvoríte v Aplikácii, patrí <strong>výlučne Vám</strong>. 
+            </p>
+            <p class="leading-relaxed text-slate-400">
+              Prevádzkovateľ si nenárokuje, nevlastní a nebude si nárokovať žiadne licenčné poplatky ani autorské práva k Vašim vygenerovaným dielam. Výstupy môžete voľne používať na osobné aj komerčné účely. Ste však výhradne zodpovedný za overenie, že vygenerovaným materiálom neporušujete autorské práva, ochranné známky alebo dobré meno tretích strán.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            5. Zodpovednosť za používanie API kľúčov
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Keďže Aplikácia nevyžaduje platené predplatné a funguje bezprostredne prostredníctvom konfigurácie Vašich vlastných kľúčov API:
+          </p>
+          <ul class="list-disc list-inside space-y-2 pl-2 text-sm text-slate-300">
+            <li>Nesiete plnú zodpovednosť za uchovanie API kľúčov v bezpečí.</li>
+            <li>Zadané tajné kľúče sa ukladajú výlučne vo Vašom miestnom úložisku webového prehliadača (localStorage) a naša strana k nim nemá žiadny prístup.</li>
+            <li>Akékoľvek poplatky vygenerované volaním API rozhraní tretích strán (Google, OpenAI) znášate Vy podľa cenníkov týchto poskytovateľov.</li>
+          </ul>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            6. Pravidlá správania a etické obmedzenia
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Pri používaní Vision Forge sa zaväzujete nepoužívať Aplikáciu na:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-400">
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">NELEGÁLNY OBSAH</span>
+              <span>Generovanie a distribúcia materiálov porušujúcich platné právo EÚ a Slovenskej republiky vrátane propagácie diskriminácie, násilia či terorizmu.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">DEZINFORMÁCIE & DEEPFAKES</span>
+              <span>Vytváranie klamlivých vizuálnych zmien s cieľom šíriť paniku, dezinformácie alebo poškodzovať česť iných reálnych osôb bez ich výslovného súhlasu.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">HARMING INFRASTRUCTURE</span>
+              <span>Pokusy o preťaženie API rozhraní, reverzné inžinierstvo interného kódu alebo obchádzanie zavedených ochranných filtrov.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">PORUŠENIE PODMIENOK POSKYTOVATEĽOV</span>
+              <span>Kroky, ktoré vedú k porušeniu Všeobecných zmluvných podmienok služieb Google Cloud, Google Gemini, OpenAI či Firebase SDK.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            7. Obmedzenie zodpovednosti
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Aplikácia je vyvíjaná a ponúkaná <strong>"tak ako stojí a leží" (As-Is)</strong>, bez akýchkoľvek záruk na nepretržitú dostupnosť, bezchybnosť alebo stopercentnú úspešnosť generovaných dát. Prevádzkovateľ nenesie zodpovednosť za žiadne priame, nepriame, náhodné ani následné škody, ušlý zisk, stratu dát či stratu dobrého mena spôsobenú v dôsledku používania alebo nedostupnosti Aplikácie.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            8. Zmeny podmienok a príslušné právo
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Tieto Podmienky sa riadia a interpretujú v súlade s právnym poriadkom Slovenskej republiky a Európskej únie. Vyhradzujeme si právo tieto Podmienky kedykoľvek aktualizovať. Pokračovaním v používaní Aplikácie po nadobudnutí účinnosti zmien potvrdzujete svoj súhlas s novým znením Podmienok.
+          </p>
+        </div>
+      </article>
+
+      <!-- ENGLISH LANGUAGE CONTENT -->
+      <article id="content-en" class="space-y-10 hidden">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-yellow-500/20 bg-yellow-500/5 text-yellow-400 text-xs font-semibold">
+            Terms of Service
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Terms and Conditions of Use</h1>
+          <p class="text-xs text-slate-500 font-mono">Last updated: June 19, 2026</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-white/5 bg-slate-900/40 backdrop-blur-xl space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            1. Introduction
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Welcome to <strong>Vision Forge</strong> (the "Application"). These Terms of Service (referred to as "Terms" or "Agreement") govern the contractual relation, rights, and liabilities between you as a user and the operator of this platform. By visiting, using, or interacting with any feature of the Application, you declare your unreserved agreement to these Terms.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            2. Operator and Service Owner
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            The data owner and technical infrastructure architect of the Application is:
+          </p>
+          <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 text-sm space-y-2">
+            <p class="font-bold text-white">Michal Richvalský</p>
+            <p>Email: <a href="mailto:mrichvalsky@gmail.com" class="text-emerald-400 hover:underline">mrichvalsky@gmail.com</a></p>
+            <p class="text-xs text-slate-400">Feel free to forward any bug reports, feature requests, or queries regarding copyright and infrastructure stability to the email listed above.</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            3. Scope of Service and Core Functionality
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Vision Forge is a client-side generative web workspace that bridges user prompt creativity to public Generative Artificial Intelligence large models owned by Google (Gemini, Imagen) and OpenAI.
+          </p>
+          <ul class="list-disc list-inside space-y-2 pl-2 text-sm text-slate-300">
+            <li>The interface runs as a specialized **sandbox interface (Client-Side Platform)** transmitting visual and textual synthesis directly via secure APIs.</li>
+            <li>Users drive generation processes using their own API keys, preserving self-control over costs and structural rate limits.</li>
+            <li>Files, backups, and multimedia elements are transferred straight to the user's private Google Drive instance using the modern, encrypted Google OAuth 2.0 interface.</li>
+          </ul>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            4. Content Ownership and Copyright
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            We highly respect creative output ownership rights to support personal, educational, and commercial utilization:
+          </p>
+          <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 text-sm space-y-3">
+            <p class="font-bold text-emerald-400 text-xs tracking-wider uppercase">Absolute User Sovereignty</p>
+            <p class="leading-relaxed">
+              All copyright, title, ownership rights, and downstream intellectual property of any media (including synthesized images, video files, prompt cards, and metadata logs) produced via the Application belong **entirely and exclusively to you**.
+            </p>
+            <p class="leading-relaxed text-slate-400">
+              The service developer does not claim, own, or collect any downstream licensing royalties, fees, or visual credits from your generated items. You are libre to assign, distribute, and utilize your results commercially or non-commercially. It remains your absolute responsibility to verify that your synthesized material does not violate third-party trademarks or proprietary models.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            5. API Keys and Token Responsibility
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Given that the interface doesn't host subscription systems and acts as an open client routing your own active AI credentials:
+          </p>
+          <ul class="list-disc list-inside space-y-2 pl-2 text-sm text-slate-300">
+            <li>You hold full responsibility to shield and safeguard your private API keys.</li>
+            <li>Input keys are saved strictly in your client browser (localStorage) and never traverse our routing containers.</li>
+            <li>Downstream API billing costs are driven purely between you and Google Cloud or OpenAI corresponding platforms directly.</li>
+          </ul>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            6. Code of Conduct and Content Prohibitions
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            By setting foot in Vision Forge, you pledge to strictly respect content guidelines and refrain from using the app to:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-400">
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">ILLEGAL AND VIOLENT USE</span>
+              <span>Developing, generating, or exposing assets that promote terror, active violence, racial, religious or gender discrimination.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">MALICIOUS DEEPFAKES</span>
+              <span>Manipulating portrait material or synthesis logs to forge deceptive fake materials targetted to harass or defame public or private citizens.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">DDOS & DISRUPTIVE ACTIONS</span>
+              <span>Engaging in denial of service techniques, scraping APIs, injecting code, or trying to corrupt secure variables inside client components.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-red-400 block font-mono">EXTERNAL PARTNERS BREACH</span>
+              <span>Violating core terms of service issued by Google Cloud Platform, Google Gemini API boundaries, OpenAI developer clauses, or Firebase Terms.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            7. Limitation of Warranty and Liability
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            The platform is provided **"As-Is"** and **"As-Available"** without any explicit or implicit warranty. We do not guarantee uninterrupted system access, perfect fidelity of generative outputs, or perpetual lifespan of structural components. Under no legal circumstances shall the platform owner be liable for lost profits, loss of data, hardware impairments, or custom liabilities of any kind arising out of or connected with the utilization of the software.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-yellow-500"></span>
+            8. Jurisdictional Mandate and Governing Law
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            These Terms shall be interpreted, governed, and implemented purely under the laws of the Slovak Republic and matching European Union legal acts. We reserve all rights to revise these Terms periodically. Your subsequent visits to the site represent complete and voluntary compliance with newly published layouts.
+          </p>
+        </div>
+      </article>
+
+    </main>
+  </div>
+
+  <footer class="border-t border-white/5 bg-slate-950/40 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-4xl mx-auto px-6">
+      <p>© 2026 Vision Forge AI. Terms of Service Center.</p>
+    </div>
+  </footer>
+
+  <script>
+    function switchLang(lang) {
+      const btnSk = document.getElementById('lang-sk');
+      const btnEn = document.getElementById('lang-en');
+      const contentSk = document.getElementById('content-sk');
+      const contentEn = document.getElementById('content-en');
+
+      if (lang === 'sk') {
+        btnSk.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-emerald-500/10 text-emerald-400";
+        btnEn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors text-slate-400 hover:text-white";
+        contentSk.classList.remove('hidden');
+        contentEn.classList.add('hidden');
+        document.documentElement.lang = "sk";
+      } else {
+        btnSk.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors text-slate-400 hover:text-white";
+        btnEn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-emerald-500/10 text-emerald-400";
+        contentSk.classList.add('hidden');
+        contentEn.classList.remove('hidden');
+        document.documentElement.lang = "en";
+      }
+    }
+  </script>
+</body>
+</html>
+    `);
+  });
+
+  app.get(["/privacy", "/privacy-policy"], (req, res) => {
+    res.send(`
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zásady ochrany osobných údajov (GDPR) | Vision Forge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-300 min-h-screen selection:bg-emerald-500/30 selection:text-emerald-300 flex flex-col justify-between">
+  <div>
+    <!-- Ambient glowing accents -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <header class="border-b border-white/5 bg-slate-950/60 backdrop-blur-md sticky top-0 z-50">
+      <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">VF</div>
+          <span class="font-bold tracking-wider text-white uppercase text-sm">Vision Forge AI</span>
+        </div>
+        
+        <div class="flex items-center border border-white/10 rounded-xl overflow-hidden p-0.5 bg-slate-900/60">
+          <button id="lang-sk" onclick="switchLang('sk')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-emerald-500/10 text-emerald-400">
+            Slovenčina
+          </button>
+          <button id="lang-en" onclick="switchLang('en')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors text-slate-400 hover:text-white">
+            English
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-12 md:py-16">
+      
+      <!-- SLOVAK LANGUAGE CONTENT -->
+      <article id="content-sk" class="space-y-10">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-xs font-semibold">
+            Na základe Európskeho práva (GDPR)
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Zásady ochrany osobných údajov</h1>
+          <p class="text-xs text-slate-500 font-mono">Dátum poslednej aktualizácie: 19. júna 2026</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-white/5 bg-slate-900/40 backdrop-blur-xl space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            1. Úvodné ustanovenia
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Bezpečnosť a ochrana Vašich osobných údajov je našou absolútnou prioritou. Tieto Zásady ochrany osobných údajov vysvetľujú, ako aplikácia <strong>Vision Forge</strong> (ďalej len "Aplikácia") spracúva Vaše údaje v súlade s Nariadením Európskeho parlamentu a Rady (EÚ) 2016/679 o ochrane fyzických osôb pri spracúvaní osobných údajov a o voľnom pohybe takýchto údajov (ďalej len <strong>"GDPR"</strong>) a slovenským zákonom č. 18/2018 Z. z. o ochrane osobných údajov.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            2. Prevádzkovateľ osobných údajov
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Prevádzkovateľom, ktorý určuje účely a prostriedky spracúvania Vašich osobných údajov v rámci Aplikácie, je:
+          </p>
+          <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 text-sm space-y-2">
+            <p class="font-bold text-white">Michal Richvalský</p>
+            <p>E-mailový kontakt: <a href="mailto:mrichvalsky@gmail.com" class="text-emerald-400 hover:underline">mrichvalsky@gmail.com</a></p>
+            <p class="text-xs text-slate-400">Ak máte akékoľvek otázky ohľadom ochrany a spracovania osobných údajov, môžete nás kontaktovať na vyššie uvedenej adrese.</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            3. Rozsah a účel spracúvania osobných údajov
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Aplikácia Vision Forge bola navrhnutá s dôrazom na minimalizáciu údajov a lokálnu suverenitu používateľa. Aplikácia spracúva iba tie údaje, ktoré sú nevyhnutné na zabezpečenie jej plnej funkcionality:
+          </p>
+          <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+            <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 space-y-2">
+              <h3 class="font-bold text-white flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400">
+                A. Prístup k službe Google Disk (OAuth 2.0 Scopes)
+              </h3>
+              <p>
+                Ak sa rozhodnete využiť integráciu s cloudovým úložiskom Google Disk na zálohovanie svojich výtvorov, aplikácia si prostredníctvom oficiálneho protokolu OAuth 2.0 vyžiada autorizovaný prístup k Vášmu Google Disku so scope <code>/auth/drive</code> alebo <code>/auth/drive.file</code>.
+              </p>
+              <ul class="list-disc list-inside space-y-1 pl-2 text-slate-400 text-xs">
+                <li><strong class="text-white">Účel:</strong> Nahrávanie a zálohovanie Vami vygenerovaných obrázkov (.png), kinematografických video sekvencií (.mp4) a textových nastavení na Váš vlastný osobný Google Disk, a ich následné prehliadanie, sťahovanie alebo mazanie priamo z rozhrania Aplikácie.</li>
+                <li><strong class="text-white">Spracovanie:</strong> Celý prenos údajov prebieha výlučne medzi Vaším prehliadačom a servermi spoločnosti Google prostredníctvom oficiálnych API rozhraní. My nezbierame, neukladáme a nepresmerovávame autorizačné tokeny ani Vaše súbory na žiadne iné vzdialené servery.</li>
+              </ul>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 space-y-2">
+              <h3 class="font-bold text-white flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400">
+                B. Údaje o identite účtu Google
+              </h3>
+              <p>
+                Pri pripojení Google Disku cez Firebase Authentication spracúva Aplikácia Vašu e-mailovú adresu, celé meno a URL adresu profilového obrázka.
+              </p>
+              <ul class="list-disc list-inside space-y-1 pl-2 text-slate-400 text-xs">
+                <li><strong class="text-white">Účel:</strong> Personalizované zobrazenie rozhrania (napr. privítanie, zobrazenie aktívne pripojeného účtu) a spárovanie relácie s úložiskom Google Disk v reálnom čase.</li>
+                <li><strong class="text-white">Doba uchovania:</strong> Tieto informácie sú uchovávané iba lokálne v relácii Vášho prehliadača počas prihlásenia a nie sú ukladané na naše backendové databázy. Odhlásením sa z rozhrania Google Disk v Aplikácii sa tieto údaje okamžite vymažú.</li>
+              </ul>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 space-y-2">
+              <h3 class="font-bold text-white flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400">
+                C. API kľúče pre Gemini a OpenAI
+              </h3>
+              <p>
+                Aplikácia Vám umožňuje voliteľne zadať Vaše vlastné API kľúče pre služby Google Gemini a OpenAI na generovanie kreatívnych výstupov.
+              </p>
+              <ul class="list-disc list-inside space-y-1 pl-2 text-slate-400 text-xs">
+                <li><strong class="text-white">Spracovanie:</strong> Vaše tajné API kľúče sa ukladajú <strong>výhradne</strong> vo Vašom lokálnom úložisku prehliadača (<code>localStorage</code>). Nikdy sa neodosielajú na náš server, ani ich žiadna tretia strana nezhromažďuje. Sú použité výhradne na priamu bezpečnú autorizáciu Vašich dopytov voči príslušným otvoreným rozhraniam (API) spoločností Google a OpenAI.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            4. Právny základ spracúvania
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Právnym základom spracúvania osobných údajov je Váš <strong>výslovný súhlas</strong> v zmysle Článku 6 ods. 1 písm. a) GDPR. Súhlas vyjadrujete dobrovoľne kliknutím na tlačidlo "Pripojiť Google Disk" alebo dobrovoľným vložením svojho API kľúča v rozhraní Aplikácie. Svoj súhlas môžete kedykoľvek odvolať odhlásením sa alebo vymazaním kľúčov.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            5. Zdieľanie, predaj a prenos údajov tretej strane
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed font-semibold text-white">
+            Garantujeme, že Aplikácia nikdy nepredáva, nezdieľa, nemonetizuje a neposkytuje Vaše osobné údaje ani Vaše multimediálne súbory žiadnym tretím stranám, marketingovým agentúram ani komerčným subjektom. 
+          </p>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Vaša komunikácia prebieha šifrovaným HTTPS spojením priamo so servermi Google (pre Google Disk, Firebase a Gemini API) alebo OpenAI (pre OpenAI API).
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            6. Vaše práva ako dotknutej osoby (GDPR)
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Ako európsky občan máte na základe nariadenia GDPR široké práva týkajúce sa ochrany osobných údajov, ktoré plne rešpektujeme a uľahčujeme ich uplatnenie:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-400">
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Právo na prístup k údajom</span>
+              <span>Máte právo vedieť, aké údaje spracovávame. Keďže údaje sú držané vo Vašom prehliadači a na Google Disku, máte k nim okamžitý prístup.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Právo na vymazanie (Na zabudnutie)</span>
+              <span>Kedykoľvek môžete všetky údaje z prehliadača vymazať kliknutím na reset API kľúčov a odhlásením sa. Súbory na Vašom Google Disku môžete kedykoľvek vymazať.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Právo na prenosnosť údajov</span>
+              <span>Všetky svoje vygenerované príspevky a nastavenia máte pod priamou kontrolou a môžete si ich kedykoľvek stiahnuť zo svojho Google Disku.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Odvolanie súhlasu</span>
+              <span>Spracúvanie môžete zastaviť okamžitým odpojením účtu Google v rozhraní Aplikácie, čím zamedzíte akémukoľvek ďalšiemu prístupu k Vášmu Google Disku zo strany Aplikácie.</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 italic mt-3">
+            Ak sa domnievate, že spracúvanie Vašich osobných údajov porušuje nariadenie GDPR, máte právo podať sťažnosť dozornému orgánu, ktorým je Úrad na ochranu osobných údajov Slovenskej republiky (Hraničná 12, 820 07 Bratislava 27, slovenská republika).
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            7. Zmeny zásad ochrany súkromia
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Vyhradzujeme si právo tieto zásady kedykoľvek zmeniť s cieľom prispôsobiť ich legislatívnym požiadavkám alebo novým funkciám Aplikácie. Každá revízia bude označená príslušným dátumom aktualizácie na začiatku tohto dokumentu.
+          </p>
+        </div>
+      </article>
+
+      <!-- ENGLISH LANGUAGE CONTENT -->
+      <article id="content-en" class="space-y-10 hidden">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-xs font-semibold">
+            Based on European Union GDPR Regulations
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Privacy Policy</h1>
+          <p class="text-xs text-slate-500 font-mono">Last updated: June 19, 2026</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-white/5 bg-slate-900/40 backdrop-blur-xl space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            1. Introduction
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Your privacy and data safety are of paramount importance to us. This Privacy Policy details how the <strong>Vision Forge</strong> application (referred to as the "Application") handles, safeguards, and respects your personal information in complete alignment with General Data Protection Regulation (EU) 2016/679 (<strong>"GDPR"</strong>) and corresponding Slovak Act No. 18/2018 Z. z. on Personal Data Protection.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            2. Data Controller
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            The Data Controller responsible for establishing processing purposes and managing your data inside the Application is:
+          </p>
+          <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 text-sm space-y-2">
+            <p class="font-bold text-white">Michal Richvalský</p>
+            <p>Email: <a href="mailto:mrichvalsky@gmail.com" class="text-emerald-400 hover:underline">mrichvalsky@gmail.com</a></p>
+            <p class="text-xs text-slate-400">If you have any questions or require support regarding your personal data rights, you are welcome to reach out via email anytime.</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            3. Scope and Purpose of Data Processing
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            The Application has been meticulously designed following privacy-by-design guidelines. Most computing operations, keys, and session properties are maintained exclusively inside your local browser to grant you ultimate digital sovereignty:
+          </p>
+          <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+            <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 space-y-2">
+              <h3 class="font-bold text-white flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400">
+                A. Google Drive Access (OAuth 2.0 Scopes)
+              </h3>
+              <p>
+                Should you choose to activate the optional Google Drive cloud backup, the Application requests authorized access to your storage via the secure Google OAuth 2.0 API using the <code>/auth/drive</code> or <code>/auth/drive.file</code> scope.
+              </p>
+              <ul class="list-disc list-inside space-y-1 pl-2 text-slate-400 text-xs">
+                <li><strong class="text-white">Purpose:</strong> To backup, write, read, and delete your generated high-resolution assets (.png files), cinematic clips (.mp4), and prompt settings directly on your personal Drive folder.</li>
+                <li><strong class="text-white">Processing Flow:</strong> File transfer happens directly between your browser and Google's official cloud storage APIs. Access tokens are kept safe strictly in your client. We do not store, intercept, or route your file payloads to any server under our control.</li>
+              </ul>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 space-y-2">
+              <h3 class="font-bold text-white flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400">
+                B. Google Account Metadata
+              </h3>
+              <p>
+                When connecting your Google Drive via Firebase Authentication, the Application reads basic user profile metadata: email address, display name, and avatar picture URL.
+              </p>
+              <ul class="list-disc list-inside space-y-1 pl-2 text-slate-400 text-xs">
+                <li><strong class="text-white">Purpose:</strong> Displaying account indicator states on your greeting card and ensuring the active session matches your local Drive upload target.</li>
+                <li><strong class="text-white">Retention:</strong> This metadata is stored locally within browser state memory and is cleared immediately upon logging out. No persistent database profiles are initiated on our system.</li>
+              </ul>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-white/5 bg-slate-900/20 space-y-2">
+              <h3 class="font-bold text-white flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400">
+                C. Gemini and OpenAI API Keys
+              </h3>
+              <p>
+                You may optionally input your own Google Gemini or OpenAI API keys to power custom creative image and video generators.
+              </p>
+              <ul class="list-disc list-inside space-y-1 pl-2 text-slate-400 text-xs">
+                <li><strong class="text-white">Security:</strong> These secrets are stored <strong>strictly</strong> within your browser's private secure storage (<code>localStorage</code>) and are never uploaded to our servers or dispatched to unauthorized third parties.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            4. Legal Grounds under GDPR
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            The legal base for processing your digital assets is your <strong>unambiguous consent</strong> pursuant to Article 6(1)(a) of the European GDPR regulations. Consent is granted on a purely voluntary basis when utilizing OAuth prompts or inputting generation keys, and you can withdraw your consent instantly by disconnecting your credentials inside the settings.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            5. No Third-Party Selling or Sharing
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed font-semibold text-white">
+            We operate under a zero-compromise security promise: We never sell, monetize, leak, trade, or distribute your personal documents, files, models, or settings to any analytical tracker, advertising corporation, or corporate firm.
+          </p>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            All visual requests are safely encrypted with HTTPS and processed directly by Google and OpenAI respective APIs.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            6. Your GDPR Rights
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Under GDPR, you hold full legal rights to govern your information:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-400">
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Right to erasure (To be forgotten)</span>
+              <span>You enjoy complete control to erase all client data instantly by removing your API keys and logging out of your Google Drive account, which deletes credentials.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Right of access & correction</span>
+              <span>All files are either in your local screen or your Google Drive folder, granting you immediate capabilities to download, inspect, or correct them.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Right to restrict and object code</span>
+              <span>You can reject API usage on the spot simply by leaving API keys empty. No data will be sent to external AI endpoints.</span>
+            </div>
+            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-1">
+              <span class="font-bold text-white block">Right to lodge a complaint</span>
+              <span>You have the right to secure data protection rights. Should we infringe GDPR protocols, you can raise an issue with the Office for Personal Data Protection of the Slovak Republic.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-1.5 h-6 rounded bg-emerald-500"></span>
+            7. Changes to this Policy
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            We reserve the right to revise this Privacy Policy at our discretion to align with regulatory variations or new platform components. Any amendments will be immediately recognizable by checking the updated header date.
+          </p>
+        </div>
+      </article>
+
+    </main>
+  </div>
+
+  <footer class="border-t border-white/5 bg-slate-950/40 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-4xl mx-auto px-6">
+      <p>© 2026 Vision Forge AI. GDPR Compliance Hub.</p>
+    </div>
+  </footer>
+
+  <script>
+    function switchLang(lang) {
+      const btnSk = document.getElementById('lang-sk');
+      const btnEn = document.getElementById('lang-en');
+      const contentSk = document.getElementById('content-sk');
+      const contentEn = document.getElementById('content-en');
+
+      if (lang === 'sk') {
+        btnSk.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-emerald-500/10 text-emerald-400";
+        btnEn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors text-slate-400 hover:text-white";
+        contentSk.classList.remove('hidden');
+        contentEn.classList.add('hidden');
+        document.documentElement.lang = "sk";
+      } else {
+        btnSk.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors text-slate-400 hover:text-white";
+        btnEn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-emerald-500/10 text-emerald-400";
+        contentSk.classList.add('hidden');
+        contentEn.classList.remove('hidden');
+        document.documentElement.lang = "en";
+      }
+    }
+  </script>
+</body>
+</html>
+    `);
+  });
 
   app.get("/api/changelog", async (req, res) => {
     try {

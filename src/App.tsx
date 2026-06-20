@@ -102,6 +102,8 @@ export default function App() {
   const [isDownloadingFromDrive, setIsDownloadingFromDrive] = useState<{ [fileId: string]: boolean }>({});
   const [uploadedDriveIds, setUploadedDriveIds] = useState<{ [itemId: string]: { id: string, link: string } }>({});
   const [autoUploadToDrive, setAutoUploadToDrive] = useState(false);
+  const [driveTermsAccepted, setDriveTermsAccepted] = useState(false);
+  const [driveTermsError, setDriveTermsError] = useState(false);
 
   const fetchDriveFiles = async (token: string) => {
     setIsDriveLoading(true);
@@ -116,6 +118,11 @@ export default function App() {
   };
 
   const handleDriveLogin = async () => {
+    if (!driveTermsAccepted) {
+      setDriveTermsError(true);
+      return;
+    }
+    setDriveTermsError(false);
     try {
       const result = await googleSignIn();
       if (result) {
@@ -239,7 +246,13 @@ export default function App() {
       driveDescription: "Securely backup your premium creations to your personal Google Drive in the background.",
       driveEmptyCloud: "No backed up assets found. Save any creation to Google Drive to list it here.",
       driveLoading: "Connecting to Google Drive container...",
-      driveDownloadBtn: "Download"
+      driveDownloadBtn: "Download",
+      driveTermsAgreePrefix: "I agree to the processing of data in accordance with the",
+      privacyPolicyGDPR: "Privacy Policy (GDPR)",
+      driveTermsAnd: "and",
+      termsOfServiceCheck: "Terms of Service",
+      driveTermsErrorHeader: "⚠️ Check the box to agree to the policy!",
+      driveTermsErrorTab: "⚠️ You must accept the terms to connect Google Drive!"
     },
     sk: {
       driveTabLocal: "Lokálna história",
@@ -258,7 +271,13 @@ export default function App() {
       driveDescription: "Bezpečne zálohujte svoje prémiové výtvory na svoj osobný Google Disk v pozadí.",
       driveEmptyCloud: "Nenašli sa žiadne zálohované súbory. Uložte ľubovoľný výtvor do cloudu a zobrazí sa tu.",
       driveLoading: "Pripája sa k úložisku Google Disk...",
-      driveDownloadBtn: "Stiahnuť"
+      driveDownloadBtn: "Stiahnuť",
+      driveTermsAgreePrefix: "Súhlasím so spracovaním údajov v súlade so",
+      privacyPolicyGDPR: "Zásadami ochrany osobných údajov (GDPR)",
+      driveTermsAnd: "a",
+      termsOfServiceCheck: "Všeobecnými zmluvnými podmienkami",
+      driveTermsErrorHeader: "⚠️ Pre prihlásenie začiarknite súhlas!",
+      driveTermsErrorTab: "⚠️ Pre pripojenie musíte označiť súhlas s podmienkami!"
     },
     de: {
       driveTabLocal: "Lokaler Verlauf",
@@ -277,7 +296,13 @@ export default function App() {
       driveDescription: "Sichern Sie Ihre hochwertigen Kreationen im Hintergrund sicher auf Ihrem Google Drive.",
       driveEmptyCloud: "Keine gesicherten Dateien gefunden. Speichern Sie eine Kreation in Drive, um sie hier aufzulisten.",
       driveLoading: "Verbindung mit Google Drive wird geladen...",
-      driveDownloadBtn: "Herunterladen"
+      driveDownloadBtn: "Herunterladen",
+      driveTermsAgreePrefix: "Ich stimme der Datenverarbeitung gemäß der",
+      privacyPolicyGDPR: "Datenschutzerklärung (DSGVO)",
+      driveTermsAnd: "und den",
+      termsOfServiceCheck: "Allgemeinen Geschäftsbedingungen",
+      driveTermsErrorHeader: "⚠️ Bitte aktivieren Sie das Kontrollkästchen, um zuzustimmen!",
+      driveTermsErrorTab: "⚠️ Sie müssen die Bedingungen akzeptieren, um Google Drive zu verbinden!"
     },
     fr: {
       driveTabLocal: "Historique local",
@@ -296,7 +321,13 @@ export default function App() {
       driveDescription: "Sauvegardez en toute sécurité vos créations premium sur votre Google Drive personnel en arrière-plan.",
       driveEmptyCloud: "Aucun fichier sauvegardé trouvé. Enregistrez une création sur Google Drive pour l'afficher ici.",
       driveLoading: "Connexion au conteneur Google Drive...",
-      driveDownloadBtn: "Télécharger"
+      driveDownloadBtn: "Télécharger",
+      driveTermsAgreePrefix: "J'accepte le traitement des données conformément à la",
+      privacyPolicyGDPR: "Politique de confidentialité (RGPD)",
+      driveTermsAnd: "et aux",
+      termsOfServiceCheck: "Conditions d'utilisation",
+      driveTermsErrorHeader: "⚠️ Veuillez cocher la case pour accepter la politique !",
+      driveTermsErrorTab: "⚠️ Vous devez accepter les conditions pour connecter Google Drive !"
     },
     it: {
       driveTabLocal: "Cronologia locale",
@@ -315,7 +346,13 @@ export default function App() {
       driveDescription: "Esegui il backup sicuro delle tue creazioni premium sul tuo Google Drive personale in background.",
       driveEmptyCloud: "Nessun file di backup trovato. Salva una creazione su Google Drive per visualizzarla qui.",
       driveLoading: "Connessione in corso a Google Drive...",
-      driveDownloadBtn: "Scarica"
+      driveDownloadBtn: "Scarica",
+      driveTermsAgreePrefix: "Acconsento al tratamento dei dati in conformità con l'",
+      privacyPolicyGDPR: "Informativa sulla privacy (GDPR)",
+      driveTermsAnd: "e i",
+      termsOfServiceCheck: "Termini di servizio",
+      driveTermsErrorHeader: "⚠️ Seleziona la casella per accettare l'informativa!",
+      driveTermsErrorTab: "⚠️ Devi accettare i termini per connettere Google Drive!"
     },
     es: {
       driveTabLocal: "Historial local",
@@ -334,7 +371,13 @@ export default function App() {
       driveDescription: "Realiza copias de seguridad de forma segura de tus creaciones premium en tu Google Drive personal en segundo plano.",
       driveEmptyCloud: "No se encontraron archivos respaldados. Guarda cualquier creación en Google Drive para verla aquí.",
       driveLoading: "Conectando al contenedor de Google Drive...",
-      driveDownloadBtn: "Descargar"
+      driveDownloadBtn: "Descargar",
+      driveTermsAgreePrefix: "Acepto el procesamiento de datos de acuerdo con la",
+      privacyPolicyGDPR: "Política de privacidad (RGPD)",
+      driveTermsAnd: "y los",
+      termsOfServiceCheck: "Términos de servicio",
+      driveTermsErrorHeader: "⚠️ ¡Marca la casilla para aceptar la política!",
+      driveTermsErrorTab: "⚠️ ¡Debes aceptar los términos para conectar Google Drive!"
     },
     pt: {
       driveTabLocal: "Histórico local",
@@ -353,7 +396,13 @@ export default function App() {
       driveDescription: "Faça backup de forma segura de suas criações premium no seu Google Drive pessoal em segundo plano.",
       driveEmptyCloud: "Nenhum arquivo de backup encontrado. Salve qualquer criação no Google Drive para listá-la aqui.",
       driveLoading: "Conectando ao Google Drive...",
-      driveDownloadBtn: "Baixar"
+      driveDownloadBtn: "Baixar",
+      driveTermsAgreePrefix: "Concordo com o processamento de dados de acordo com a",
+      privacyPolicyGDPR: "Política de Privacidade (RGPD)",
+      driveTermsAnd: "e os",
+      termsOfServiceCheck: "Termos de Serviço",
+      driveTermsErrorHeader: "⚠️ Marque a caixa para concordar com a política!",
+      driveTermsErrorTab: "⚠️ Deve aceitar os termos para se conectar ao Google Drive!"
     },
     pl: {
       driveTabLocal: "Lokalna historia",
@@ -372,7 +421,13 @@ export default function App() {
       driveDescription: "Bezpiecznie zapisuj swoje wyjątkowe kreacje na osobistym dysku Google Drive w tle.",
       driveEmptyCloud: "Nie znaleziono zapisanych plików. Zapisz dowolne dzieło na Google Drive, aby je tu zobaczyć.",
       driveLoading: "Łączenie z Google Drive...",
-      driveDownloadBtn: "Pobierz"
+      driveDownloadBtn: "Pobierz",
+      driveTermsAgreePrefix: "Zgadzam się na przetwarzanie danych zgodnie z",
+      privacyPolicyGDPR: "Polityką prywatności (RODO)",
+      driveTermsAnd: "oraz",
+      termsOfServiceCheck: "Regulaminem świadczenia usług",
+      driveTermsErrorHeader: "⚠️ Zaznacz pole, aby zaakceptować politykę!",
+      driveTermsErrorTab: "⚠️ Musisz zaakceptować regulamin, aby połączyć się z Dyskiem Google!"
     }
   };
 
@@ -3202,13 +3257,46 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={handleDriveLogin}
-                  className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 whitespace-nowrap"
-                >
-                  <Cloud className="w-4 h-4" />
-                  {dt.driveConnectBtn}
-                </button>
+                <div className="flex flex-col items-center sm:items-end gap-2.5 w-full sm:w-auto">
+                  <label className="flex items-start gap-2 max-w-xs cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      id="drive-terms-checkbox-header"
+                      checked={driveTermsAccepted}
+                      onChange={(e) => {
+                        setDriveTermsAccepted(e.target.checked);
+                        if (e.target.checked) setDriveTermsError(false);
+                      }}
+                      className="mt-0.5 rounded border-white/10 bg-slate-900 text-emerald-500 focus:ring-0 focus:ring-offset-0 accent-emerald-500 w-3.5 h-3.5 cursor-pointer shrink-0"
+                    />
+                    <span className="text-[10px] text-slate-400 text-left sm:text-right leading-tight">
+                      <span>
+                        {dt.driveTermsAgreePrefix}{" "}
+                        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline font-semibold transition-colors">
+                          {dt.privacyPolicyGDPR}
+                        </a>{" "}
+                        {dt.driveTermsAnd}{" "}
+                        <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline font-semibold transition-colors">
+                          {dt.termsOfServiceCheck}
+                        </a>.
+                      </span>
+                    </span>
+                  </label>
+
+                  {driveTermsError && (
+                    <span className="text-[10px] text-red-500 font-bold animate-pulse text-center sm:text-right max-w-xs leading-tight">
+                      {dt.driveTermsErrorHeader}
+                    </span>
+                  )}
+
+                  <button
+                    onClick={handleDriveLogin}
+                    className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 whitespace-nowrap w-full sm:w-auto mt-0.5"
+                  >
+                    <Cloud className="w-4 h-4" />
+                    {dt.driveConnectBtn}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -3428,6 +3516,40 @@ export default function App() {
                     {dt.driveDescription}
                   </p>
                 </div>
+
+                <div className="flex flex-col items-center gap-3.5 max-w-md mx-auto p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <label className="flex items-start gap-3 cursor-pointer select-none text-left">
+                    <input
+                      type="checkbox"
+                      id="drive-terms-checkbox-tab"
+                      checked={driveTermsAccepted}
+                      onChange={(e) => {
+                        setDriveTermsAccepted(e.target.checked);
+                        if (e.target.checked) setDriveTermsError(false);
+                      }}
+                      className="mt-0.5 rounded border-white/10 bg-slate-900 text-emerald-500 focus:ring-0 focus:ring-offset-0 accent-emerald-500 w-4.5 h-4.5 cursor-pointer shrink-0"
+                    />
+                    <span className="text-xs text-slate-400 leading-normal">
+                      <span>
+                        {dt.driveTermsAgreePrefix}{" "}
+                        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline font-semibold transition-colors">
+                          {dt.privacyPolicyGDPR}
+                        </a>{" "}
+                        {dt.driveTermsAnd}{" "}
+                        <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline font-semibold transition-colors">
+                          {dt.termsOfServiceCheck}
+                        </a>.
+                      </span>
+                    </span>
+                  </label>
+                  
+                  {driveTermsError && (
+                    <span className="text-xs text-red-500 font-bold animate-pulse text-center leading-tight">
+                      {dt.driveTermsErrorTab}
+                    </span>
+                  )}
+                </div>
+
                 <button
                   onClick={handleDriveLogin}
                   className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs transition-colors inline-flex items-center gap-2 shadow-lg shadow-blue-500/20"
@@ -3548,6 +3670,27 @@ export default function App() {
                 ? "© 2026. Tvorba poháňaná špičkovými generatívnymi modelmi Google Gemini, Imagen 3, Veo a OpenAI. Všetky práva vyhradené."
                 : "© 2026. Powered by Google Gemini, Imagen, Veo & OpenAI. All rights reserved."}
             </span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-1.5 text-xs font-semibold">
+              <a 
+                href="/privacy-policy" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-emerald-500 hover:text-emerald-400 underline transition-colors"
+                id="footer-privacy-link"
+              >
+                {dt.privacyPolicyGDPR}
+              </a>
+              <span className="text-slate-700 select-none">•</span>
+              <a 
+                href="/terms-of-service" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-emerald-500 hover:text-emerald-400 underline transition-colors"
+                id="footer-terms-link"
+              >
+                {dt.termsOfServiceCheck}
+              </a>
+            </div>
           </div>
           
           <div className="flex flex-wrap items-center gap-4">

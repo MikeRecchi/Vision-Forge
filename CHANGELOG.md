@@ -4,6 +4,50 @@ All notable changes to the **Vision Forge** project will be documented in this f
 
 ---
 
+## [1.5.0] - 2026-06-20
+
+### English
+- **Terms of Service Implementation**: Created a beautifully styled and legal-compliant Terms of Service subpage connected cleanly across layout footers.
+- **GDPR & TOS Verification Checkbox**: Added a mandatory consent checkbox for Google Drive storage linking, utilizing interactive warning pulses to guarantee data safety compliance.
+- **Standardized Multi-language Localization**: Translated all consent agreements, error notifications, and warning systems across all 8 supported European languages.
+
+### Slovak
+- **Právny rámec a VOP**: Pridanie novej vyhradenej podstránky zmluvných podmienok (Terms of Service) a jej hlboké integrovanie do pätičky a prihlasovacích formulárov.
+- **Mechanizmus overenia súhlasu**: Zavedenie povinného zaškrtávacieho poľa (Checkboxu) pre vyjadrenie súhlasu so spracovaním údajov pred prihlásením do Google Drive s animovaným varovaním v reálnom čase pri vynechaní.
+- **Univerzálny lokalizačný systém**: Kompletný preklad všetkých právnych textov, chybových hlášok a podmienok do ôsmich podporovaných európskych jazykov.
+
+### German
+- **Nutzungsbedingungen & VOP**: Einführung einer ansprechend gestalteten, rechtskonformen Nutzungsbedingungen-Unterseite (Terms of Service), die nahtlos in die Fußzeile und die Anmeldeformulare integriert ist.
+- **Einwilligungs-Checkbox (DSGVO)**: Hinzufügen einer obligatorischen Einwilligungserklärung (Checkbox) vor dem Google Drive-Login, inklusive visueller Warnsignale bei fehlender Zustimmung.
+- **Mehrsprachige Lokalisierung**: Vollständige Übersetzung aller Rechtstexte, Warnmeldungen und Formularkomponenten in alle 8 unterstützten europäischen Sprachen.
+
+### French
+- **Conditions d'utilisation (CGU)**: Ajout d'une sous-page dédiée aux conditions d'utilisation, élégamment intégrée dans le pied de page et les formulaires d'authentification.
+- **Case à cocher RGPD & CGU**: Intégration d'une case à cocher obligatoire garantissant le consentement de l'utilisateur avant la connexion à Google Drive, avec des avertissements animés en temps réel si elle est omise.
+- **Localisation multilingue**: Traduction complète de tous les textes juridiques, avertissements et notifications d'erreur dans les 8 langues européennes prises en charge.
+
+### Italian
+- **Termini di Servizio (VOP)**: Creazione di una sottopagina dedicata ai termini di servizio, ottimizzata dal punto di vista legale ed elegantemente integrata nel piè di pagina e nei contesti di login.
+- **Checkbox di Consenso Obbligatorio**: Aggiunta di una casella di controllo per l'accettazione del trattamento dei dati prima di collegare Google Drive, completa di avvisi visivi animati se deselezionata.
+- **Localizzazione in 8 lingue**: Traduzione completa di accordi legali, messaggi d'errore e notifiche di sicurezza in tutte le 8 lingue europee supportate.
+
+### Spanish
+- **Términos de Servicio (VOP)**: Creación de una página dedicada para los términos de servicio, integrada de manera fluida y elegante en el pie de página del diseño general.
+- **Casilla de Verificación RGPD**: Se agregó una casilla de consentimiento obligatoria antes de iniciar sesión en Google Drive, con alertas visuales dinámicas de advertencia si no está marcada.
+- **Localización multilingüe**: Tradución completa de todos los acuerdos de consentimiento, errores y notificaciones de advertencia en los 8 idiomas europeos compatibles.
+
+### Portuguese
+- **Termos de Serviço (VOP)**: Criação de uma subpágina de Termos de Serviço estilizada e compatível legalmente, integrada de forma limpa nos rodapés do layout geral.
+- **Caixa de Seleção de Consentimento**: Adicionada uma caixa de seleção obrigatória para aceitação do processamento de dados antes de se conectar ao Google Drive, com avisos pulsantes interativos.
+- **Localização em 8 idiomas**: Tradução completa de todos os termos, avisos de erro e interfaces de consentimento em todos os 8 idiomas europeus suportados.
+
+### Polish
+- **Regulamin i Warunki Świadczenia Usług**: Wdrożenie dedykowanej podstrony regulaminu świadczenia usług z pełną integracją w stopce aplikacji oraz formularzach połączenia.
+- **Obowiązkowe Pole Zgody (RODO)**: Dodanie obowiązkowego pola wyboru (checkboxa) zgody na przetwarzanie danych przed połączeniem z Dyskiem Google z animowanymi ostrzeżeniami w czasie rzeczywistym.
+- **Wielojęzyczna Lokalizacja**: Kompletne tłumaczenie tekstów prawnych, komunikatów ostrzegawczych i formularzy we wszystkich 8 obsługiwanych językach europejskich.
+
+---
+
 ## [1.4.0] - 2026-06-17
 
 ### English
