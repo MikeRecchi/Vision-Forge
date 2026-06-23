@@ -209,22 +209,22 @@ export const translations = {
         guideTitle: "How to Obtain API Keys",
         geminiTitle: "Google Gemini API Key",
         geminiSteps: [
-          "Go to Google AI Studio (aistudio.google.com)",
-          "Sign in with your Google account",
-          "Click on 'Get API key' in the top left corner",
-          "Click 'Create API key', choose or create a project, and generate the key",
-          "Copy the key (starts with 'AIzaSy...') and paste it in Settings"
+          "Go to the official Google AI Studio portal (aistudio.google.com) and sign in with your regular Google account (Gmail).",
+          "In the top-left corner, click the blue 'Create API key' button.",
+          "Select the 'Create API key in new project' option.",
+          "Google will instantly generate a long string of characters (starting with AIzaSy...). Click the Copy icon.",
+          "Return to our app and paste it into the Gemini API Key field."
         ],
         geminiTip: "💡 Good to know: Google provides a very generous Free Tier for Gemini. For regular personal use and app testing, you won't need to enter any credit card info.",
         openaiTitle: "OpenAI API Key (Optional)",
         openaiSteps: [
-          "Go to OpenAI API Platform (platform.openai.com)",
-          "Sign in or sign up for a free developer account",
-          "In the left menu, select 'API Keys'",
-          "Click 'Create new secret key', enter a name (e.g., 'Vision Forge') and create",
-          "Copy the key immediately (starts with 'sk-...') and paste it in Settings"
+          "Go to the OpenAI Platform API Keys page (platform.openai.com) and sign in (or create an OpenAI account).",
+          "Click the black-and-green '+ Create new secret key' button.",
+          "Name your key whatever you like (e.g., 'Vision Forge') and confirm.",
+          "Copy the key immediately! (For security reasons, OpenAI will never show it to you again after you close the window). Paste it into the app.",
+          "In the left menu, go to Settings ➔ Billing and add some basic credits (e.g., $5)."
         ],
-        openaiTip: "⚠️ Important: OpenAI does not provide any free tier for API generation. If your account does not have pre-funded credits (even with ChatGPT Plus), it will fail with Error 429: You exceeded your current quota.",
+        openaiTip: "⚠️ Important notice: OpenAI does not provide any free tier for generation via API. If you have an OpenAI account without funded credits (even if you pay monthly for ChatGPT Plus), the key will return Error 429: You exceeded your current quota during generation.",
         linkText: "Get Key"
       },
       drive: {
@@ -453,20 +453,22 @@ export const translations = {
         guideTitle: "So erhalten Sie API-Schlüssel",
         geminiTitle: "Google Gemini API-Schlüssel",
         geminiSteps: [
-          "Rufen Sie Google AI Studio auf (aistudio.google.com)",
-          "Melden Sie sich mit Ihrem Google-Konto an",
-          "Klicken Sie oben links auf 'Get API key'",
-          "Klicken Sie auf 'Create API key', wählen Sie ein Projekt und erstellen Sie den Schlüssel",
-          "Kopieren Sie den Schlüssel (beginnt mit 'AIzaSy...') und fügen Sie ihn in die Einstellungen ein"
+          "Gehen Sie auf das offizielle Google AI Studio Portal (aistudio.google.com) und melden Sie sich mit Ihrem normalen Google-Konto (Gmail) an.",
+          "Klicken Sie oben links auf die blaue Schaltfläche 'Create API key'.",
+          "Wählen Sie die Option 'Create API key in new project' (Schlüssel in neuem Projekt erstellen).",
+          "Google generiert sofort eine lange Zeichenfolge (beginnend mit AIzaSy...). Klicken Sie auf das Kopiersymbol.",
+          "Kehren Sie zu unserer App zurück und fügen Sie ihn in das Feld Gemini API Key ein."
         ],
+        geminiTip: "💡 Gut zu wissen: Google bietet einen sehr großzügigen kostenlosen Tarif (Free Tier) für Gemini an. Für die normale persönliche Nutzung und das Testen der App müssen Sie keine Kreditkarte hinterlegen.",
         openaiTitle: "OpenAI API-Schlüssel (Optional)",
         openaiSteps: [
-          "Rufen Sie die OpenAI API Platform auf (platform.openai.com)",
-          "Melden Sie sich an oder registrieren Sie sich für ein kostenloses Konto",
-          "Wählen Sie im linken Menü 'API Keys'",
-          "Klicken Sie auf 'Create new secret key', vergeben Sie einen Namen und erstellen Sie ihn",
-          "Kopieren Sie den Schlüssel sofort (beginnt mit 'sk-...') und fügen Sie ihn in die Einstellungen ein"
+          "Gehen Sie auf die Seite OpenAI Platform API Keys (platform.openai.com) und melden Sie sich an (oder erstellen Sie ein Konto).",
+          "Klicken Sie auf die schwarz-grüne Schaltfläche '+ Create new secret key'.",
+          "Benennen Sie den Schlüssel nach Belieben (z. B. 'Vision Forge') und bestätigen Sie.",
+          "Kopieren Sie den Schlüssel sofort! (Aus Sicherheitsgründen zeigt OpenAI ihn nach dem Schließen des Fensters nie wieder an). Fügen Sie ihn in die App ein.",
+          "Gehen Sie im linken Menü zu Settings ➔ Billing und laden Sie ein Mindestguthaben auf (z. B. 5 $)."
         ],
+        openaiTip: "⚠️ Wichtiger Hinweis: OpenAI bietet kein kostenloses Kontingent für die API-Nutzung an. Wenn Ihr OpenAI-Konto kein aufgeladenes Guthaben aufweist (selbst wenn Sie ChatGPT Plus monatlich bezahlen), schlägt die Generierung mit dem Fehler 'Error 429: You exceeded your current quota' fehl.",
         linkText: "Schlüssel holen"
       },
       drive: {
@@ -695,20 +697,22 @@ export const translations = {
         guideTitle: "Comment obtenir des clés API",
         geminiTitle: "Clé API Google Gemini",
         geminiSteps: [
-          "Allez sur Google AI Studio (aistudio.google.com)",
-          "Connectez-vous avec votre compte Google",
-          "Cliquez sur 'Get API key' dans le coin supérieur gauche",
-          "Cliquez sur 'Create API key', choisissez ou créez un projet et générez la clé",
-          "Copiez la clé (commence par 'AIzaSy...') et collez-la dans les paramètres"
+          "Allez sur le portail officiel Google AI Studio (aistudio.google.com) et connectez-vous avec votre compte Google habituel (Gmail).",
+          "Dans le coin supérieur gauche, cliquez sur le bouton bleu 'Create API key'.",
+          "Choisissez l'option 'Create API key in new project' (Créer une clé dans un nouveau projet).",
+          "Google générera instantanément une longue chaîne de caractères (commençant par AIzaSy...). Cliquez sur l'icône Copier.",
+          "Revenez dans notre application et collez-la dans le champ Gemini API Key."
         ],
+        geminiTip: "💡 Bon à savoir : Google propose un forfait gratuit (Free Tier) très généreux pour Gemini. Pour une utilisation personnelle normale et tester l'application, vous n'aurez pas besoin de saisir de carte bancaire.",
         openaiTitle: "Clé API OpenAI (Optionnel)",
         openaiSteps: [
-          "Allez sur OpenAI API Platform (platform.openai.com)",
-          "Connectez-vous ou créez un compte développeur gratuit",
-          "Dans le menu de gauche, sélectionnez 'API Keys'",
-          "Cliquez sur 'Create new secret key', nommez-la et créez-la",
-          "Copiez la clé immédiatement (commence par 'sk-...') et collez-la dans les paramètres"
+          "Allez sur la page OpenAI Platform API Keys (platform.openai.com) et connectez-vous (ou créez un compte OpenAI).",
+          "Cliquez sur le bouton noir et vert '+ Create new secret key'.",
+          "Nommez votre clé comme vous le souhaitez (par exemple, 'Vision Forge') et validez.",
+          "Copiez immédiatement la clé ! (Pour des raisons de sécurité, OpenAI ne l'affichera plus jamais après la fermeture de la fenêtre). Collez-la dans l'application.",
+          "Dans le menu de gauche, allez dans Settings ➔ Billing et ajoutez un crédit de base (par exemple, 5 $)."
         ],
+        openaiTip: "⚠️ Avertissement important : OpenAI ne propose aucun forfait gratuit pour la génération via API. Si votre compte OpenAI n'a pas de crédit rechargé (même si vous payez un abonnement mensuel ChatGPT Plus), la clé renverra une erreur 429 (You exceeded your current quota) lors de la génération.",
         linkText: "Obtenir la clé"
       },
       drive: {
@@ -937,20 +941,22 @@ export const translations = {
         guideTitle: "Come ottenere le chiavi API",
         geminiTitle: "Chiave API Google Gemini",
         geminiSteps: [
-          "Vai su Google AI Studio (aistudio.google.com)",
-          "Accedi con il tuo account Google",
-          "Clicca su 'Get API key' nell'angolo in alto a sinistra",
-          "Clicca su 'Create API key', scegli o crea un progetto e genera la chiave",
-          "Copia la chiave (inizia con 'AIzaSy...') e incollala nelle impostazioni"
+          "Vai sul portale ufficiale Google AI Studio (aistudio.google.com) e accedi con il tuo normale account Google (Gmail).",
+          "Nell'angolo in alto a sinistra, clicca sul pulsante blu 'Create API key'.",
+          "Scegli l'opzione 'Create API key in new project' (Crea chiave in un nuovo progetto).",
+          "Google genererà istantaneamente una lunga stringa di caratteri (che inizia con AIzaSy...). Clicca sull'icona Copia.",
+          "Torna alla nostra applicazione e incollala nel campo Gemini API Key."
         ],
+        geminiTip: "💡 Buono a sapersi: Google offre un piano gratuito (Free Tier) molto generoso per Gemini. Per l'uso personale comune e il test dell'applicazione, non sarà necessario inserire alcuna carta di credito.",
         openaiTitle: "Chiave API OpenAI (Opzionale)",
         openaiSteps: [
-          "Vai su OpenAI API Platform (platform.openai.com)",
-          "Accedi o registrati per un account sviluppatore gratuito",
-          "Nel menu a sinistra, seleziona 'API Keys'",
-          "Clicca su 'Create new secret key', assegna un nome e creala",
-          "Copia la chiave immediatamente (inizia con 'sk-...') e incollala nelle impostazioni"
+          "Vai alla pagina OpenAI Platform API Keys (platform.openai.com) e accedi (o crea un account OpenAI).",
+          "Clicca sul pulsante nero-verde '+ Create new secret key'.",
+          "Assegna un nome a piacere alla chiave (ad esempio, 'Vision Forge') e conferma.",
+          "Copia immediatamente la chiave! (Per motivi di sicurezza, OpenAI non la mostrerà mai più dopo la chiusura della finestra). Incollala nell'applicazione.",
+          "Nel menu a sinistra, vai in Settings ➔ Billing e ricarica un credito di base (ad esempio, 5 $)."
         ],
+        openaiTip: "⚠️ Avviso importante: OpenAI non offre alcun piano gratuito per la generazione tramite API. Se hai un account OpenAI senza credito ricaricato (anche se paghi l'abbonamento mensile ChatGPT Plus), la chiave restituirà l'errore Error 429: You exceeded your current quota durante la generazione.",
         linkText: "Ottieni chiave"
       },
       drive: {
@@ -1179,20 +1185,22 @@ export const translations = {
         guideTitle: "Cómo obtener claves API",
         geminiTitle: "Clave API de Google Gemini",
         geminiSteps: [
-          "Vaya a Google AI Studio (aistudio.google.com)",
-          "Inicie sesión con su cuenta de Google",
-          "Haga clic en 'Get API key' en la esquina superior izquierda",
-          "Haga clic en 'Create API key', elija o cree un proyecto y genere la clave",
-          "Copie la clave (comienza con 'AIzaSy...') y péguela en los ajustes"
+          "Vaya al portal oficial de Google AI Studio (aistudio.google.com) e inicie sesión con su cuenta habitual de Google (Gmail).",
+          "En la esquina superior izquierda, haga clic en el botón azul 'Create API key'.",
+          "Seleccione la opción 'Create API key in new project' (Crear clave en un proyecto nuevo).",
+          "Google generará instantáneamente una larga cadena de caracteres (que comienza con AIzaSy...). Haga clic en el icono Copiar.",
+          "Regrese a nuestra aplicación y péguela en el campo Gemini API Key."
         ],
+        geminiTip: "💡 Es bueno saberlo: Google ofrece un plan gratuito (Free Tier) muy generoso para Gemini. Para el uso personal habitual y las pruebas de la aplicación, no necesitará introducir ninguna tarjeta de crédito.",
         openaiTitle: "Clave API de OpenAI (Opcional)",
         openaiSteps: [
-          "Vaya a la plataforma API de OpenAI (platform.openai.com)",
-          "Inicie sesión o regístrese para obtener una cuenta de desarrollador gratuita",
-          "En el menú de la izquierda, seleccione 'API Keys'",
-          "Haga clic en 'Create new secret key', asígnele un nombre y créela",
-          "Copie la clave de inmediato (comienza con 'sk-...') y péguela en los ajustes"
+          "Vaya a la página de OpenAI Platform API Keys (platform.openai.com) e inicie sesión (o cree una cuenta de OpenAI).",
+          "Haga clic en el botón negro y verde '+ Create new secret key'.",
+          "Asigne el nombre que desee a la clave (por ejemplo, 'Vision Forge') y confirme.",
+          "¡Copie la clave inmediatamente! (Por razones de seguridad, OpenAI nunca volverá a mostrarla después de cerrar la ventana). Péguela en la aplicación.",
+          "En el menú de la izquierda, vaya a Settings ➔ Billing e introduzca un saldo de crédito básico (por ejemplo, 5 $)."
         ],
+        openaiTip: "⚠️ Advertencia importante: OpenAI no ofrece ningún plan gratuito para la generación a través de la API. Si tiene una cuenta de OpenAI sin saldo recargado (aunque pague una suscripción mensual de ChatGPT Plus), la clave devolverá el error 'Error 429: You exceeded your current quota' al intentar generar.",
         linkText: "Obtener clave"
       },
       drive: {
@@ -1421,20 +1429,22 @@ export const translations = {
         guideTitle: "Como obter chaves de API",
         geminiTitle: "Chave API Google Gemini",
         geminiSteps: [
-          "Aceda ao Google AI Studio (aistudio.google.com)",
-          "Inicie sessão com a sua conta Google",
-          "Clique em 'Get API key' no canto superior esquerdo",
-          "Clique em 'Create API key', escolha ou crie um projeto e gere a chave",
-          "Copie a chave (começa por 'AIzaSy...') e cole-a nas configurações"
+          "Aceda ao portal oficial do Google AI Studio (aistudio.google.com) e inicie sessão com a sua conta Google normal (Gmail).",
+          "No canto superior esquerdo, clique no botão azul 'Create API key'.",
+          "Selecione a opção 'Create API key in new project' (Criar chave num novo projeto).",
+          "O Google gerará instantaneamente uma longa sequência de caracteres (que começa com AIzaSy...). Clique no ícone Copiar.",
+          "Volte à nossa aplicação e cole-a no campo Gemini API Key."
         ],
+        geminiTip: "💡 Bom saber: O Google oferece um plano gratuito (Free Tier) muito generoso para o Gemini. Para uso pessoal comum e testes da aplicação, não precisará de introduzir nenhum cartão de crédito.",
         openaiTitle: "Chave API OpenAI (Opcional)",
         openaiSteps: [
-          "Aceda à plataforma API da OpenAI (platform.openai.com)",
-          "Inicie sessão ou crie uma conta gratuita",
-          "No menu esquerdo, selecione 'API Keys'",
-          "Clique em 'Create new secret key', dê um nome e crie",
-          "Copie a chave imediatamente (começa por 'sk-...') e cole-a nas configurações"
+          "Aceda à página de chaves de API da OpenAI (platform.openai.com) e inicie sessão (ou crie uma conta OpenAI).",
+          "Clique no botão preto e verde '+ Create new secret key'.",
+          "Dê um nome à sua chave (por exemplo, 'Vision Forge') e confirme.",
+          "Copie a chave imediatamente! (Por motivos de segurança, a OpenAI nunca mais a exibirá após fechar a janela). Cole-a na aplicação.",
+          "No menu à esquerda, aceda a Settings ➔ Billing e carregue um saldo básico (por exemplo, 5 $)."
         ],
+        openaiTip: "⚠️ Aviso importante: A OpenAI não disponibiliza nenhum plano gratuito para geração via API. Se tiver uma conta OpenAI sem saldo carregado (mesmo que pague a assinatura mensal do ChatGPT Plus), a chave retornará o erro 'Error 429: You exceeded your current quota' durante a geração.",
         linkText: "Obter chave"
       },
       drive: {
@@ -1663,20 +1673,22 @@ export const translations = {
         guideTitle: "Jak uzyskać klucze API",
         geminiTitle: "Klucz API Google Gemini",
         geminiSteps: [
-          "Przejdź do Google AI Studio (aistudio.google.com)",
-          "Zaloguj się na swoje konto Google",
-          "Kliknij 'Get API key' w lewym górnym rogu",
-          "Kliknij 'Create API key', wybierz lub utwórz projekt i wygeneruj klucz",
-          "Skopiuj klucz (zaczyna się od 'AIzaSy...') i wklej go w ustawieniach"
+          "Przejdź do oficjalnego portalu Google AI Studio (aistudio.google.com) i zaloguj się za pomocą swojego zwykłego konta Google (Gmail).",
+          "W lewym górnym rogu kliknij niebieski przycisk 'Create API key'.",
+          "Wybierz opcję 'Create API key in new project' (Utwórz klucz w nowym projekcie).",
+          "Google w ułamku sekundy wygeneruje długi ciąg znaków (zaczynający się od AIzaSy...). Kliknij ikonę Kopiuj.",
+          "Wróć do naszej aplikacji i wklej go w pole Gemini API Key."
         ],
+        geminiTip: "💡 Dobrze wiedzieć: Google zapewnia bardzo hojny darmowy pakiet (Free Tier) dla Gemini. Do zwykłego użytku osobistego i testowania aplikacji nie będziesz musiał podawać żadnej karty płatniczej.",
         openaiTitle: "Klucz API OpenAI (Opcjonalnie)",
         openaiSteps: [
-          "Przejdź do platformy API OpenAI (platform.openai.com)",
-          "Zaloguj się lub zarejestruj darmowe konto deweloperskie",
-          "W lewym menu wybierz 'API Keys'",
-          "Kliknij 'Create new secret key', nazwij go i utwórz",
-          "Skopiuj klucz natychmiast (zaczyna się od 'sk-...') i wklej go w ustawieniach"
+          "Przejdź do strony OpenAI Platform API Keys (platform.openai.com) i zaloguj się (lub utwórz konto OpenAI).",
+          "Kliknij czarno-zielony przycisk '+ Create new secret key'.",
+          "Nazwij klucz w dowolny sposób (na przykład 'Vision Forge') i zatwierdź.",
+          "Skopiuj klucz natychmiast! (Ze względów bezpieczeństwa OpenAI nigdy nie wyświetli go ponownie po zamknięciu okna). Wklej go do aplikacji.",
+          "W menu po lewej stronie przejdź do sekcji Settings ➔ Billing i doładuj konto podstawowym środkiem (na przykład 5 $)."
         ],
+        openaiTip: "⚠️ Ważne ostrzeżenie: OpenAI nie oferuje darmowego pakietu do generowania przez API. Jeśli posiadasz konto w OpenAI bez doładowanego salda (nawet jeśli opłacasz abonament ChatGPT Plus), klucz zwróci błąd 'Error 429: You exceeded your current quota' podczas generowania.",
         linkText: "Pobierz klucz"
       },
       drive: {
