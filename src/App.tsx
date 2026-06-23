@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart, RefreshCw } from 'lucide-react';
+import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart, RefreshCw, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import gifshot from 'gifshot';
 import { translations, Language } from './translations';
@@ -85,6 +85,8 @@ export default function App() {
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationValue, setCustomDurationValue] = useState("");
   const [showSettings, setShowSettings] = useState(false);
+  const [showKeyGuide, setShowKeyGuide] = useState(false);
+  const [keyGuideTab, setKeyGuideTab] = useState<'gemini' | 'openai'>('gemini');
   const [showDocumentation, setShowDocumentation] = useState(false);
   const [activeDocTab, setActiveDocTab] = useState<'overview' | 'features' | 'models' | 'ratios' | 'styles' | 'privacy' | 'drive' | 'changelog'>('overview');
   const [showCreativeSettings, setShowCreativeSettings] = useState(false);
@@ -1148,6 +1150,116 @@ export default function App() {
                   {validationStatus.openai === false && <span className="text-red-500 text-xs block pl-1">✗ {t.keyInvalid}</span>}
                 </div>
 
+                {/* Interactive API Key Help Guide */}
+                <div className="border border-slate-800/80 bg-slate-950/45 rounded-2xl p-4 space-y-3 transition-all">
+                  <button 
+                    type="button"
+                    onClick={() => setShowKeyGuide(!showKeyGuide)}
+                    className="w-full flex items-center justify-between text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4" />
+                      {(t as any).documentation?.privacy?.guideTitle || "How to Obtain API Keys"}
+                    </span>
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full uppercase tracking-wider font-bold">
+                      {showKeyGuide ? "Hide" : "Show"}
+                    </span>
+                  </button>
+
+                  {showKeyGuide && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      className="space-y-3 pt-2 border-t border-slate-800/50 overflow-hidden"
+                    >
+                      {/* Tabs */}
+                      <div className="flex gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-850">
+                        <button
+                          type="button"
+                          onClick={() => setKeyGuideTab('gemini')}
+                          className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${
+                            keyGuideTab === 'gemini' 
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          Gemini
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setKeyGuideTab('openai')}
+                          className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${
+                            keyGuideTab === 'openai' 
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          OpenAI
+                        </button>
+                      </div>
+
+                      {/* Step content */}
+                      {keyGuideTab === 'gemini' ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-bold text-slate-300">
+                              {((t as any).documentation?.privacy?.geminiTitle) || "Google Gemini API Key"}
+                            </span>
+                            <a 
+                              href="https://aistudio.google.com/" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+                            >
+                              aistudio.google.com <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                          <ol className="space-y-1.5 text-[11px] text-slate-400 list-decimal list-inside leading-relaxed pl-1">
+                            {((t as any).documentation?.privacy?.geminiSteps || []).map((step: string, sIdx: number) => (
+                              <li key={sIdx} className="marker:text-emerald-500 marker:font-bold">
+                                <span className="text-slate-300 ml-1">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                          {((t as any).documentation?.privacy?.geminiTip) && (
+                            <div className="bg-emerald-500/5 border border-emerald-500/10 text-emerald-400/90 rounded-xl p-2.5 mt-2.5 text-[10.5px] leading-relaxed">
+                              {((t as any).documentation?.privacy?.geminiTip)}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-bold text-slate-300">
+                              {((t as any).documentation?.privacy?.openaiTitle) || "OpenAI API Key"}
+                            </span>
+                            <a 
+                              href="https://platform.openai.com/api-keys" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+                            >
+                              platform.openai.com <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                          <ol className="space-y-1.5 text-[11px] text-slate-400 list-decimal list-inside leading-relaxed pl-1">
+                            {((t as any).documentation?.privacy?.openaiSteps || []).map((step: string, sIdx: number) => (
+                              <li key={sIdx} className="marker:text-emerald-500 marker:font-bold">
+                                <span className="text-slate-300 ml-1">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                          {((t as any).documentation?.privacy?.openaiTip) && (
+                            <div className="bg-amber-500/5 border border-amber-500/10 text-amber-400/90 rounded-xl p-2.5 mt-2.5 text-[10.5px] leading-relaxed">
+                              {((t as any).documentation?.privacy?.openaiTip)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+
                 <div className="pt-4 space-y-4">
                   <button 
                     onClick={() => setShowSettings(false)}
@@ -2017,7 +2129,7 @@ export default function App() {
                               it: "Grafica 3D ad altissimo livello con illuminazione volumetrica cinematografica in Unreal Engine 5 e messa a fuoco nitidissima.",
                               es: "Gráficos 3D avanzados renderizados con luz volumétrica cinematográfica en Unreal Engine 5, con nitidez de enfoque extrema.",
                               pt: "Arte digital tridimensional realista gerada no Unreal Engine 5 ou Octane, com iluminação volumétrica e nitidez soberba.",
-                              pl: "Zaawansowany render 3D z filmowym oświetleniem wolumetrycznym z silników typu Unreal Engine 5 o niesamowitej ostrości szczegółów."
+                              pl: "Zaawansovaný render 3D z filmowym oświetleniem wolumetrycznym z silników typu Unreal Engine 5 o niesamowitej ostrości szczegółów."
                             }
                           }
                         ].map((item, idx) => {
@@ -2050,10 +2162,10 @@ export default function App() {
                         <Key className="w-5 h-5 text-emerald-400" />
                         {(t as any).documentation?.privacy?.title || "Privacy, Vault & Safety Rules"}
                       </h3>
-                      <p>
+                      <p className="text-xs text-slate-400 leading-relaxed">
                         {(t as any).documentation?.privacy?.intro || ""}
                       </p>
-
+ 
                       <div className="space-y-3 text-xs text-slate-400">
                         <div className="flex gap-2">
                           <span className="text-emerald-500 mt-0.5">✔</span>
@@ -2067,6 +2179,78 @@ export default function App() {
                           <div>
                             <span className="font-bold text-white block">{(t as any).documentation?.privacy?.item2Title || ""}</span>
                             <span>{(t as any).documentation?.privacy?.item2Text || ""}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Detailed Key Acquisition Guide */}
+                      <div className="mt-6 border-t border-white/5 pt-6 space-y-4">
+                        <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                          <HelpCircle className="w-4 h-4" />
+                          {(t as any).documentation?.privacy?.guideTitle || "How to Obtain API Keys"}
+                        </h4>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Gemini Box */}
+                          <div className="p-4 bg-slate-950/40 border border-white/5 rounded-2xl space-y-3">
+                            <div className="flex justify-between items-center pb-2 border-b border-white/5">
+                              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                                <Sparkles className="w-4 h-4 text-emerald-400" />
+                                {((t as any).documentation?.privacy?.geminiTitle) || "Google Gemini API Key"}
+                              </span>
+                              <a 
+                                href="https://aistudio.google.com/" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+                              >
+                                {((t as any).documentation?.privacy?.linkText) || "Get Key"} <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                            <ul className="space-y-2 text-[11px] text-slate-400 leading-relaxed">
+                              {(((t as any).documentation?.privacy?.geminiSteps) || []).map((step: string, sIdx: number) => (
+                                <li key={sIdx} className="flex gap-2">
+                                  <span className="text-emerald-500 font-bold font-mono">{sIdx + 1}.</span>
+                                  <span>{step}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            {((t as any).documentation?.privacy?.geminiTip) && (
+                              <div className="bg-emerald-500/5 border border-emerald-500/10 text-emerald-400/90 rounded-xl p-3 text-[10.5px] leading-relaxed mt-2">
+                                {((t as any).documentation?.privacy?.geminiTip)}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* OpenAI Box */}
+                          <div className="p-4 bg-slate-950/40 border border-white/5 rounded-2xl space-y-3">
+                            <div className="flex justify-between items-center pb-2 border-b border-white/5">
+                              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                                <Zap className="w-4 h-4 text-emerald-400" />
+                                {((t as any).documentation?.privacy?.openaiTitle) || "OpenAI API Key (Optional)"}
+                              </span>
+                              <a 
+                                href="https://platform.openai.com/api-keys" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+                              >
+                                {((t as any).documentation?.privacy?.linkText) || "Get Key"} <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                            <ul className="space-y-2 text-[11px] text-slate-400 leading-relaxed">
+                              {(((t as any).documentation?.privacy?.openaiSteps) || []).map((step: string, sIdx: number) => (
+                                <li key={sIdx} className="flex gap-2">
+                                  <span className="text-emerald-500 font-bold font-mono">{sIdx + 1}.</span>
+                                  <span>{step}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            {((t as any).documentation?.privacy?.openaiTip) && (
+                              <div className="bg-amber-500/5 border border-amber-500/10 text-amber-400/90 rounded-xl p-3 text-[10.5px] leading-relaxed mt-2">
+                                {((t as any).documentation?.privacy?.openaiTip)}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

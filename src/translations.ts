@@ -205,7 +205,27 @@ export const translations = {
         item1Title: "No Cloud Relaying",
         item1Text: "Your secret API keys for Gemini and OpenAI reside inside your native localStorage sandboxed space and never leave.",
         item2Title: "Instant Revocation",
-        item2Text: "Wipe existing browser credentials instantly inside the API config panel anytime with a single click."
+        item2Text: "Wipe existing browser credentials instantly inside the API config panel anytime with a single click.",
+        guideTitle: "How to Obtain API Keys",
+        geminiTitle: "Google Gemini API Key",
+        geminiSteps: [
+          "Go to Google AI Studio (aistudio.google.com)",
+          "Sign in with your Google account",
+          "Click on 'Get API key' in the top left corner",
+          "Click 'Create API key', choose or create a project, and generate the key",
+          "Copy the key (starts with 'AIzaSy...') and paste it in Settings"
+        ],
+        geminiTip: "💡 Good to know: Google provides a very generous Free Tier for Gemini. For regular personal use and app testing, you won't need to enter any credit card info.",
+        openaiTitle: "OpenAI API Key (Optional)",
+        openaiSteps: [
+          "Go to OpenAI API Platform (platform.openai.com)",
+          "Sign in or sign up for a free developer account",
+          "In the left menu, select 'API Keys'",
+          "Click 'Create new secret key', enter a name (e.g., 'Vision Forge') and create",
+          "Copy the key immediately (starts with 'sk-...') and paste it in Settings"
+        ],
+        openaiTip: "⚠️ Important: OpenAI does not provide any free tier for API generation. If your account does not have pre-funded credits (even with ChatGPT Plus), it will fail with Error 429: You exceeded your current quota.",
+        linkText: "Get Key"
       },
       drive: {
         title: "Google Drive Cloud Storage",
@@ -429,7 +449,25 @@ export const translations = {
         item1Title: "Keine Cloud-Weiterleitung",
         item1Text: "Ihre API-Schlüssel für Gemini und OpenAI werden ausschließlich lokal in Ihrem Browser (localStorage) gespeichert und verlassen diesen nie.",
         item2Title: "Sofortiger Widerruf",
-        item2Text: "Löschen Sie vorhandene Zugangsdaten im API-Einstellungskonfigurator zeitnah mit einem einzigen Klick permanent."
+        item2Text: "Löschen Sie vorhandene Zugangsdaten im API-Einstellungskonfigurator zeitnah mit einem einzigen Klick permanent.",
+        guideTitle: "So erhalten Sie API-Schlüssel",
+        geminiTitle: "Google Gemini API-Schlüssel",
+        geminiSteps: [
+          "Rufen Sie Google AI Studio auf (aistudio.google.com)",
+          "Melden Sie sich mit Ihrem Google-Konto an",
+          "Klicken Sie oben links auf 'Get API key'",
+          "Klicken Sie auf 'Create API key', wählen Sie ein Projekt und erstellen Sie den Schlüssel",
+          "Kopieren Sie den Schlüssel (beginnt mit 'AIzaSy...') und fügen Sie ihn in die Einstellungen ein"
+        ],
+        openaiTitle: "OpenAI API-Schlüssel (Optional)",
+        openaiSteps: [
+          "Rufen Sie die OpenAI API Platform auf (platform.openai.com)",
+          "Melden Sie sich an oder registrieren Sie sich für ein kostenloses Konto",
+          "Wählen Sie im linken Menü 'API Keys'",
+          "Klicken Sie auf 'Create new secret key', vergeben Sie einen Namen und erstellen Sie ihn",
+          "Kopieren Sie den Schlüssel sofort (beginnt mit 'sk-...') und fügen Sie ihn in die Einstellungen ein"
+        ],
+        linkText: "Schlüssel holen"
       },
       drive: {
         title: "Google Drive Cloud-Speicher",
@@ -653,7 +691,25 @@ export const translations = {
         item1Title: "Pas de relais cloud",
         item1Text: "Vos clés API Gemini and OpenAI sont enregistrées exclusivement dans votre navigateur (localStorage) et ne le quittent jamais.",
         item2Title: "Révocation instantanée",
-        item2Text: "Effacez vos identifiants existants dans l'onglet des configurations API à tout moment d'un simple clic."
+        item2Text: "Effacez vos identifiants existants dans l'onglet des configurations API à tout moment d'un simple clic.",
+        guideTitle: "Comment obtenir des clés API",
+        geminiTitle: "Clé API Google Gemini",
+        geminiSteps: [
+          "Allez sur Google AI Studio (aistudio.google.com)",
+          "Connectez-vous avec votre compte Google",
+          "Cliquez sur 'Get API key' dans le coin supérieur gauche",
+          "Cliquez sur 'Create API key', choisissez ou créez un projet et générez la clé",
+          "Copiez la clé (commence par 'AIzaSy...') et collez-la dans les paramètres"
+        ],
+        openaiTitle: "Clé API OpenAI (Optionnel)",
+        openaiSteps: [
+          "Allez sur OpenAI API Platform (platform.openai.com)",
+          "Connectez-vous ou créez un compte développeur gratuit",
+          "Dans le menu de gauche, sélectionnez 'API Keys'",
+          "Cliquez sur 'Create new secret key', nommez-la et créez-la",
+          "Copiez la clé immédiatement (commence par 'sk-...') et collez-la dans les paramètres"
+        ],
+        linkText: "Obtenir la clé"
       },
       drive: {
         title: "Stockage cloud Google Drive",
@@ -877,7 +933,25 @@ export const translations = {
         item1Title: "Nessun transito cloud",
         item1Text: "Le tue chiavi API per Gemini e OpenAI vengono memorizzate solo localmente nel tuo browser (localStorage) e non vengono mai inviate all'esterno.",
         item2Title: "Revoca immediata",
-        item2Text: "Cancella le credenziali esistenti nell'area di configurazione delle API in qualsiasi momento con un solo clic."
+        item2Text: "Cancella le credenziali esistenti nell'area di configurazione delle API in qualsiasi momento con un solo clic.",
+        guideTitle: "Come ottenere le chiavi API",
+        geminiTitle: "Chiave API Google Gemini",
+        geminiSteps: [
+          "Vai su Google AI Studio (aistudio.google.com)",
+          "Accedi con il tuo account Google",
+          "Clicca su 'Get API key' nell'angolo in alto a sinistra",
+          "Clicca su 'Create API key', scegli o crea un progetto e genera la chiave",
+          "Copia la chiave (inizia con 'AIzaSy...') e incollala nelle impostazioni"
+        ],
+        openaiTitle: "Chiave API OpenAI (Opzionale)",
+        openaiSteps: [
+          "Vai su OpenAI API Platform (platform.openai.com)",
+          "Accedi o registrati per un account sviluppatore gratuito",
+          "Nel menu a sinistra, seleziona 'API Keys'",
+          "Clicca su 'Create new secret key', assegna un nome e creala",
+          "Copia la chiave immediatamente (inizia con 'sk-...') e incollala nelle impostazioni"
+        ],
+        linkText: "Ottieni chiave"
       },
       drive: {
         title: "Archiviazione Google Drive Cloud",
@@ -1101,7 +1175,25 @@ export const translations = {
         item1Title: "Sin tránsito en la nube",
         item1Text: "Tus claves API de Gemini y OpenAI se almacenan exclusivamente de manera local en tu navegador (localStorage) y nunca lo abandonan.",
         item2Title: "Revocación instantánea",
-        item2Text: "Borra las credenciales existentes en la configuración de la API en cualquier momento con un solo clic."
+        item2Text: "Borra las credenciales existentes en la configuración de la API en cualquier momento con un solo clic.",
+        guideTitle: "Cómo obtener claves API",
+        geminiTitle: "Clave API de Google Gemini",
+        geminiSteps: [
+          "Vaya a Google AI Studio (aistudio.google.com)",
+          "Inicie sesión con su cuenta de Google",
+          "Haga clic en 'Get API key' en la esquina superior izquierda",
+          "Haga clic en 'Create API key', elija o cree un proyecto y genere la clave",
+          "Copie la clave (comienza con 'AIzaSy...') y péguela en los ajustes"
+        ],
+        openaiTitle: "Clave API de OpenAI (Opcional)",
+        openaiSteps: [
+          "Vaya a la plataforma API de OpenAI (platform.openai.com)",
+          "Inicie sesión o regístrese para obtener una cuenta de desarrollador gratuita",
+          "En el menú de la izquierda, seleccione 'API Keys'",
+          "Haga clic en 'Create new secret key', asígnele un nombre y créela",
+          "Copie la clave de inmediato (comienza con 'sk-...') y péguela en los ajustes"
+        ],
+        linkText: "Obtener clave"
       },
       drive: {
         title: "Almacenamiento Google Drive Cloud",
@@ -1325,7 +1417,25 @@ export const translations = {
         item1Title: "Sem tráfego na nuvem",
         item1Text: "Diferente de apps que enviam dados para servidores próprios, suas chaves de API do Gemini e do OpenAI ficam guardadas de forma segura apenas no seu navegador (localStorage).",
         item2Title: "Remoção instantânea",
-        item2Text: "Limpe suas credenciais salvas no menu de configurações do aplicativo quando quiser com um único clique."
+        item2Text: "Limpe suas credenciais salvas no menu de configurações do aplicativo quando quiser com um único clique.",
+        guideTitle: "Como obter chaves de API",
+        geminiTitle: "Chave API Google Gemini",
+        geminiSteps: [
+          "Aceda ao Google AI Studio (aistudio.google.com)",
+          "Inicie sessão com a sua conta Google",
+          "Clique em 'Get API key' no canto superior esquerdo",
+          "Clique em 'Create API key', escolha ou crie um projeto e gere a chave",
+          "Copie a chave (começa por 'AIzaSy...') e cole-a nas configurações"
+        ],
+        openaiTitle: "Chave API OpenAI (Opcional)",
+        openaiSteps: [
+          "Aceda à plataforma API da OpenAI (platform.openai.com)",
+          "Inicie sessão ou crie uma conta gratuita",
+          "No menu esquerdo, selecione 'API Keys'",
+          "Clique em 'Create new secret key', dê um nome e crie",
+          "Copie a chave imediatamente (começa por 'sk-...') e cole-a nas configurações"
+        ],
+        linkText: "Obter chave"
       },
       drive: {
         title: "Armazenamento na Nuvem Google Drive",
@@ -1549,7 +1659,25 @@ export const translations = {
         item1Title: "Brak przesyłania w chmurze",
         item1Text: "Klucze API dla platform Gemini i OpenAI są zapisywane tylko i wyłącznie w pamięci Twojej przeglądarki (localStorage).",
         item2Title: "Natychmiastowe usuwanie",
-        item2Text: "Z łatwością wymazujesz zapisane klucze w sekcji ustawień aplikacji w dowolnym momencie jednym kliknięciem."
+        item2Text: "Z łatwością wymazujesz zapisane klucze w sekcji ustawień aplikacji w dowolnym momencie jednym kliknięciem.",
+        guideTitle: "Jak uzyskać klucze API",
+        geminiTitle: "Klucz API Google Gemini",
+        geminiSteps: [
+          "Przejdź do Google AI Studio (aistudio.google.com)",
+          "Zaloguj się na swoje konto Google",
+          "Kliknij 'Get API key' w lewym górnym rogu",
+          "Kliknij 'Create API key', wybierz lub utwórz projekt i wygeneruj klucz",
+          "Skopiuj klucz (zaczyna się od 'AIzaSy...') i wklej go w ustawieniach"
+        ],
+        openaiTitle: "Klucz API OpenAI (Opcjonalnie)",
+        openaiSteps: [
+          "Przejdź do platformy API OpenAI (platform.openai.com)",
+          "Zaloguj się lub zarejestruj darmowe konto deweloperskie",
+          "W lewym menu wybierz 'API Keys'",
+          "Kliknij 'Create new secret key', nazwij go i utwórz",
+          "Skopiuj klucz natychmiast (zaczyna się od 'sk-...') i wklej go w ustawieniach"
+        ],
+        linkText: "Pobierz klucz"
       },
       drive: {
         title: "Kopia zapasowa Google Drive",
@@ -1771,9 +1899,29 @@ export const translations = {
         title: "Bezpečnosť, súkromie a kľúče",
         intro: "Súkromie kľúčov používateľov je našou absolútnou prioritou. Architektúra Vision Forge funguje na princípoch lokálnej ochrany:",
         item1Title: "Bez odosielania do cloudu",
-        item1Text: "Vaše tajné API kľúče pre Gemini a OpenAI sú držané výhradne vo vašom prehliadači (úložisko localStorage) a nikdy neodchádzają na servery tretích strán.",
+        item1Text: "Vaše tajné API kľúče pre Gemini a OpenAI sú držané výhradne vo vašom prehliadači (úložisko localStorage) d nikdy neodchádzajú na servery tretích strán.",
         item2Title: "Okamžité zmazanie",
-        item2Text: "Kedykoľvek môžete kľúče vymazať kliknutím na ikonu krížika v paneli nastavení, čím sa permanentne vymažú z vášho lokálneho prehliadača."
+        item2Text: "Kedykoľvek môžete kľúče vymazať kliknutím na ikonu krížika v paneli nastavení, čím sa permanentne vymažú z vášho lokálneho prehliadača.",
+        guideTitle: "Ako získať API kľúče",
+        geminiTitle: "Google Gemini API kľúč",
+        geminiSteps: [
+          "Prejdite na oficiálny portál Google AI Studio (aistudio.google.com) a prihláste sa svojím bežným Google účtom (Gmail).",
+          "V ľavom hornom rohu kliknite na modré tlačidlo Create API key.",
+          "Zvoľte možnosť Create API key in new project (Vytvoriť kľúč v novom projekte).",
+          "Google vám v zlomku sekundy vygeneruje dlhý reťazec znakov (začína na AIzaSy...). Kliknite na ikonu Skopírovať.",
+          "Vráťte sa do našej aplikácie a vložte ho do poľa Gemini API Key."
+        ],
+        geminiTip: "💡 Dobré vedieť: Google poskytuje pre Gemini veľmi štedrý bezplatný balík (Free Tier). Pre bežné osobné používanie a testovanie aplikácie nebudete musieť zadávať žiadnu platobnú kartu.",
+        openaiTitle: "OpenAI API kľúč (voliteľné)",
+        openaiSteps: [
+          "Prejdite na stránku OpenAI Platform API Keys (platform.openai.com) a prihláste sa (alebo si vytvorte OpenAI účet).",
+          "Kliknite na čierno-zelené tlačidlo + Create new secret key.",
+          "Kľúč si ľubovoľne pomenujte (napríklad Vision Forge) a potvrďte.",
+          "Kľúč si okamžite skopírujte! (OpenAI ho z bezpečnostných dôvodov po zatvorení okna už nikdy znova nezobrazí). Vložte ho do aplikácie.",
+          "V menu vľavo prejdite do sekcie Settings ➔ Billing a vložte si na účet základný kredit (napríklad 5 $)."
+        ],
+        openaiTip: "⚠️ Dôležité upozornenie: OpenAI neposkytuje žiadny bezplatný balík pre generovanie cez API. Ak máte účet v OpenAI bez nabitého kreditu (hoci si platíte mesačný ChatGPT Plus), kľúč vám pri generovaní vráti chybovú hlášku Error 429: You exceeded your current quota.",
+        linkText: "Získať kľúč"
       },
       drive: {
         title: "Cloudové úložisko Google Disk",
