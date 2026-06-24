@@ -418,6 +418,7 @@ export default function App() {
   } | null>(null);
 
   const [showMetadataOverlay, setShowMetadataOverlay] = useState(true);
+  const [showStatusDashboard, setShowStatusDashboard] = useState(false);
   const generationStartTimeRef = useRef<number | null>(null);
   
   // GIF Settings
@@ -1694,203 +1695,247 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Real-time API Status Dashboard */}
-                <div className="border border-slate-800/80 bg-slate-950/40 rounded-[2rem] p-5 space-y-4 shadow-inner relative overflow-hidden group">
-                  {/* Title & Trigger Button */}
-                  <div className="flex items-center justify-between">
+                {/* Real-time API Status Dashboard Accordion */}
+                <div className="border border-slate-800/80 bg-slate-950/40 rounded-[2rem] overflow-hidden shadow-inner relative group">
+                  {/* Accordion Header Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setShowStatusDashboard(!showStatusDashboard)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-all cursor-pointer select-none"
+                  >
                     <div className="flex items-center gap-2">
                       <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                          apiMetrics.gemini.status === 'operational' && apiMetrics.openai.status === 'operational' ? 'bg-emerald-400' :
+                          apiMetrics.gemini.status === 'failed' || apiMetrics.openai.status === 'failed' ? 'bg-red-400' :
+                          'bg-slate-400'
+                        }`}></span>
+                        <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                          apiMetrics.gemini.status === 'operational' && apiMetrics.openai.status === 'operational' ? 'bg-emerald-500' :
+                          apiMetrics.gemini.status === 'failed' || apiMetrics.openai.status === 'failed' ? 'bg-red-500' :
+                          'bg-slate-500'
+                        }`}></span>
                       </span>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
                         {dashboardTranslations[language as keyof typeof dashboardTranslations]?.title || dashboardTranslations.en.title}
                       </h3>
                     </div>
-                    {(userApiKey || openaiApiKey) && (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          if (userApiKey) await validateGemini();
-                          if (openaiApiKey) await validateOpenAI();
-                        }}
-                        disabled={isGeminiValidating || isOpenAIValidating}
-                        className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer bg-emerald-500/5 hover:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/10"
-                        title={dashboardTranslations[language as keyof typeof dashboardTranslations]?.runCheck || dashboardTranslations.en.runCheck}
+                    <div className="flex items-center gap-2.5">
+                      {!showStatusDashboard && (
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {apiMetrics.gemini.status === 'operational' && apiMetrics.openai.status === 'operational' 
+                            ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.bothHealthy || dashboardTranslations.en.bothHealthy)
+                            : (apiMetrics.gemini.status === 'failed' || apiMetrics.openai.status === 'failed' 
+                              ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.issuesDetected || dashboardTranslations.en.issuesDetected)
+                              : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured))
+                          }
+                        </span>
+                      )}
+                      <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${showStatusDashboard ? "rotate-180" : ""}`} />
+                    </div>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {showStatusDashboard && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                        className="overflow-hidden"
                       >
-                        {isGeminiValidating || isOpenAIValidating ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <RefreshCw className="w-3 h-3" />
-                        )}
-                        {dashboardTranslations[language as keyof typeof dashboardTranslations]?.healthCheckBtn || dashboardTranslations.en.healthCheckBtn}
-                      </button>
+                        <div className="px-5 pb-5 pt-1 space-y-4 border-t border-slate-800/40">
+                          {/* Manual trigger Button row */}
+                          <div className="flex items-center justify-end">
+                            {(userApiKey || openaiApiKey) && (
+                              <button
+                                type="button"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (userApiKey) await validateGemini();
+                                  if (openaiApiKey) await validateOpenAI();
+                                }}
+                                disabled={isGeminiValidating || isOpenAIValidating}
+                                className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer bg-emerald-500/5 hover:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/10"
+                                title={dashboardTranslations[language as keyof typeof dashboardTranslations]?.runCheck || dashboardTranslations.en.runCheck}
+                              >
+                                {isGeminiValidating || isOpenAIValidating ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <RefreshCw className="w-3 h-3" />
+                                )}
+                                {dashboardTranslations[language as keyof typeof dashboardTranslations]?.healthCheckBtn || dashboardTranslations.en.healthCheckBtn}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Grid for Gemini and OpenAI */}
+                          <div className="grid grid-cols-2 gap-3">
+                            {/* Gemini Status Panel */}
+                            <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-3.5 space-y-3 flex flex-col justify-between">
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-[11px] font-bold text-slate-300">Gemini</span>
+                                  {/* Pulsing state indicator */}
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`h-1.5 w-1.5 rounded-full ${
+                                      apiMetrics.gemini.status === 'unconfigured' ? 'bg-slate-600' :
+                                      apiMetrics.gemini.status === 'operational' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse' :
+                                      apiMetrics.gemini.status === 'degraded' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse' :
+                                      'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse'
+                                    }`} />
+                                    <span className="text-[9px] font-semibold text-slate-500">
+                                      {apiMetrics.gemini.status === 'unconfigured' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                                      {apiMetrics.gemini.status === 'operational' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.operational || dashboardTranslations.en.operational)}
+                                      {apiMetrics.gemini.status === 'degraded' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.degraded || dashboardTranslations.en.degraded)}
+                                      {apiMetrics.gemini.status === 'failed' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.failed || dashboardTranslations.en.failed)}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Telemetry Metrics */}
+                                <div className="grid grid-cols-2 gap-2 text-left pt-1">
+                                  <div className="space-y-0.5">
+                                    <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                                      {dashboardTranslations[language as keyof typeof dashboardTranslations]?.latency || dashboardTranslations.en.latency}
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-slate-300">
+                                      {apiMetrics.gemini.latency ? `${apiMetrics.gemini.latency} ms` : '--'}
+                                    </span>
+                                  </div>
+                                  <div className="space-y-0.5">
+                                    <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                                      {dashboardTranslations[language as keyof typeof dashboardTranslations]?.uptime || dashboardTranslations.en.uptime}
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-slate-300">
+                                      {apiMetrics.gemini.status === 'unconfigured' ? '--' : `${apiMetrics.gemini.uptime}%`}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Sparkline History / Status Bar */}
+                              <div className="pt-2 border-t border-slate-800/40">
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-[9px] font-medium text-slate-500">
+                                    {dashboardTranslations[language as keyof typeof dashboardTranslations]?.history || dashboardTranslations.en.history}
+                                  </span>
+                                  <span className="text-[8px] font-mono text-slate-600">
+                                    {apiMetrics.gemini.lastCheck ? `${dashboardTranslations[language as keyof typeof dashboardTranslations]?.lastCheck || dashboardTranslations.en.lastCheck}: ${apiMetrics.gemini.lastCheck}` : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.never || dashboardTranslations.en.never)}
+                                  </span>
+                                </div>
+                                {apiMetrics.gemini.latencyHistory.length > 0 ? (
+                                  <div className="flex items-end gap-[3px] h-[18px] pt-1.5 justify-start">
+                                    {apiMetrics.gemini.latencyHistory.map((lat, idx) => {
+                                      const heightPercent = Math.min(100, Math.max(20, (lat / 1200) * 100));
+                                      return (
+                                        <div 
+                                          key={idx} 
+                                          className={`w-[6px] rounded-t-[1px] transition-all ${
+                                            lat > 1500 ? 'bg-amber-500' : 'bg-emerald-500/60 hover:bg-emerald-400'
+                                          }`} 
+                                          style={{ height: `${heightPercent}%` }}
+                                          title={`${lat}ms`}
+                                        />
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <span className="text-[8.5px] text-slate-600 block leading-tight italic">
+                                    {userApiKey ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.historyAwaiting || dashboardTranslations.en.historyAwaiting) : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* OpenAI Status Panel */}
+                            <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-3.5 space-y-3 flex flex-col justify-between">
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-[11px] font-bold text-slate-300">OpenAI</span>
+                                  {/* Pulsing state indicator */}
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`h-1.5 w-1.5 rounded-full ${
+                                      apiMetrics.openai.status === 'unconfigured' ? 'bg-slate-600' :
+                                      apiMetrics.openai.status === 'operational' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse' :
+                                      apiMetrics.openai.status === 'degraded' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse' :
+                                      'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse'
+                                    }`} />
+                                    <span className="text-[9px] font-semibold text-slate-500">
+                                      {apiMetrics.openai.status === 'unconfigured' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                                      {apiMetrics.openai.status === 'operational' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.operational || dashboardTranslations.en.operational)}
+                                      {apiMetrics.openai.status === 'degraded' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.degraded || dashboardTranslations.en.degraded)}
+                                      {apiMetrics.openai.status === 'failed' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.failed || dashboardTranslations.en.failed)}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Telemetry Metrics */}
+                                <div className="grid grid-cols-2 gap-2 text-left pt-1">
+                                  <div className="space-y-0.5">
+                                    <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                                      {dashboardTranslations[language as keyof typeof dashboardTranslations]?.latency || dashboardTranslations.en.latency}
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-slate-300">
+                                      {apiMetrics.openai.latency ? `${apiMetrics.openai.latency} ms` : '--'}
+                                    </span>
+                                  </div>
+                                  <div className="space-y-0.5">
+                                    <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                                      {dashboardTranslations[language as keyof typeof dashboardTranslations]?.uptime || dashboardTranslations.en.uptime}
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-slate-300">
+                                      {apiMetrics.openai.status === 'unconfigured' ? '--' : `${apiMetrics.openai.uptime}%`}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Sparkline History / Status Bar */}
+                              <div className="pt-2 border-t border-slate-800/40">
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-[9px] font-medium text-slate-500">
+                                    {dashboardTranslations[language as keyof typeof dashboardTranslations]?.history || dashboardTranslations.en.history}
+                                  </span>
+                                  <span className="text-[8px] font-mono text-slate-600">
+                                    {apiMetrics.openai.lastCheck ? `${dashboardTranslations[language as keyof typeof dashboardTranslations]?.lastCheck || dashboardTranslations.en.lastCheck}: ${apiMetrics.openai.lastCheck}` : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.never || dashboardTranslations.en.never)}
+                                  </span>
+                                </div>
+                                {apiMetrics.openai.latencyHistory.length > 0 ? (
+                                  <div className="flex items-end gap-[3px] h-[18px] pt-1.5 justify-start">
+                                    {apiMetrics.openai.latencyHistory.map((lat, idx) => {
+                                      const heightPercent = Math.min(100, Math.max(20, (lat / 1200) * 100));
+                                      return (
+                                        <div 
+                                          key={idx} 
+                                          className={`w-[6px] rounded-t-[1px] transition-all ${
+                                            lat > 1500 ? 'bg-amber-500' : 'bg-emerald-500/60 hover:bg-emerald-400'
+                                          }`} 
+                                          style={{ height: `${heightPercent}%` }}
+                                          title={`${lat}ms`}
+                                        />
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <span className="text-[8.5px] text-slate-600 block leading-tight italic">
+                                    {openaiApiKey ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.historyAwaiting || dashboardTranslations.en.historyAwaiting) : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Context footer when no keys entered */}
+                          {!userApiKey && !openaiApiKey && (
+                            <p className="text-[10px] text-slate-500 text-center leading-relaxed pt-1.5">
+                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.noKeysTitle || dashboardTranslations.en.noKeysTitle}
+                            </p>
+                          )}
+                        </div>
+                      </motion.div>
                     )}
-                  </div>
-
-                  {/* Grid for Gemini and OpenAI */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Gemini Status Panel */}
-                    <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-3.5 space-y-3 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[11px] font-bold text-slate-300">Gemini</span>
-                          {/* Pulsing state indicator */}
-                          <div className="flex items-center gap-1.5">
-                            <span className={`h-1.5 w-1.5 rounded-full ${
-                              apiMetrics.gemini.status === 'unconfigured' ? 'bg-slate-600' :
-                              apiMetrics.gemini.status === 'operational' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse' :
-                              apiMetrics.gemini.status === 'degraded' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse' :
-                              'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse'
-                            }`} />
-                            <span className="text-[9px] font-semibold text-slate-500">
-                              {apiMetrics.gemini.status === 'unconfigured' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
-                              {apiMetrics.gemini.status === 'operational' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.operational || dashboardTranslations.en.operational)}
-                              {apiMetrics.gemini.status === 'degraded' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.degraded || dashboardTranslations.en.degraded)}
-                              {apiMetrics.gemini.status === 'failed' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.failed || dashboardTranslations.en.failed)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Telemetry Metrics */}
-                        <div className="grid grid-cols-2 gap-2 text-left pt-1">
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
-                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.latency || dashboardTranslations.en.latency}
-                            </span>
-                            <span className="text-xs font-mono font-bold text-slate-300">
-                              {apiMetrics.gemini.latency ? `${apiMetrics.gemini.latency} ms` : '--'}
-                            </span>
-                          </div>
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
-                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.uptime || dashboardTranslations.en.uptime}
-                            </span>
-                            <span className="text-xs font-mono font-bold text-slate-300">
-                              {apiMetrics.gemini.status === 'unconfigured' ? '--' : `${apiMetrics.gemini.uptime}%`}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Sparkline History / Status Bar */}
-                      <div className="pt-2 border-t border-slate-800/40">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[9px] font-medium text-slate-500">
-                            {dashboardTranslations[language as keyof typeof dashboardTranslations]?.history || dashboardTranslations.en.history}
-                          </span>
-                          <span className="text-[8px] font-mono text-slate-600">
-                            {apiMetrics.gemini.lastCheck ? `${dashboardTranslations[language as keyof typeof dashboardTranslations]?.lastCheck || dashboardTranslations.en.lastCheck}: ${apiMetrics.gemini.lastCheck}` : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.never || dashboardTranslations.en.never)}
-                          </span>
-                        </div>
-                        {apiMetrics.gemini.latencyHistory.length > 0 ? (
-                          <div className="flex items-end gap-[3px] h-[18px] pt-1.5 justify-start">
-                            {apiMetrics.gemini.latencyHistory.map((lat, idx) => {
-                              const heightPercent = Math.min(100, Math.max(20, (lat / 1200) * 100));
-                              return (
-                                <div 
-                                  key={idx} 
-                                  className={`w-[6px] rounded-t-[1px] transition-all ${
-                                    lat > 1500 ? 'bg-amber-500' : 'bg-emerald-500/60 hover:bg-emerald-400'
-                                  }`} 
-                                  style={{ height: `${heightPercent}%` }}
-                                  title={`${lat}ms`}
-                                />
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-[8.5px] text-slate-600 block leading-tight italic">
-                            {userApiKey ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.historyAwaiting || dashboardTranslations.en.historyAwaiting) : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* OpenAI Status Panel */}
-                    <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-3.5 space-y-3 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[11px] font-bold text-slate-300">OpenAI</span>
-                          {/* Pulsing state indicator */}
-                          <div className="flex items-center gap-1.5">
-                            <span className={`h-1.5 w-1.5 rounded-full ${
-                              apiMetrics.openai.status === 'unconfigured' ? 'bg-slate-600' :
-                              apiMetrics.openai.status === 'operational' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse' :
-                              apiMetrics.openai.status === 'degraded' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse' :
-                              'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse'
-                            }`} />
-                            <span className="text-[9px] font-semibold text-slate-500">
-                              {apiMetrics.openai.status === 'unconfigured' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
-                              {apiMetrics.openai.status === 'operational' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.operational || dashboardTranslations.en.operational)}
-                              {apiMetrics.openai.status === 'degraded' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.degraded || dashboardTranslations.en.degraded)}
-                              {apiMetrics.openai.status === 'failed' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.failed || dashboardTranslations.en.failed)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Telemetry Metrics */}
-                        <div className="grid grid-cols-2 gap-2 text-left pt-1">
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
-                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.latency || dashboardTranslations.en.latency}
-                            </span>
-                            <span className="text-xs font-mono font-bold text-slate-300">
-                              {apiMetrics.openai.latency ? `${apiMetrics.openai.latency} ms` : '--'}
-                            </span>
-                          </div>
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
-                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.uptime || dashboardTranslations.en.uptime}
-                            </span>
-                            <span className="text-xs font-mono font-bold text-slate-300">
-                              {apiMetrics.openai.status === 'unconfigured' ? '--' : `${apiMetrics.openai.uptime}%`}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Sparkline History / Status Bar */}
-                      <div className="pt-2 border-t border-slate-800/40">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[9px] font-medium text-slate-500">
-                            {dashboardTranslations[language as keyof typeof dashboardTranslations]?.history || dashboardTranslations.en.history}
-                          </span>
-                          <span className="text-[8px] font-mono text-slate-600">
-                            {apiMetrics.openai.lastCheck ? `${dashboardTranslations[language as keyof typeof dashboardTranslations]?.lastCheck || dashboardTranslations.en.lastCheck}: ${apiMetrics.openai.lastCheck}` : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.never || dashboardTranslations.en.never)}
-                          </span>
-                        </div>
-                        {apiMetrics.openai.latencyHistory.length > 0 ? (
-                          <div className="flex items-end gap-[3px] h-[18px] pt-1.5 justify-start">
-                            {apiMetrics.openai.latencyHistory.map((lat, idx) => {
-                              const heightPercent = Math.min(100, Math.max(20, (lat / 1200) * 100));
-                              return (
-                                <div 
-                                  key={idx} 
-                                  className={`w-[6px] rounded-t-[1px] transition-all ${
-                                    lat > 1500 ? 'bg-amber-500' : 'bg-emerald-500/60 hover:bg-emerald-400'
-                                  }`} 
-                                  style={{ height: `${heightPercent}%` }}
-                                  title={`${lat}ms`}
-                                />
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-[8.5px] text-slate-600 block leading-tight italic">
-                            {openaiApiKey ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.historyAwaiting || dashboardTranslations.en.historyAwaiting) : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Context footer when no keys entered */}
-                  {!userApiKey && !openaiApiKey && (
-                    <p className="text-[10px] text-slate-500 text-center leading-relaxed pt-1.5">
-                      {dashboardTranslations[language as keyof typeof dashboardTranslations]?.noKeysTitle || dashboardTranslations.en.noKeysTitle}
-                    </p>
-                  )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Interactive API Key Help Guide */}
