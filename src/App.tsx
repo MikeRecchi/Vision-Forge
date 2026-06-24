@@ -34,8 +34,292 @@ interface HistoryItem {
     duration?: string;
     style?: string;
     stabilization?: boolean;
+    generationDuration?: number;
   };
 }
+
+const dashboardTranslations = {
+  en: {
+    title: "Real-time API Status Dashboard",
+    latency: "Latency",
+    uptime: "Uptime",
+    status: "Status",
+    operational: "Operational",
+    unconfigured: "Not Configured",
+    degraded: "Degraded",
+    failed: "Error",
+    lastCheck: "Last Check",
+    runCheck: "Run latency & health check",
+    history: "Latency History",
+    historyAwaiting: "Run check to plot latency telemetry",
+    checking: "Checking...",
+    never: "Never",
+    ms: "ms",
+    verified: "Verified",
+    failedStatus: "Failed",
+    healthCheckBtn: "Test Connection",
+    bothHealthy: "All APIs operational",
+    issuesDetected: "Issues detected",
+    noKeysTitle: "Awaiting API credentials",
+    modelName: "Model",
+    genDuration: "Generation Time",
+    timestamp: "Generated At",
+    resolution: "Resolution",
+    aspectRatio: "Aspect Ratio",
+    videoLength: "Video Length",
+    style: "Style",
+    sec: "s",
+    noMetadata: "No metadata available",
+    telemetryTitle: "Generation Telemetry",
+    toggleTelemetry: "Toggle telemetry overlay",
+    promptTitle: "Prompt"
+  },
+  de: {
+    title: "Echtzeit-API-Status-Dashboard",
+    latency: "Latenz",
+    uptime: "Verfügbarkeit",
+    status: "Status",
+    operational: "Betriebsbereit",
+    unconfigured: "Nicht konfiguriert",
+    degraded: "Eingeschränkt",
+    failed: "Fehler",
+    lastCheck: "Letzter Test",
+    runCheck: "Latenz & Zustand prüfen",
+    history: "Latenzverlauf",
+    historyAwaiting: "Prüfung starten, um Latenz-Telemetrie anzuzeigen",
+    checking: "Prüfe...",
+    never: "Nie",
+    ms: "ms",
+    verified: "Verifiziert",
+    failedStatus: "Fehlgeschlagen",
+    healthCheckBtn: "Verbindung testen",
+    bothHealthy: "Alle APIs betriebsbereit",
+    issuesDetected: "Probleme erkannt",
+    noKeysTitle: "Warte auf API-Schlüssel",
+    modelName: "Modell",
+    genDuration: "Generierungszeit",
+    timestamp: "Generiert am",
+    resolution: "Auflösung",
+    aspectRatio: "Seitenverhältnis",
+    videoLength: "Videolänge",
+    style: "Stil",
+    sec: "s",
+    noMetadata: "Keine Metadaten verfügbar",
+    telemetryTitle: "Generierungs-Telemetrie",
+    toggleTelemetry: "Telemetrie-Overlay umschalten",
+    promptTitle: "Prompt"
+  },
+  fr: {
+    title: "Tableau de bord du statut de l'API en temps réel",
+    latency: "Latence",
+    uptime: "Disponibilité",
+    status: "Statut",
+    operational: "Opérationnel",
+    unconfigured: "Non configuré",
+    degraded: "Dégradé",
+    failed: "Erreur",
+    lastCheck: "Dernière vérification",
+    runCheck: "Vérifier la latence et l'état",
+    history: "Historique de latence",
+    historyAwaiting: "Lancer le test pour tracer la télémétrie de latence",
+    checking: "Vérification...",
+    never: "Jamais",
+    ms: "ms",
+    verified: "Vérifié",
+    failedStatus: "Échoué",
+    healthCheckBtn: "Tester la connexion",
+    bothHealthy: "Toutes les API sont opérationnelles",
+    issuesDetected: "Problèmes détectés",
+    noKeysTitle: "En attente des clés API",
+    modelName: "Modèle",
+    genDuration: "Durée de génération",
+    timestamp: "Généré à",
+    resolution: "Résolution",
+    aspectRatio: "Format d'image",
+    videoLength: "Durée de la vidéo",
+    style: "Style",
+    sec: "s",
+    noMetadata: "Aucune métadonnée disponible",
+    telemetryTitle: "Télémétrie de génération",
+    toggleTelemetry: "Basculer l'affichage de la télémétrie",
+    promptTitle: "Prompt"
+  },
+  it: {
+    title: "Tabella di controllo stato API in tempo reale",
+    latency: "Latenza",
+    uptime: "Disponibilità",
+    status: "Stato",
+    operational: "Operativo",
+    unconfigured: "Non configurato",
+    degraded: "Degradato",
+    failed: "Errore",
+    lastCheck: "Ultimo controllo",
+    runCheck: "Verifica latenza e stato di salute",
+    history: "Cronologia latenza",
+    historyAwaiting: "Esegui controllo per tracciare la telemetria di latenza",
+    checking: "Verifica in corso...",
+    never: "Mai",
+    ms: "ms",
+    verified: "Verificato",
+    failedStatus: "Fallito",
+    healthCheckBtn: "Testa connessione",
+    bothHealthy: "Tutte le API sono operative",
+    issuesDetected: "Problemi rilevati",
+    noKeysTitle: "In attesa delle chiavi API",
+    modelName: "Modello",
+    genDuration: "Tempo di generazione",
+    timestamp: "Generato il",
+    resolution: "Risoluzione",
+    aspectRatio: "Rapporto d'aspetto",
+    videoLength: "Durata video",
+    style: "Stile",
+    sec: "s",
+    noMetadata: "Nessun metadato disponibile",
+    telemetryTitle: "Telemetria di generazione",
+    toggleTelemetry: "Attiva/disattiva overlay telemetria",
+    promptTitle: "Prompt"
+  },
+  es: {
+    title: "Tablero de estado de API en tiempo real",
+    latency: "Latencia",
+    uptime: "Disponibilidad",
+    status: "Estado",
+    operational: "Operativo",
+    unconfigured: "No configurado",
+    degraded: "Degradado",
+    failed: "Error",
+    lastCheck: "Última comprobación",
+    runCheck: "Comprobar latencia y estado",
+    history: "Historial de latencia",
+    historyAwaiting: "Ejecutar comprobación para graficar telemetría",
+    checking: "Comprobando...",
+    never: "Nunca",
+    ms: "ms",
+    verified: "Verificado",
+    failedStatus: "Fallido",
+    healthCheckBtn: "Probar conexión",
+    bothHealthy: "Todas las API están operativas",
+    issuesDetected: "Problemas detectados",
+    noKeysTitle: "Esperando credenciales de API",
+    modelName: "Modelo",
+    genDuration: "Tiempo de generación",
+    timestamp: "Generado el",
+    resolution: "Resolución",
+    aspectRatio: "Relación de aspecto",
+    videoLength: "Duración del video",
+    style: "Estilo",
+    sec: "s",
+    noMetadata: "No hay metadatos disponibles",
+    telemetryTitle: "Telemetría de generación",
+    toggleTelemetry: "Alternar superposición de telemetría",
+    promptTitle: "Prompt"
+  },
+  pt: {
+    title: "Painel de status da API em tempo real",
+    latency: "Latência",
+    uptime: "Tempo de atividade",
+    status: "Status",
+    operational: "Operacional",
+    unconfigured: "Não configurado",
+    degraded: "Degradado",
+    failed: "Erro",
+    lastCheck: "Última verificação",
+    runCheck: "Verificar latência e integridade",
+    history: "Histórico de latência",
+    historyAwaiting: "Executar verificação para exibir telemetria de latência",
+    checking: "Verificando...",
+    never: "Nunca",
+    ms: "ms",
+    verified: "Verificado",
+    failedStatus: "Falhou",
+    healthCheckBtn: "Testar conexão",
+    bothHealthy: "Todas as APIs estão operacionais",
+    issuesDetected: "Problemas detectados",
+    noKeysTitle: "Aguardando credenciais de API",
+    modelName: "Modelo",
+    genDuration: "Tempo de geração",
+    timestamp: "Gerado em",
+    resolution: "Resolução",
+    aspectRatio: "Proporção de tela",
+    videoLength: "Duração do vídeo",
+    style: "Estilo",
+    sec: "s",
+    noMetadata: "Nenhum metadato disponível",
+    telemetryTitle: "Telemetria de geração",
+    toggleTelemetry: "Alternar sobreposição de telemetria",
+    promptTitle: "Prompt"
+  },
+  pl: {
+    title: "Panel stanu API w czasie rzeczywistym",
+    latency: "Opóźnienie",
+    uptime: "Niezawodność",
+    status: "Status",
+    operational: "Działa",
+    unconfigured: "Nieskonfigurowane",
+    degraded: "Spowolnione",
+    failed: "Błąd",
+    lastCheck: "Ostatni test",
+    runCheck: "Uruchom test opóźnienia i stanu",
+    history: "Historia opóźnień",
+    historyAwaiting: "Uruchom test, aby narysować telemetrię opóźnień",
+    checking: "Sprawdzanie...",
+    never: "Nigdy",
+    ms: "ms",
+    verified: "Zweryfikowano",
+    failedStatus: "Nieudane",
+    healthCheckBtn: "Testuj połączenie",
+    bothHealthy: "Wszystkie interfejsy API działają",
+    issuesDetected: "Wykryto problemy",
+    noKeysTitle: "Oczekiwanie na klucze API",
+    modelName: "Model",
+    genDuration: "Czas generowania",
+    timestamp: "Wygenerowano o",
+    resolution: "Rozdzielczość",
+    aspectRatio: "Proporcje obrazu",
+    videoLength: "Długość wideo",
+    style: "Styl",
+    sec: "s",
+    noMetadata: "Brak dostępnych metadanych",
+    telemetryTitle: "Telemetria generowania",
+    toggleTelemetry: "Przełącz nakładkę telemetryczną",
+    promptTitle: "Prompt"
+  },
+  sk: {
+    title: "Stav API v reálnom čase",
+    latency: "Latencia",
+    uptime: "Dostupnosť",
+    status: "Stav",
+    operational: "Plne funkčné",
+    unconfigured: "Nenastavené",
+    degraded: "Spomalené",
+    failed: "Chyba",
+    lastCheck: "Posledný test",
+    runCheck: "Spustiť test latencie a zdravia",
+    history: "História latencie",
+    historyAwaiting: "Spustite test na zobrazenie latencie",
+    checking: "Testujem...",
+    never: "Nikdy",
+    ms: "ms",
+    verified: "Overené",
+    failedStatus: "Zlyhalo",
+    healthCheckBtn: "Testovať pripojenie",
+    bothHealthy: "Všetky API sú funkčné",
+    issuesDetected: "Zistené problémy",
+    noKeysTitle: "Čaká sa na zadanie kľúčov",
+    modelName: "Model",
+    genDuration: "Trvanie generovania",
+    timestamp: "Čas vygenerovania",
+    resolution: "Rozlíšenie",
+    aspectRatio: "Pomer strán",
+    videoLength: "Dĺžka videa",
+    style: "Štýl",
+    sec: "s",
+    noMetadata: "Metadáta nie sú dostupné",
+    telemetryTitle: "Telemetria generovania",
+    toggleTelemetry: "Prepnúť zobrazenie telemetrie",
+    promptTitle: "Popis (Prompt)"
+  }
+};
 
 export default function App() {
   const [image, setImage] = useState<File | null>(null);
@@ -73,7 +357,68 @@ export default function App() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGeminiValidating, setIsGeminiValidating] = useState(false);
   const [isOpenAIValidating, setIsOpenAIValidating] = useState(false);
-  const [validationStatus, setValidationStatus] = useState({ gemini: null as boolean | null, openai: null as boolean | null });
+  const [validationStatus, setValidationStatus] = useState<{
+    gemini: boolean | null;
+    openai: boolean | null;
+    geminiError?: string;
+    openaiError?: string;
+    geminiErrorCode?: string | number;
+    openaiErrorCode?: string | number;
+  }>({ gemini: null, openai: null });
+
+  const [apiMetrics, setApiMetrics] = useState<{
+    gemini: {
+      latencyHistory: number[];
+      uptime: number;
+      checksCount: number;
+      successCount: number;
+      lastCheck: string | null;
+      status: "operational" | "degraded" | "failed" | "unconfigured";
+      latency: number | null;
+    };
+    openai: {
+      latencyHistory: number[];
+      uptime: number;
+      checksCount: number;
+      successCount: number;
+      lastCheck: string | null;
+      status: "operational" | "degraded" | "failed" | "unconfigured";
+      latency: number | null;
+    };
+  }>({
+    gemini: {
+      latencyHistory: [],
+      uptime: 100,
+      checksCount: 0,
+      successCount: 0,
+      lastCheck: null,
+      status: "unconfigured",
+      latency: null,
+    },
+    openai: {
+      latencyHistory: [],
+      uptime: 100,
+      checksCount: 0,
+      successCount: 0,
+      lastCheck: null,
+      status: "unconfigured",
+      latency: null,
+    }
+  });
+  
+  const [activeVideoMetadata, setActiveVideoMetadata] = useState<{
+    model: string;
+    generationDuration?: number;
+    timestamp: number;
+    resolution?: string;
+    aspectRatio?: string;
+    duration?: string;
+    style?: string;
+    prompt?: string;
+  } | null>(null);
+
+  const [showMetadataOverlay, setShowMetadataOverlay] = useState(true);
+  const generationStartTimeRef = useRef<number | null>(null);
   
   // GIF Settings
   const [gifAspectRatio, setGifAspectRatio] = useState("16:9");
@@ -588,6 +933,19 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    setApiMetrics(prev => ({
+      gemini: {
+        ...prev.gemini,
+        status: userApiKey ? (prev.gemini.status === "unconfigured" ? "operational" : prev.gemini.status) : "unconfigured"
+      },
+      openai: {
+        ...prev.openai,
+        status: openaiApiKey ? (prev.openai.status === "unconfigured" ? "operational" : prev.openai.status) : "unconfigured"
+      }
+    }));
+  }, [userApiKey, openaiApiKey]);
+
   const saveToHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
     const newItem: HistoryItem = {
       ...item,
@@ -650,29 +1008,117 @@ export default function App() {
   const clearGeminiKey = () => {
     setUserApiKey("");
     localStorage.removeItem('gemini_api_key');
-    setValidationStatus(prev => ({ ...prev, gemini: null }));
+    setValidationStatus(prev => ({ 
+      ...prev, 
+      gemini: null, 
+      geminiError: undefined, 
+      geminiErrorCode: undefined 
+    }));
+    setApiMetrics(prev => ({
+      ...prev,
+      gemini: {
+        latencyHistory: [],
+        uptime: 100,
+        checksCount: 0,
+        successCount: 0,
+        lastCheck: null,
+        status: "unconfigured",
+        latency: null
+      }
+    }));
   };
 
   const clearOpenAIKey = () => {
     setOpenaiApiKey("");
     localStorage.removeItem('openai_api_key');
-    setValidationStatus(prev => ({ ...prev, openai: null }));
+    setValidationStatus(prev => ({ 
+      ...prev, 
+      openai: null, 
+      openaiError: undefined, 
+      openaiErrorCode: undefined 
+    }));
+    setApiMetrics(prev => ({
+      ...prev,
+      openai: {
+        latencyHistory: [],
+        uptime: 100,
+        checksCount: 0,
+        successCount: 0,
+        lastCheck: null,
+        status: "unconfigured",
+        latency: null
+      }
+    }));
   };
 
   const validateGemini = async () => {
     setIsGeminiValidating(true);
+    const startTime = performance.now();
     try {
       const resp = await fetch("/api/verify-keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ geminiKey: userApiKey })
       });
+      const duration = Math.round(performance.now() - startTime);
       const data = await resp.json();
-      setValidationStatus(prev => ({...prev, gemini: data.gemini}));
-      if (!data.gemini && userApiKey) alert(`Gemini key validation failed: ${data.geminiError}`);
-    } catch (e) {
-      console.error(e);
-      alert("Validation request failed.");
+      
+      setValidationStatus(prev => ({
+        ...prev, 
+        gemini: data.gemini,
+        geminiError: data.geminiError,
+        geminiErrorCode: data.geminiErrorCode
+      }));
+
+      // Update apiMetrics
+      setApiMetrics(prev => {
+        const isSuccess = !!data.gemini;
+        const history = isSuccess 
+          ? [...prev.gemini.latencyHistory, duration].slice(-10)
+          : prev.gemini.latencyHistory;
+        const newChecks = prev.gemini.checksCount + 1;
+        const newSuccess = prev.gemini.successCount + (isSuccess ? 1 : 0);
+        const calcUptime = Math.round((newSuccess / newChecks) * 1000) / 10;
+        
+        return {
+          ...prev,
+          gemini: {
+            latencyHistory: history,
+            uptime: calcUptime,
+            checksCount: newChecks,
+            successCount: newSuccess,
+            lastCheck: new Date().toLocaleTimeString(),
+            status: !userApiKey ? "unconfigured" : (isSuccess ? (duration > 1500 ? "degraded" : "operational") : "failed"),
+            latency: isSuccess ? duration : null
+          }
+        };
+      });
+
+      if (!data.gemini && userApiKey) {
+        console.warn(`[API Key Validation] Gemini Key Failed. Code: ${data.geminiErrorCode || 'N/A'}. Message: ${data.geminiError}`);
+        alert(`Gemini key validation failed (Error Code: ${data.geminiErrorCode || 'N/A'}): ${data.geminiError}`);
+      } else if (data.gemini) {
+        console.log(`[API Key Validation] Gemini Key Verified Successfully.`);
+      }
+    } catch (e: any) {
+      console.error("[API Key Validation] Gemini request error:", e);
+      alert(`Validation request failed: ${e.message || 'Unknown network error'}`);
+      
+      setApiMetrics(prev => {
+        const newChecks = prev.gemini.checksCount + 1;
+        const calcUptime = Math.round((prev.gemini.successCount / newChecks) * 1000) / 10;
+        return {
+          ...prev,
+          gemini: {
+            ...prev.gemini,
+            checksCount: newChecks,
+            uptime: calcUptime,
+            status: "failed",
+            lastCheck: new Date().toLocaleTimeString(),
+            latency: null
+          }
+        };
+      });
     } finally {
       setIsGeminiValidating(false);
     }
@@ -680,18 +1126,72 @@ export default function App() {
 
   const validateOpenAI = async () => {
     setIsOpenAIValidating(true);
+    const startTime = performance.now();
     try {
       const resp = await fetch("/api/verify-keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ openaiKey: openaiApiKey })
       });
+      const duration = Math.round(performance.now() - startTime);
       const data = await resp.json();
-      setValidationStatus(prev => ({...prev, openai: data.openai}));
-      if (!data.openai && openaiApiKey) alert(`OpenAI key validation failed: ${data.openaiError}`);
-    } catch (e) {
-      console.error(e);
-      alert("Validation request failed.");
+      
+      setValidationStatus(prev => ({
+        ...prev, 
+        openai: data.openai,
+        openaiError: data.openaiError,
+        openaiErrorCode: data.openaiErrorCode
+      }));
+
+      // Update apiMetrics
+      setApiMetrics(prev => {
+        const isSuccess = !!data.openai;
+        const history = isSuccess 
+          ? [...prev.openai.latencyHistory, duration].slice(-10)
+          : prev.openai.latencyHistory;
+        const newChecks = prev.openai.checksCount + 1;
+        const newSuccess = prev.openai.successCount + (isSuccess ? 1 : 0);
+        const calcUptime = Math.round((newSuccess / newChecks) * 1000) / 10;
+        
+        return {
+          ...prev,
+          openai: {
+            latencyHistory: history,
+            uptime: calcUptime,
+            checksCount: newChecks,
+            successCount: newSuccess,
+            lastCheck: new Date().toLocaleTimeString(),
+            status: !openaiApiKey ? "unconfigured" : (isSuccess ? (duration > 1500 ? "degraded" : "operational") : "failed"),
+            latency: isSuccess ? duration : null
+          }
+        };
+      });
+
+      if (!data.openai && openaiApiKey) {
+        console.warn(`[API Key Validation] OpenAI Key Failed. Code: ${data.openaiErrorCode || 'N/A'}. Message: ${data.openaiError}`);
+        alert(`OpenAI key validation failed (Error Code: ${data.openaiErrorCode || 'N/A'}): ${data.openaiError}`);
+      } else if (data.openai) {
+        console.log(`[API Key Validation] OpenAI Key Verified Successfully.`);
+      }
+    } catch (e: any) {
+      console.error("[API Key Validation] OpenAI request error:", e);
+      alert(`Validation request failed: ${e.message || 'Unknown network error'}`);
+      
+      setApiMetrics(prev => {
+        const newChecks = prev.openai.checksCount + 1;
+        const calcUptime = Math.round((prev.openai.successCount / newChecks) * 1000) / 10;
+        return {
+          ...prev,
+          openai: {
+            ...prev.openai,
+            checksCount: newChecks,
+            uptime: calcUptime,
+            status: "failed",
+            lastCheck: new Date().toLocaleTimeString(),
+            latency: null
+          }
+        };
+      });
     } finally {
       setIsOpenAIValidating(false);
     }
@@ -863,6 +1363,8 @@ export default function App() {
     }
     
     setIsGenerating(true);
+    generationStartTimeRef.current = Date.now();
+    setActiveVideoMetadata(null);
     setVideoUrl(null);
     setGifUrl(null);
     setError(null);
@@ -988,6 +1490,23 @@ export default function App() {
       setVideoUrl(url);
       setPublicVideoUrl(videoUrl || null);
 
+      const genDuration = generationStartTimeRef.current 
+        ? Math.round((Date.now() - generationStartTimeRef.current) / 100) / 10 
+        : undefined;
+
+      const metadata = {
+        model: selectedVideoModel,
+        generationDuration: genDuration,
+        timestamp: Date.now(),
+        resolution: videoResolution === "Auto" ? detectedRes.video : videoResolution,
+        aspectRatio,
+        duration: isCustomDuration ? `${customDurationValue || "5"}s` : videoDuration,
+        style: selectedStyle.label,
+        prompt: prompt
+      };
+
+      setActiveVideoMetadata(metadata);
+
       saveToHistory({
         type: 'video',
         url: url,
@@ -998,7 +1517,8 @@ export default function App() {
           resolution: videoResolution === "Auto" ? detectedRes.video : videoResolution,
           duration: isCustomDuration ? `${customDurationValue || "5"}s` : videoDuration,
           stabilization,
-          style: selectedStyle.label
+          style: selectedStyle.label,
+          generationDuration: genDuration
         }
       });
 
@@ -1118,7 +1638,19 @@ export default function App() {
                     </button>
                   </div>
                   {validationStatus.gemini === true && <span className="text-emerald-500 text-xs block pl-1">✓ {t.keyValid}</span>}
-                  {validationStatus.gemini === false && <span className="text-red-500 text-xs block pl-1">✗ {t.keyInvalid}</span>}
+                  {validationStatus.gemini === false && (
+                    <div className="mt-1.5 p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-[11px] text-red-400/90 space-y-1.5">
+                      <span className="font-semibold block text-red-400">✗ {t.keyInvalid}</span>
+                      {validationStatus.geminiErrorCode && (
+                        <div className="font-mono text-[10px] bg-red-950/30 px-2 py-1 rounded border border-red-500/10 inline-block">
+                          <span className="text-slate-400">Error Code:</span> <span className="text-red-300 font-bold">{validationStatus.geminiErrorCode}</span>
+                        </div>
+                      )}
+                      {validationStatus.geminiError && (
+                        <p className="text-slate-400 text-[10.5px] leading-relaxed break-words">{validationStatus.geminiError}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -1147,7 +1679,218 @@ export default function App() {
                     </button>
                   </div>
                   {validationStatus.openai === true && <span className="text-emerald-500 text-xs block pl-1">✓ {t.keyValid}</span>}
-                  {validationStatus.openai === false && <span className="text-red-500 text-xs block pl-1">✗ {t.keyInvalid}</span>}
+                  {validationStatus.openai === false && (
+                    <div className="mt-1.5 p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-[11px] text-red-400/90 space-y-1.5">
+                      <span className="font-semibold block text-red-400">✗ {t.keyInvalid}</span>
+                      {validationStatus.openaiErrorCode && (
+                        <div className="font-mono text-[10px] bg-red-950/30 px-2 py-1 rounded border border-red-500/10 inline-block">
+                          <span className="text-slate-400">Error Code:</span> <span className="text-red-300 font-bold">{validationStatus.openaiErrorCode}</span>
+                        </div>
+                      )}
+                      {validationStatus.openaiError && (
+                        <p className="text-slate-400 text-[10.5px] leading-relaxed break-words">{validationStatus.openaiError}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Real-time API Status Dashboard */}
+                <div className="border border-slate-800/80 bg-slate-950/40 rounded-[2rem] p-5 space-y-4 shadow-inner relative overflow-hidden group">
+                  {/* Title & Trigger Button */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        {dashboardTranslations[language as keyof typeof dashboardTranslations]?.title || dashboardTranslations.en.title}
+                      </h3>
+                    </div>
+                    {(userApiKey || openaiApiKey) && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (userApiKey) await validateGemini();
+                          if (openaiApiKey) await validateOpenAI();
+                        }}
+                        disabled={isGeminiValidating || isOpenAIValidating}
+                        className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer bg-emerald-500/5 hover:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/10"
+                        title={dashboardTranslations[language as keyof typeof dashboardTranslations]?.runCheck || dashboardTranslations.en.runCheck}
+                      >
+                        {isGeminiValidating || isOpenAIValidating ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3 h-3" />
+                        )}
+                        {dashboardTranslations[language as keyof typeof dashboardTranslations]?.healthCheckBtn || dashboardTranslations.en.healthCheckBtn}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Grid for Gemini and OpenAI */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Gemini Status Panel */}
+                    <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-3.5 space-y-3 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[11px] font-bold text-slate-300">Gemini</span>
+                          {/* Pulsing state indicator */}
+                          <div className="flex items-center gap-1.5">
+                            <span className={`h-1.5 w-1.5 rounded-full ${
+                              apiMetrics.gemini.status === 'unconfigured' ? 'bg-slate-600' :
+                              apiMetrics.gemini.status === 'operational' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse' :
+                              apiMetrics.gemini.status === 'degraded' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse' :
+                              'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse'
+                            }`} />
+                            <span className="text-[9px] font-semibold text-slate-500">
+                              {apiMetrics.gemini.status === 'unconfigured' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                              {apiMetrics.gemini.status === 'operational' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.operational || dashboardTranslations.en.operational)}
+                              {apiMetrics.gemini.status === 'degraded' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.degraded || dashboardTranslations.en.degraded)}
+                              {apiMetrics.gemini.status === 'failed' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.failed || dashboardTranslations.en.failed)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Telemetry Metrics */}
+                        <div className="grid grid-cols-2 gap-2 text-left pt-1">
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.latency || dashboardTranslations.en.latency}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-slate-300">
+                              {apiMetrics.gemini.latency ? `${apiMetrics.gemini.latency} ms` : '--'}
+                            </span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.uptime || dashboardTranslations.en.uptime}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-slate-300">
+                              {apiMetrics.gemini.status === 'unconfigured' ? '--' : `${apiMetrics.gemini.uptime}%`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Sparkline History / Status Bar */}
+                      <div className="pt-2 border-t border-slate-800/40">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[9px] font-medium text-slate-500">
+                            {dashboardTranslations[language as keyof typeof dashboardTranslations]?.history || dashboardTranslations.en.history}
+                          </span>
+                          <span className="text-[8px] font-mono text-slate-600">
+                            {apiMetrics.gemini.lastCheck ? `${dashboardTranslations[language as keyof typeof dashboardTranslations]?.lastCheck || dashboardTranslations.en.lastCheck}: ${apiMetrics.gemini.lastCheck}` : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.never || dashboardTranslations.en.never)}
+                          </span>
+                        </div>
+                        {apiMetrics.gemini.latencyHistory.length > 0 ? (
+                          <div className="flex items-end gap-[3px] h-[18px] pt-1.5 justify-start">
+                            {apiMetrics.gemini.latencyHistory.map((lat, idx) => {
+                              const heightPercent = Math.min(100, Math.max(20, (lat / 1200) * 100));
+                              return (
+                                <div 
+                                  key={idx} 
+                                  className={`w-[6px] rounded-t-[1px] transition-all ${
+                                    lat > 1500 ? 'bg-amber-500' : 'bg-emerald-500/60 hover:bg-emerald-400'
+                                  }`} 
+                                  style={{ height: `${heightPercent}%` }}
+                                  title={`${lat}ms`}
+                                />
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-[8.5px] text-slate-600 block leading-tight italic">
+                            {userApiKey ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.historyAwaiting || dashboardTranslations.en.historyAwaiting) : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* OpenAI Status Panel */}
+                    <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-3.5 space-y-3 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[11px] font-bold text-slate-300">OpenAI</span>
+                          {/* Pulsing state indicator */}
+                          <div className="flex items-center gap-1.5">
+                            <span className={`h-1.5 w-1.5 rounded-full ${
+                              apiMetrics.openai.status === 'unconfigured' ? 'bg-slate-600' :
+                              apiMetrics.openai.status === 'operational' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse' :
+                              apiMetrics.openai.status === 'degraded' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse' :
+                              'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse'
+                            }`} />
+                            <span className="text-[9px] font-semibold text-slate-500">
+                              {apiMetrics.openai.status === 'unconfigured' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                              {apiMetrics.openai.status === 'operational' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.operational || dashboardTranslations.en.operational)}
+                              {apiMetrics.openai.status === 'degraded' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.degraded || dashboardTranslations.en.degraded)}
+                              {apiMetrics.openai.status === 'failed' && (dashboardTranslations[language as keyof typeof dashboardTranslations]?.failed || dashboardTranslations.en.failed)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Telemetry Metrics */}
+                        <div className="grid grid-cols-2 gap-2 text-left pt-1">
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.latency || dashboardTranslations.en.latency}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-slate-300">
+                              {apiMetrics.openai.latency ? `${apiMetrics.openai.latency} ms` : '--'}
+                            </span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block">
+                              {dashboardTranslations[language as keyof typeof dashboardTranslations]?.uptime || dashboardTranslations.en.uptime}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-slate-300">
+                              {apiMetrics.openai.status === 'unconfigured' ? '--' : `${apiMetrics.openai.uptime}%`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Sparkline History / Status Bar */}
+                      <div className="pt-2 border-t border-slate-800/40">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[9px] font-medium text-slate-500">
+                            {dashboardTranslations[language as keyof typeof dashboardTranslations]?.history || dashboardTranslations.en.history}
+                          </span>
+                          <span className="text-[8px] font-mono text-slate-600">
+                            {apiMetrics.openai.lastCheck ? `${dashboardTranslations[language as keyof typeof dashboardTranslations]?.lastCheck || dashboardTranslations.en.lastCheck}: ${apiMetrics.openai.lastCheck}` : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.never || dashboardTranslations.en.never)}
+                          </span>
+                        </div>
+                        {apiMetrics.openai.latencyHistory.length > 0 ? (
+                          <div className="flex items-end gap-[3px] h-[18px] pt-1.5 justify-start">
+                            {apiMetrics.openai.latencyHistory.map((lat, idx) => {
+                              const heightPercent = Math.min(100, Math.max(20, (lat / 1200) * 100));
+                              return (
+                                <div 
+                                  key={idx} 
+                                  className={`w-[6px] rounded-t-[1px] transition-all ${
+                                    lat > 1500 ? 'bg-amber-500' : 'bg-emerald-500/60 hover:bg-emerald-400'
+                                  }`} 
+                                  style={{ height: `${heightPercent}%` }}
+                                  title={`${lat}ms`}
+                                />
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-[8.5px] text-slate-600 block leading-tight italic">
+                            {openaiApiKey ? (dashboardTranslations[language as keyof typeof dashboardTranslations]?.historyAwaiting || dashboardTranslations.en.historyAwaiting) : (dashboardTranslations[language as keyof typeof dashboardTranslations]?.unconfigured || dashboardTranslations.en.unconfigured)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Context footer when no keys entered */}
+                  {!userApiKey && !openaiApiKey && (
+                    <p className="text-[10px] text-slate-500 text-center leading-relaxed pt-1.5">
+                      {dashboardTranslations[language as keyof typeof dashboardTranslations]?.noKeysTitle || dashboardTranslations.en.noKeysTitle}
+                    </p>
+                  )}
                 </div>
 
                 {/* Interactive API Key Help Guide */}
@@ -3129,7 +3872,7 @@ export default function App() {
                         key="video"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="w-full h-full"
+                        className="w-full h-full relative"
                       >
                          <video 
                            src={videoUrl} 
@@ -3138,11 +3881,139 @@ export default function App() {
                            loop 
                            className="w-full h-full object-cover"
                          />
-                         <div className="absolute top-6 right-6 flex gap-3">
+
+                         {/* Telemetry Overlay Panel */}
+                         {showMetadataOverlay && activeVideoMetadata && (
+                           <motion.div 
+                             initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                             animate={{ opacity: 1, x: 0, scale: 1 }}
+                             exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                             className="absolute top-4 left-4 sm:top-6 sm:left-6 max-w-[240px] sm:max-w-[280px] bg-slate-950/80 border border-white/10 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-2xl space-y-2 text-left pointer-events-auto select-none overflow-hidden z-20"
+                           >
+                             <div className="flex items-center gap-2 border-b border-white/5 pb-1.5 mb-1.5">
+                               <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                                 {dashboardTranslations[language as keyof typeof dashboardTranslations]?.telemetryTitle || dashboardTranslations.en.telemetryTitle}
+                               </span>
+                             </div>
+
+                             <div className="space-y-1.5">
+                               {/* Model */}
+                               <div className="flex justify-between items-center gap-4">
+                                 <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                                   {dashboardTranslations[language as keyof typeof dashboardTranslations]?.modelName || dashboardTranslations.en.modelName}
+                                 </span>
+                                 <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                                   {activeVideoMetadata.model}
+                                 </span>
+                               </div>
+
+                               {/* Generation Duration */}
+                               {activeVideoMetadata.generationDuration !== undefined && (
+                                 <div className="flex justify-between items-center gap-4">
+                                   <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                                     {dashboardTranslations[language as keyof typeof dashboardTranslations]?.genDuration || dashboardTranslations.en.genDuration}
+                                   </span>
+                                   <span className="text-[10px] sm:text-[11px] font-mono font-bold text-emerald-400 flex items-center gap-1">
+                                     <Clock className="w-3 h-3" />
+                                     {activeVideoMetadata.generationDuration} {dashboardTranslations[language as keyof typeof dashboardTranslations]?.sec || dashboardTranslations.en.sec}
+                                   </span>
+                                 </div>
+                               )}
+
+                               {/* Aspect Ratio */}
+                               {activeVideoMetadata.aspectRatio && (
+                                 <div className="flex justify-between items-center gap-4">
+                                   <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                                     {dashboardTranslations[language as keyof typeof dashboardTranslations]?.aspectRatio || dashboardTranslations.en.aspectRatio}
+                                   </span>
+                                   <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-200">
+                                     {activeVideoMetadata.aspectRatio}
+                                   </span>
+                                 </div>
+                               )}
+
+                               {/* Resolution */}
+                               {activeVideoMetadata.resolution && (
+                                 <div className="flex justify-between items-center gap-4">
+                                   <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                                     {dashboardTranslations[language as keyof typeof dashboardTranslations]?.resolution || dashboardTranslations.en.resolution}
+                                   </span>
+                                   <span className="text-[10px] sm:text-[11px] font-mono font-semibold text-slate-200">
+                                     {activeVideoMetadata.resolution}
+                                   </span>
+                                 </div>
+                               )}
+
+                               {/* Video Length */}
+                               {activeVideoMetadata.duration && (
+                                 <div className="flex justify-between items-center gap-4">
+                                   <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                                     {dashboardTranslations[language as keyof typeof dashboardTranslations]?.videoLength || dashboardTranslations.en.videoLength}
+                                   </span>
+                                   <span className="text-[10px] sm:text-[11px] font-mono font-semibold text-slate-200">
+                                     {activeVideoMetadata.duration}
+                                   </span>
+                                 </div>
+                               )}
+
+                               {/* Style */}
+                               {activeVideoMetadata.style && (
+                                 <div className="flex justify-between items-center gap-4">
+                                   <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                                     {dashboardTranslations[language as keyof typeof dashboardTranslations]?.style || dashboardTranslations.en.style}
+                                   </span>
+                                   <span className="text-[10px] font-medium text-slate-200 truncate max-w-[100px] sm:max-w-[120px]" title={activeVideoMetadata.style}>
+                                     {activeVideoMetadata.style}
+                                   </span>
+                                 </div>
+                               )}
+
+                               {/* Prompt */}
+                               {activeVideoMetadata.prompt && (
+                                 <div className="border-t border-white/5 pt-1.5 mt-1 text-left">
+                                   <span className="text-[9px] text-slate-500 font-semibold uppercase block mb-0.5">
+                                     {dashboardTranslations[language as keyof typeof dashboardTranslations]?.promptTitle || dashboardTranslations.en.promptTitle}
+                                   </span>
+                                   <p className="text-[9.5px] leading-relaxed text-slate-300 italic line-clamp-2" title={activeVideoMetadata.prompt}>
+                                     "{activeVideoMetadata.prompt}"
+                                   </p>
+                                 </div>
+                               )}
+
+                               {/* Timestamp */}
+                               <div className="flex justify-between items-center gap-4 border-t border-white/5 pt-1.5 mt-1.5">
+                                 <span className="text-[9px] text-slate-500 font-semibold uppercase">
+                                   {dashboardTranslations[language as keyof typeof dashboardTranslations]?.timestamp || dashboardTranslations.en.timestamp}
+                                 </span>
+                                 <span className="text-[9px] font-mono text-slate-400">
+                                   {new Date(activeVideoMetadata.timestamp).toLocaleTimeString()}
+                                 </span>
+                               </div>
+                             </div>
+                           </motion.div>
+                         )}
+
+                         <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-2 sm:gap-3 z-20">
+                            {activeVideoMetadata && (
+                              <button
+                                type="button"
+                                onClick={() => setShowMetadataOverlay(!showMetadataOverlay)}
+                                className={`p-3 sm:p-4 rounded-2xl transition-all backdrop-blur-xl border border-white/20 shadow-2xl cursor-pointer ${
+                                  showMetadataOverlay 
+                                    ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' 
+                                    : 'bg-white/10 hover:bg-white text-white hover:text-black'
+                                }`}
+                                title={dashboardTranslations[language as keyof typeof dashboardTranslations]?.toggleTelemetry || dashboardTranslations.en.toggleTelemetry}
+                              >
+                                <HelpCircle className="w-5 h-5" />
+                              </button>
+                            )}
+
                             <a 
                               href={videoUrl} 
                               download="nature_sequence.mp4"
-                              className="p-4 bg-white/10 hover:bg-white text-white hover:text-black rounded-2xl transition-all backdrop-blur-xl border border-white/20 shadow-2xl group/btn"
+                              className="p-3 sm:p-4 bg-white/10 hover:bg-white text-white hover:text-black rounded-2xl transition-all backdrop-blur-xl border border-white/20 shadow-2xl group/btn cursor-pointer"
                               title="Download MP4"
                             >
                               <Video className="w-5 h-5" />
@@ -3150,7 +4021,7 @@ export default function App() {
                             <button
                               onClick={handleExportGif}
                               disabled={isExportingGif}
-                              className="p-4 bg-white/10 hover:bg-white text-white hover:text-black rounded-2xl transition-all backdrop-blur-xl border border-white/20 shadow-2xl disabled:opacity-50 group/btn"
+                              className="p-3 sm:p-4 bg-white/10 hover:bg-white text-white hover:text-black rounded-2xl transition-all backdrop-blur-xl border border-white/20 shadow-2xl disabled:opacity-50 group/btn cursor-pointer"
                               title="Generate GIF"
                             >
                               {isExportingGif ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileImage className="w-5 h-5" />}
@@ -3160,7 +4031,7 @@ export default function App() {
                               <a 
                                 href={gifUrl} 
                                 download="nature_sequence.gif"
-                                className="p-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl transition-all shadow-xl shadow-emerald-500/20"
+                                className="p-3 sm:p-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl transition-all shadow-xl shadow-emerald-500/20 cursor-pointer"
                                 title="Download GIF"
                               >
                                 <Download className="w-5 h-5" />
@@ -3552,6 +4423,16 @@ export default function App() {
                                 return;
                               }
                               setVideoUrl(item.url);
+                              setActiveVideoMetadata({
+                                model: item.model,
+                                generationDuration: item.parameters.generationDuration,
+                                timestamp: item.timestamp,
+                                resolution: item.parameters.resolution,
+                                aspectRatio: item.parameters.aspectRatio,
+                                duration: item.parameters.duration,
+                                style: item.parameters.style,
+                                prompt: item.prompt
+                              });
                             } else {
                               setPreview(item.url);
                               setSelectedPreview(item.url);

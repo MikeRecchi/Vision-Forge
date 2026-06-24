@@ -4,6 +4,50 @@ All notable changes to the **Vision Forge** project will be documented in this f
 
 ---
 
+## [1.6.0] - 2026-06-24
+
+### English
+- **API Status Dashboard**: Added a real-time health and latency telemetry dashboard for Gemini and OpenAI APIs, tracking uptime, average latency, response speeds, and active configurations.
+- **Video Player Telemetry Overlay**: Introduced an interactive overlay option on the video player, displaying active model, generation duration, timestamp, aspect ratio, and styling.
+- **Multilingual Support**: Fully localized the status dashboard and video player telemetry overlays across all 8 supported languages.
+
+### Slovak
+- **Dashboard stavu API v reálnom čase**: Pridaný prehľadný panel stavu a latencie pre API Gemini a OpenAI, ktorý sleduje dostupnosť, priemernú odozvu a stav pripojenia.
+- **Prekrytie s telemetriou na prehrávači**: Zavedená možnosť zobrazenia interaktívnych metadát (model, trvanie generovania, čas vygenerovania, pomer strán a štýl) priamo ako prekrytie na video prehrávači.
+- **Kompletná lokalizácia**: Plný preklad všetkých nových rozhraní, metadát a ovládacích prvkov do ôsmich podporovaných európskych jazykov.
+
+### German
+- **Echtzeit-API-Status-Dashboard**: Ein übersichtliches Dashboard zur Überwachung des Systemzustands und der Latenz von Gemini- und OpenAI-APIs mit Erfassung von Betriebszeit, durchschnittlicher Antwortzeit und Verbindungsstatus.
+- **Video-Player-Telemetrie-Overlay**: Einführung einer interaktiven Overlap-Option auf dem Videoplayer zur Anzeige von aktivem Modell, Generierungsdauer, Zeitstempel, Seitenverhältnis und Stil.
+- **Mehrsprachige Lokalisierung**: Vollständige Lokalisierung des Status-Dashboards und der Player-Telemetrie in alle 8 unterstützten europäischen Sprachen.
+
+### French
+- **Tableau de bord du statut de l'API**: Ajout d'un tableau de bord de télémétrie en temps réel de l'état et de la latence pour les API Gemini et OpenAI, suivant la disponibilité, le temps de réponse moyen et les configurations actives.
+- **Incrustation de télémétrie sur le lecteur vidéo**: Introduction d'une option d'affichage des métadonnées (modèle actif, durée de génération, horodatage, format d'image et style) directement en incrustation sur le lecteur multimédia.
+- **Support multilingue**: Localisation complète du tableau de bord de statut et des incrustations de télémétrie pour les 8 langues prises en charge.
+
+### Italian
+- **Tabella di controllo dello stato delle API**: Aggiunta una dashboard di telemetria in tempo reale dello stato di salute e della latenza per le API di Gemini e OpenAI, tracciando la disponibilità, il tempo di risposta medio e lo stato della connessione.
+- **Overlay della telemetria sul lettore video**: Introdotta l'opzione di visualizzazione interattiva dei metadati (modello attivo, durata della generazione, timestamp, rapporto d'aspetto e stile) direttamente in overlay sul lettore.
+- **Localizzazione in 8 lingue**: Traduzione completa del pannello di controllo e degli overlay sul lettore video in tutte le 8 lingue europee supportate.
+
+### Spanish
+- **Tablero de estado de la API en tiempo real**: Se agregó un panel de telemetría de salud y latencia en tiempo real para las API de Gemini y OpenAI, registrando el tiempo de actividad, el tiempo de respuesta promedio y el estado de la conexión.
+- **Superposición de telemetría en el reproductor de video**: Opción de visualización interactiva de metadatos (modelo activo, tiempo de generación, marca de tiempo, relación de aspecto y estilo) directamente como superposición en el reproductor.
+- **Localización multilingüe**: Traducción completa de los nuevos paneles y superposiciones en los 8 idiomas admitidos.
+
+### Portuguese
+- **Painel de status da API em tempo real**: Adicionado um painel de telemetria de integridade e latência em tempo real para as APIs Gemini e OpenAI, rastreando disponibilidade, tempo de resposta médio e status da conexão.
+- **Sobreposição de telemetria no player de vídeo**: Opção de exibição interativa de metadatos (modelo ativo, tempo de geração, carimbo de data/hora, proporção de tela e estilo) diretamente sobreposta no player.
+- **Suporte multilíngue**: Localização completa do painel de status e das sobreposições do player nos 8 idiomas suportados.
+
+### Polish
+- **Panel stanu API w czasie rzeczywistym**: Dodano interaktywny panel telemetryczny stanu i opóźnień dla interfejsów API Gemini i OpenAI, śledzący niezawodność, średni czas odpowiedzi i konfiguracje.
+- **Nakładka telemetryczna na odtwarzaczu wideo**: Wprowadzono opcję interaktywnego nakładania metadanych (aktywny model, czas generowania, sygnatura czasowa, proporcje i styl) bezpośrednio na odtwarzacz multimedialny.
+- Polish: **Wielojęzyczne wsparcie**: Pełna lokalizacja nowego panelu stanu oraz nakładek telemetrycznych we wszystkich 8 obsługiwanych językach europejskich.
+
+---
+
 ## [1.5.0] - 2026-06-20
 
 ### English

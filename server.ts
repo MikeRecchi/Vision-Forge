@@ -103,7 +103,14 @@ async function startServer() {
   app.post("/api/verify-keys", async (req, res) => {
     try {
       const { geminiKey, openaiKey } = req.body;
-      const results = { gemini: false, openai: false, geminiError: "", openaiError: "" };
+      const results: {
+        gemini: boolean;
+        openai: boolean;
+        geminiError: string;
+        openaiError: string;
+        geminiErrorCode?: string | number;
+        openaiErrorCode?: string | number;
+      } = { gemini: false, openai: false, geminiError: "", openaiError: "" };
 
       if (geminiKey) {
         try {
@@ -120,7 +127,10 @@ async function startServer() {
           results.gemini = true;
         } catch (e: any) {
           console.error("Gemini validation failed:", e);
+          const errorCode = e.status || e.code || e.statusCode || (e.response && e.response.status) || "VALIDATION_FAILURE";
+          console.log(`[VERIFY-KEYS-SERVER] Gemini key verification failed. Error Code: ${errorCode}. Error Message: ${e.message}`);
           results.geminiError = e.message || "Failed to validate Gemini key";
+          results.geminiErrorCode = errorCode;
         }
       } else {
         results.geminiError = "Missing Gemini API key";
@@ -133,7 +143,10 @@ async function startServer() {
           results.openai = true;
         } catch (e: any) {
           console.error("OpenAI validation failed:", e);
+          const errorCode = e.status || e.code || e.statusCode || (e.response && e.response.status) || "VALIDATION_FAILURE";
+          console.log(`[VERIFY-KEYS-SERVER] OpenAI key verification failed. Error Code: ${errorCode}. Error Message: ${e.message}`);
           results.openaiError = e.message || "Failed to validate OpenAI key";
+          results.openaiErrorCode = errorCode;
         }
       } else {
         results.openaiError = "Missing OpenAI API key";
