@@ -1206,12 +1206,12 @@ export default function App() {
                               {((t as any).documentation?.privacy?.geminiTitle) || "Google Gemini API Key"}
                             </span>
                             <a 
-                              href="https://aistudio.google.com/" 
+                              href="https://aistudio.google.com/api-keys" 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
                             >
-                              aistudio.google.com <ExternalLink className="w-3 h-3" />
+                              aistudio.google.com/api-keys <ExternalLink className="w-3 h-3" />
                             </a>
                           </div>
                           <ol className="space-y-1.5 text-[11px] text-slate-400 list-decimal list-inside leading-relaxed pl-1">
@@ -2199,7 +2199,7 @@ export default function App() {
                                 {((t as any).documentation?.privacy?.geminiTitle) || "Google Gemini API Key"}
                               </span>
                               <a 
-                                href="https://aistudio.google.com/" 
+                                href="https://aistudio.google.com/api-keys" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"

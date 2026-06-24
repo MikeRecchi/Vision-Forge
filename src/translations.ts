@@ -209,10 +209,10 @@ export const translations = {
         guideTitle: "How to Obtain API Keys",
         geminiTitle: "Google Gemini API Key",
         geminiSteps: [
-          "Go to the official Google AI Studio portal (aistudio.google.com) and sign in with your regular Google account (Gmail).",
-          "In the top-left corner, click the blue 'Create API key' button.",
-          "Select the 'Create API key in new project' option.",
-          "Google will instantly generate a long string of characters (starting with AIzaSy...). Click the Copy icon.",
+          "Go to the official Google AI Studio portal (aistudio.google.com/api-keys) and sign in with your regular Google account (Gmail).",
+          "In the top-left corner, click the blue 'Create API key' button and a new window will pop up.",
+          "Enter a name for the API key (e.g., 'Vision Forge') and select 'Create Project', which you can name (e.g., 'Vision Forge'). Press 'Create Key'.",
+          "Google will instantly generate a long string of characters. Click the Copy icon.",
           "Return to our app and paste it into the Gemini API Key field."
         ],
         geminiTip: "💡 Good to know: Google provides a very generous Free Tier for Gemini. For regular personal use and app testing, you won't need to enter any credit card info.",
@@ -453,10 +453,10 @@ export const translations = {
         guideTitle: "So erhalten Sie API-Schlüssel",
         geminiTitle: "Google Gemini API-Schlüssel",
         geminiSteps: [
-          "Gehen Sie auf das offizielle Google AI Studio Portal (aistudio.google.com) und melden Sie sich mit Ihrem normalen Google-Konto (Gmail) an.",
-          "Klicken Sie oben links auf die blaue Schaltfläche 'Create API key'.",
-          "Wählen Sie die Option 'Create API key in new project' (Schlüssel in neuem Projekt erstellen).",
-          "Google generiert sofort eine lange Zeichenfolge (beginnend mit AIzaSy...). Klicken Sie auf das Kopiersymbol.",
+          "Gehen Sie auf das offizielle Google AI Studio Portal (aistudio.google.com/api-keys) und melden Sie sich mit Ihrem normalen Google-Konto (Gmail) an.",
+          "Klicken Sie oben links auf die blaue Schaltfläche 'Create API key' und ein neues Fenster öffnet sich.",
+          "Geben Sie einen Namen für den API-Schlüssel ein (z. B. 'Vision Forge') und wählen Sie 'Create Project', das Sie benennen (z. B. 'Vision Forge'). Klicken Sie auf 'Create Key'.",
+          "Google generiert sofort eine lange Zeichenfolge. Klicken Sie auf das Kopiersymbol.",
           "Kehren Sie zu unserer App zurück und fügen Sie ihn in das Feld Gemini API Key ein."
         ],
         geminiTip: "💡 Gut zu wissen: Google bietet einen sehr großzügigen kostenlosen Tarif (Free Tier) für Gemini an. Für die normale persönliche Nutzung und das Testen der App müssen Sie keine Kreditkarte hinterlegen.",
@@ -697,10 +697,10 @@ export const translations = {
         guideTitle: "Comment obtenir des clés API",
         geminiTitle: "Clé API Google Gemini",
         geminiSteps: [
-          "Allez sur le portail officiel Google AI Studio (aistudio.google.com) et connectez-vous avec votre compte Google habituel (Gmail).",
-          "Dans le coin supérieur gauche, cliquez sur le bouton bleu 'Create API key'.",
-          "Choisissez l'option 'Create API key in new project' (Créer une clé dans un nouveau projet).",
-          "Google générera instantanément une longue chaîne de caractères (commençant par AIzaSy...). Cliquez sur l'icône Copier.",
+          "Allez sur le portail officiel Google AI Studio (aistudio.google.com/api-keys) et connectez-vous avec votre compte Google habituel (Gmail).",
+          "Dans le coin supérieur gauche, cliquez sur le bouton bleu 'Create API key' et une nouvelle fenêtre s'ouvrira.",
+          "Saisissez un nom pour la clé API (par ex., 'Vision Forge') et sélectionnez 'Create Project', que vous pouvez nommer (par ex., 'Vision Forge'). Cliquez sur 'Create Key'.",
+          "Google générera instantanément une longue chaîne de caractères. Cliquez sur l'icône Copier.",
           "Revenez dans notre application et collez-la dans le champ Gemini API Key."
         ],
         geminiTip: "💡 Bon à savoir : Google propose un forfait gratuit (Free Tier) très généreux pour Gemini. Pour une utilisation personnelle normale et tester l'application, vous n'aurez pas besoin de saisir de carte bancaire.",
@@ -941,10 +941,10 @@ export const translations = {
         guideTitle: "Come ottenere le chiavi API",
         geminiTitle: "Chiave API Google Gemini",
         geminiSteps: [
-          "Vai sul portale ufficiale Google AI Studio (aistudio.google.com) e accedi con il tuo normale account Google (Gmail).",
-          "Nell'angolo in alto a sinistra, clicca sul pulsante blu 'Create API key'.",
-          "Scegli l'opzione 'Create API key in new project' (Crea chiave in un nuovo progetto).",
-          "Google genererà istantaneamente una lunga stringa di caratteri (che inizia con AIzaSy...). Clicca sull'icona Copia.",
+          "Vai sul portale ufficiale Google AI Studio (aistudio.google.com/api-keys) e accedi con il tuo normale account Google (Gmail).",
+          "Nell'angolo in alto a sinistra, clicca sul pulsante blu 'Create API key' e si aprirà una nuova finestra.",
+          "Inserisci un nome per la chiave API (ad es., 'Vision Forge') e seleziona 'Create Project', che puoi nominare (ad es., 'Vision Forge'). Clicca su 'Create Key'.",
+          "Google genererà istantaneamente una lunga stringa di caratteri. Clicca sull'icona Copia.",
           "Torna alla nostra applicazione e incollala nel campo Gemini API Key."
         ],
         geminiTip: "💡 Buono a sapersi: Google offre un piano gratuito (Free Tier) molto generoso per Gemini. Per l'uso personale comune e il test dell'applicazione, non sarà necessario inserire alcuna carta di credito.",
@@ -1185,10 +1185,10 @@ export const translations = {
         guideTitle: "Cómo obtener claves API",
         geminiTitle: "Clave API de Google Gemini",
         geminiSteps: [
-          "Vaya al portal oficial de Google AI Studio (aistudio.google.com) e inicie sesión con su cuenta habitual de Google (Gmail).",
-          "En la esquina superior izquierda, haga clic en el botón azul 'Create API key'.",
-          "Seleccione la opción 'Create API key in new project' (Crear clave en un proyecto nuevo).",
-          "Google generará instantáneamente una larga cadena de caracteres (que comienza con AIzaSy...). Haga clic en el icono Copiar.",
+          "Vaya al portal oficial de Google AI Studio (aistudio.google.com/api-keys) e inicie sesión con su cuenta habitual de Google (Gmail).",
+          "En la esquina superior izquierda, haga clic en el botón azul 'Create API key' y se abrirá una nueva ventana.",
+          "Asigne un nombre a la clave API (por ejemplo, 'Vision Forge') y seleccione 'Create Project', al cual puede nombrar (por ejemplo, 'Vision Forge'). Presione 'Create Key'.",
+          "Google generará instantáneamente una larga cadena de caracteres. Haga clic en el icono Copiar.",
           "Regrese a nuestra aplicación y péguela en el campo Gemini API Key."
         ],
         geminiTip: "💡 Es bueno saberlo: Google ofrece un plan gratuito (Free Tier) muy generoso para Gemini. Para el uso personal habitual y las pruebas de la aplicación, no necesitará introducir ninguna tarjeta de crédito.",
@@ -1429,10 +1429,10 @@ export const translations = {
         guideTitle: "Como obter chaves de API",
         geminiTitle: "Chave API Google Gemini",
         geminiSteps: [
-          "Aceda ao portal oficial do Google AI Studio (aistudio.google.com) e inicie sessão com a sua conta Google normal (Gmail).",
-          "No canto superior esquerdo, clique no botão azul 'Create API key'.",
-          "Selecione a opção 'Create API key in new project' (Criar chave num novo projeto).",
-          "O Google gerará instantaneamente uma longa sequência de caracteres (que começa com AIzaSy...). Clique no ícone Copiar.",
+          "Aceda ao portal oficial do Google AI Studio (aistudio.google.com/api-keys) e inicie sessão com a sua conta Google normal (Gmail).",
+          "No canto superior esquerdo, clique no botão azul 'Create API key' e uma nova janela se abrirá.",
+          "Atribua um nome à chave de API (por exemplo, 'Vision Forge') e selecione 'Create Project', ao qual pode dar um nome (por exemplo, 'Vision Forge'). Pressione 'Create Key'.",
+          "O Google gerará instantaneamente uma longa sequência de caracteres. Clique no ícone Copiar.",
           "Volte à nossa aplicação e cole-a no campo Gemini API Key."
         ],
         geminiTip: "💡 Bom saber: O Google oferece um plano gratuito (Free Tier) muito generoso para o Gemini. Para uso pessoal comum e testes da aplicação, não precisará de introduzir nenhum cartão de crédito.",
@@ -1673,10 +1673,10 @@ export const translations = {
         guideTitle: "Jak uzyskać klucze API",
         geminiTitle: "Klucz API Google Gemini",
         geminiSteps: [
-          "Przejdź do oficjalnego portalu Google AI Studio (aistudio.google.com) i zaloguj się za pomocą swojego zwykłego konta Google (Gmail).",
-          "W lewym górnym rogu kliknij niebieski przycisk 'Create API key'.",
-          "Wybierz opcję 'Create API key in new project' (Utwórz klucz w nowym projekcie).",
-          "Google w ułamku sekundy wygeneruje długi ciąg znaków (zaczynający się od AIzaSy...). Kliknij ikonę Kopiuj.",
+          "Przejdź do oficjalnego portalu Google AI Studio (aistudio.google.com/api-keys) i zaloguj się za pomocą swojego zwykłego konta Google (Gmail).",
+          "W lewym górnym rogu kliknij niebieski przycisk 'Create API key' i otworzy się nowe okno.",
+          "Wpisz nazwę klucza API (np. 'Vision Forge') i wybierz 'Create Project', który nazwiesz (np. 'Vision Forge'). Kliknij 'Create Key'.",
+          "Google w ułamku sekundy wygeneruje długi ciąg znaków. Kliknij ikonę Kopiuj.",
           "Wróć do naszej aplikacji i wklej go w pole Gemini API Key."
         ],
         geminiTip: "💡 Dobrze wiedzieć: Google zapewnia bardzo hojny darmowy pakiet (Free Tier) dla Gemini. Do zwykłego użytku osobistego i testowania aplikacji nie będziesz musiał podawać żadnej karty płatniczej.",
@@ -1917,10 +1917,10 @@ export const translations = {
         guideTitle: "Ako získať API kľúče",
         geminiTitle: "Google Gemini API kľúč",
         geminiSteps: [
-          "Prejdite na oficiálny portál Google AI Studio (aistudio.google.com) a prihláste sa svojím bežným Google účtom (Gmail).",
-          "V ľavom hornom rohu kliknite na modré tlačidlo Create API key.",
-          "Zvoľte možnosť Create API key in new project (Vytvoriť kľúč v novom projekte).",
-          "Google vám v zlomku sekundy vygeneruje dlhý reťazec znakov (začína na AIzaSy...). Kliknite na ikonu Skopírovať.",
+          "Prejdite na oficiálny portál Google AI Studio (aistudio.google.com/api-keys) a prihláste sa svojím bežným Google účtom (Gmail).",
+          "V ľavom hornom rohu kliknite na modré tlačidlo Create API key a vyskočí vám nové okno.",
+          "Napíšte názov API kľúča (napr. Vision Forge) a zvoľte Create Project, ktorý pomenujte (napr. Vision Forge). Stlačte Create Key.",
+          "Google vám v zlomku sekundy vygeneruje dlhý reťazec znakov. Kliknite na ikonu Skopírovať.",
           "Vráťte sa do našej aplikácie a vložte ho do poľa Gemini API Key."
         ],
         geminiTip: "💡 Dobré vedieť: Google poskytuje pre Gemini veľmi štedrý bezplatný balík (Free Tier). Pre bežné osobné používanie a testovanie aplikácie nebudete musieť zadávať žiadnu platobnú kartu.",
