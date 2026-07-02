@@ -4,6 +4,74 @@ All notable changes to the **Vision Forge** project will be documented in this f
 
 ---
 
+## [1.7.0] - 2026-07-01
+
+### English
+- **Diagnostics & Error Logging System**: Engineered a fully integrated error recording engine that collects client-side runtime errors and server-side API failures, persisting them in a structured `user_logs.json` file.
+- **Interactive Logs Dashboard**: Created an in-app administrative dashboard under a smooth collapsible container, featuring real-time diagnostic stream filtration (All, Client-only, Server-only), clear-all buttons with confirmation dialogs, read indicators, and single-click JSON backup exporting.
+- **Detailed Inspector & Stack Trace Viewer**: Built a system detail panel that extracts browser specifications, context URLs, custom user session states, and complete color-coded call stack traces for instantaneous debugging.
+- **Slack Notification Integration**: Configured secure server-side Slack Webhook relays with inline status feedback, enabling developers to send comprehensive JSON-structured reports of caught exceptions straight to Slack channels.
+- **Settings Modal Accessibility**: Redesigned the settings popup to use a responsive flexbox layout with locked footer buttons and scrollable content containers, preventing long option lists from pushing the "Save changes" button off-screen.
+- **Diagnostic & Logging Translations**: Extended multi-language support to diagnostic logging systems, localized Slack/error reporting, and provided uniform confirmation prompts across all 8 supported languages.
+
+### Slovak
+- **Systém diagnostiky a chybových logov**: Vytvorené komplexné rozhranie na zachytávanie chýb na strane klienta aj servera, s bezpečným ukladaním do štruktúrovaného súboru `user_logs.json`.
+- **Interaktívny panel záznamov**: Implementovaný priamy administrátorský panel s filtráciou chýb (Všetky, Klientské, Serverové), hromadným označením ako prečítané, sťahovaním JSON záloh a možnosťou prečistenia s dvojfázovým overením.
+- **Hĺbkový inšpektor detailov**: Vývoj vizualizácie pre systémové parametre prehliadača, kontextové URL adresy, relácie používateľov a kompletné trasovanie volaní (Stack Trace) s farebným odlíšením pre rýchle odladenie chýb.
+- **Integrácia Slack upozornení**: Zavedenie webhookov na strane servera na bezpečné a okamžité odosielanie podrobných chybových reportov v JSON formáte do zvoleného kanála na Slacku.
+- **Prístupnosť nastavení**: Prepracovaný vyskakovací panel nastavení do flexibilného zobrazenia s pevným ukotvením tlačidla „Uložiť zmeny“ na spodku a scrollovateľným obsahom, čím sa zabránilo pretekaniu mimo obrazovku pri otvorených rolovacích menu.
+- **Lokalizácia chybových logov**: Rozšírená podpora prekladov do diagnostického rozhrania a chybových hlásení na Slack vrátane unifikovaných dialógov pre potvrdenie vymazania pre všetkých 8 jazykov.
+
+### German
+- **Diagnose- und Fehlerprotokollsystem**: Entwicklung einer vollständig integrierten Fehleraufzeichnungskomponente, die clientseitige Laufzeitfehler und serverseitige API-Fehler sammelt und in einer strukturierten Datei `user_logs.json` speichert.
+- **Interaktives Protokoll-Dashboard**: Erstellung eines Administrations-Dashboards in der App, das eine Echtzeit-Filterung der Diagnoseprotokolle (Alle, Client, Server), Massenlesemarkierung, JSON-Backup-Exporte und Löschoptionen mit Sicherheitsabfrage bietet.
+- **Detaillierter Log-Inspektor**: Einbindung eines Detailbereichs zur Analyse von Browserspezifikationen, Kontext-URLs, Benutzersitzungsdaten und farblich hervorgehobenen Stack-Traces für schnelles Debugging.
+- **Slack-Benachrichtigungsintegration**: Konfiguration von sicheren serverseitigen Slack-Webhooks mit direktem Status-Feedback, um JSON-Berichte von Laufzeitfehlern direkt an Slack-Kanäle zu übermitteln.
+- **Barrierefreiheit des Einstellungsmodals**: Das Einstellungsfenster wurde überarbeitet und verwendet nun ein flexibles Layout mit fixiertem Footer und scrollbarem Inhaltsbereich. Dies verhindert, dass die Schaltfläche „Änderungen speichern“ durch lange Dropdown-Listen aus dem sichtbaren Bereich verschoben wird.
+- **Lokalisierung der Diagnose- und Log-Systeme**: Die mehrsprachige Unterstützung wurde auf die Diagnoseprotokolle und Slack-Fehlerberichte ausgeweitet, inklusive einheitlicher Bestätigungsdialoge für alle 8 unterstützten Sprachen.
+
+### French
+- **Système de diagnostic et de journalisation des erreurs**: Conception d'un moteur d'enregistrement des erreurs entièrement intégré capturant les défaillances du client et de l'API serveur, avec persistance dans un fichier structuré `user_logs.json`.
+- **Tableau de bord interactif des journaux**: Création d'un panneau d'administration proposant un filtrage en temps réel des flux de diagnostic (Tout, Client, Serveur), le marquage collectif comme lu, l'export de sauvegardes JSON et l'effacement complet sécurisé.
+- **Inspecteur détaillé et trace de pile**: Intégration d'un visualiseur affichant les caractéristiques du navigateur, les URL contextuelles, l'état de session utilisateur et la trace complète des appels (Stack Trace) pour un débogage optimal.
+- **Intégration des notifications Slack**: Configuration de relais Webhook sécurisés côté serveur, permettant d'envoyer des rapports d'erreur formatés en JSON directement vers des canaux Slack.
+- **Accessibilité du modal de paramètres**: Refonte de la fenêtre des paramètres pour utiliser une disposition flexible avec un pied de page fixe et un conteneur de contenu défilant, empêchant les longues listes d'options de masquer le bouton « Enregistrer les modifications ».
+- **Localisation des diagnostics et journaux**: Extension du support multilingue aux systèmes de diagnostic, aux rapports d'erreur Slack et uniformisation des invites de confirmation pour les 8 langues prises en charge.
+
+### Italian
+- **Sistema di diagnostica e tracciamento errori**: Sviluppato un motore integrato per la registrazione degli errori a livello client e server, persistiti nel file strutturato `user_logs.json`.
+- **Dashboard log interattiva**: Creata una sezione amministrativa nell'app con filtri per i flussi diagnostici (Tutti, Client, Server), marcatura di lettura di massa, esportazione in JSON ed eliminazione protetta da conferma.
+- **Analizzatore dettagliato e Stack Trace**: Aggiunto un pannello di ispezione contenente specifiche tecniche del browser, URL di contesto, variabili di sessione e lo stack trace completo delle chiamate evidenziato visivamente.
+- **Integrazione delle notifiche Slack**: Configurazione di webhook lato server per l'inoltro sicuro e istantaneo di report diagnostici in formato JSON direttamente su canali Slack aziendali.
+- **Accessibilità del modal delle impostazioni**: Riprogettato il pop-up delle impostazioni con un layout flessibile, piè di pagina fisso e contenitore scorrevole, evitando che i menu a tendina estesi nascondano il pulsante «Salva modifiche».
+- **Localizzazione dei log di diagnostica**: Esteso il supporto multilingue ai registri di diagnostica e alla segnalazione degli errori Slack, con finestre di conferma uniformate per tutte le 8 lingue supportate.
+
+### Spanish
+- **Sistema de diagnóstico y registro de errores**: Se programó un motor integrado de captura de excepciones que recopila errores de ejecución del cliente y fallas de la API del servidor, guardándolos en un archivo estructurado `user_logs.json`.
+- **Panel de logs interactivo**: Creación de un panel de administración en la aplicación con filtrado de logs en tiempo real (Todos, Cliente, Servidor), marca de lectura masiva, exportación de copias de seguridad en JSON y eliminación segura con confirmación.
+- **Inspector de detalles y Stack Trace**: Panel visual que desglosa las especificaciones del navegador, URLs de contexto, estados de sesión y el rastreo de llamadas (Stack Trace) coloreado sintácticamente para un diagnóstico inmediato.
+- **Integración de alertas Slack**: Configuración de webhooks seguros en el servidor con retroalimentación en tiempo real para retransmitir los reportes de error formateados en JSON a canales de Slack.
+- **Accesibilidad del modal de configuración**: Rediseño de la ventana de ajustes mediante un diseño flexible con pie de página fijo y contenedor de contenido con desplazamiento, evitando que las listas desplegables oculten el botón «Guardar cambios».
+- **Traducción de diagnósticos y registros**: Se amplió el soporte de localización a los registros de diagnóstico y reportes de error de Slack, unificando los diálogos de confirmación en los 8 idiomas admitidos.
+
+### Portuguese
+- **Sistema de diagnóstico e registros de erros**: Construção de um motor de rastreamento de exceções que unifica erros em tempo de execução no cliente e falhas de API no servidor, armazenando-os de forma persistente no arquivo `user_logs.json`.
+- **Painel de logs interativo**: Criação de um painel administrativo com filtros para fluxos de registros (Todos, Cliente, Servidor), marcação em massa como lidos, exportação de backups JSON e limpeza assistida por janelas de confirmação.
+- **Visualizador detalhado de Stack Trace**: Painel com diagnósticos do navegador, URLs contextuais, estados de sessão de usuário e o fluxo completo de chamadas (Stack Trace) colorido para acelerar a resolução de problemas.
+- **Integração de notificações Slack**: Configuração de webhooks no servidor com validações de status em tempo real, permitindo enviar relatórios formatados em JSON direto para canali do Slack.
+- **Acessibilidade do modal de configurações**: Redesenhado o painel de configurações para utilizar um layout flexível com rodapé fixo e área de rolagem interna, evitando que listas longas ocultem o botão "Salvar alterações".
+- **Localização de diagnósticos e logs**: Suporte multilíngue estendido para os logs de diagnóstico e relatórios de erros no Slack, unificando as telas de confirmação para todos os 8 idiomas suportados.
+
+### Polish
+- **System diagnostyki i rejestrowania błędów**: Zaprogramowano zintegrowany silnik przechwytywania wyjątków, który zbiera błędy wykonania klienta i awarie API serwera, zapisując je trwale w pliku `user_logs.json`.
+- **Interaktywny panel dziennika błędów**: Dodano panel administracyjny w aplikacji z filtrami dziennika w czasie rzeczywistym (Wszystkie, Klient, Serwer), oznaczaniem jako przeczytane, eksportowaniem kopii zapasowych JSON oraz bezpiecznym czyszczeniem z potwierdzeniem.
+- **Szczegółowy inspektor i podgląd śladu stosu**: Panel wizualny wyświetlający parametry przeglądarki, adresy URL kontekstu, stan sesji i pełny ślad wywołań (Stack Trace) z kolorowaniem składni dla natychmiastowego debugowania.
+- **Integracja z powiadomieniami Slack**: Skonfigurowano bezpieczne webhooki po stronie serwera z informacją o statusie wysyłki, umożliwiające przekazywanie raportów błędów w formacie JSON bezpośrednio na kanały Slack.
+- **Dostępność okna ustawień**: Przebudowano układ okna ustawień na elastyczny (Flexbox) z zablokowanym dolnym panelem przycisków i przewijaną zawartością, co zapobiega wypychaniu przycisku „Zapisz zmiany” poza ekran przez rozwinięte listy.
+- **Lokalizacja diagnostyki i logów**: Rozszerzono wsparcie wielojęzyczne o dzienniki diagnostyczne, raporty błędów Slack oraz ujednolicono komunikaty potwierdzeń dla wszystkich 8 obsługiwanych języków.
+
+---
+
 ## [1.6.0] - 2026-06-24
 
 ### English

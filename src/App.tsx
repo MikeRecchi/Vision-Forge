@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart, RefreshCw, HelpCircle } from 'lucide-react';
+import { Upload, Video, Loader2, Download, CheckCircle, Smartphone, Monitor, ChevronRight, ChevronDown, AlertCircle, FileImage, Settings, Key, X, Languages, Film, Camera, Zap, History, Palette, Wind, Search, Moon, Square, Box, Sparkles, Clock, Copy, RotateCcw, Trash2, Layers, Minimize, Tv, Cloud, ExternalLink, Play, BookOpen, Heart, RefreshCw, HelpCircle, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import gifshot from 'gifshot';
 import { translations, Language } from './translations';
@@ -17,7 +17,8 @@ import {
   listDriveFiles, 
   deleteDriveFile, 
   getAccessToken,
-  setAccessToken
+  setAccessToken,
+  getOrCreateFolder
 } from './googleDrive';
 
 interface HistoryItem {
@@ -444,6 +445,7 @@ export default function App() {
   // Google Drive states and functions
   const [driveUser, setDriveUser] = useState<User | null>(null);
   const [driveToken, setDriveToken] = useState<string | null>(null);
+  const [driveFolderId, setDriveFolderId] = useState<string | null>(null);
   const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [isDriveLoading, setIsDriveLoading] = useState(false);
   const [isUploadingToDrive, setIsUploadingToDrive] = useState<{ [itemId: string]: boolean }>({});
@@ -453,11 +455,263 @@ export default function App() {
   const [driveTermsAccepted, setDriveTermsAccepted] = useState(false);
   const [driveTermsError, setDriveTermsError] = useState(false);
 
+  // Error Logs State and Actions (positioned here so block-scoped driveUser is defined)
+  const [userLogs, setUserLogs] = useState<any[]>([]);
+  const [showLogsDashboard, setShowLogsDashboard] = useState(false);
+  const [logsFilter, setLogsFilter] = useState<string>("all");
+  const [activeLogId, setActiveLogId] = useState<string | null>(null);
+  const [copiedLogId, setCopiedLogId] = useState<string | null>(null);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Slack & Email Integration state
+  const [sendingSlackLogId, setSendingSlackLogId] = useState<string | null>(null);
+  const [slackSendStatus, setSlackSendStatus] = useState<{ [logId: string]: "success" | "error" | null }>({});
+
+  const getOrCreateVisitorId = (): string => {
+    let id = localStorage.getItem('visitor_error_logging_id');
+    if (!id) {
+      id = `anon-${Math.floor(Math.random() * 100000000)}-${Date.now().toString(36)}`;
+      localStorage.setItem('visitor_error_logging_id', id);
+    }
+    return id;
+  };
+
+  const reportErrorToServer = async (type: string, message: string, stack: string = "", extraInfo: any = {}) => {
+    try {
+      // Ignorujeme neškodné a očakávané chyby vývojového servera (WebSocket, HMR, Vite)
+      const lowercaseMsg = (message || "").toLowerCase();
+      const lowercaseStack = (stack || "").toLowerCase();
+      
+      const isBenignDevError = 
+        lowercaseMsg.includes("websocket") || 
+        lowercaseMsg.includes("vite") ||
+        lowercaseMsg.includes("hmr") ||
+        lowercaseStack.includes("@vite/client") ||
+        lowercaseStack.includes("websocket");
+
+      if (isBenignDevError) {
+        // Tieto chyby sú vo vývojovom prostredí normálne, keďže HMR je platformou vypnuté
+        return;
+      }
+
+      const visitorId = getOrCreateVisitorId();
+      const userEmail = driveUser?.email || `Anonymný (${visitorId.slice(0, 15)})`;
+      const systemInfo = {
+        userAgent: navigator.userAgent,
+        screenSize: `${window.innerWidth}x${window.innerHeight}`,
+        devicePixelRatio: window.devicePixelRatio,
+        language: language,
+        ...extraInfo
+      };
+
+      await fetch("/api/logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          message,
+          stack,
+          url: window.location.href,
+          userEmail,
+          userId: visitorId,
+          systemInfo
+        })
+      });
+      
+      // Auto-refresh logs if open
+      if (showLogsDashboard) {
+        fetchLogsFromServer();
+      }
+    } catch (err) {
+      console.error("Failed to report error to server:", err);
+    }
+  };
+
+  const fetchLogsFromServer = async () => {
+    setLogsLoading(true);
+    try {
+      const res = await fetch("/api/logs");
+      if (res.ok) {
+        const data = await res.json();
+        setUserLogs(data.logs || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch logs from server:", err);
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  const clearLogsOnServer = async () => {
+    try {
+      const res = await fetch("/api/logs", { method: "DELETE" });
+      if (res.ok) {
+        setUserLogs([]);
+        setActiveLogId(null);
+      }
+    } catch (err) {
+      console.error("Failed to clear logs on server:", err);
+    }
+  };
+
+  const markAllLogsAsRead = async () => {
+    try {
+      const res = await fetch("/api/logs/mark-all-read", { method: "POST" });
+      if (res.ok) {
+        setUserLogs(prev => prev.map(log => ({ ...log, status: "read" })));
+      }
+    } catch (err) {
+      console.error("Failed to mark all logs as read:", err);
+    }
+  };
+
+  const exportLogsToJSON = () => {
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userLogs, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `vision_forge_diagnostic_logs_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (err) {
+      console.error("Failed to export logs:", err);
+    }
+  };
+
+  const copyLogToClipboard = (log: any) => {
+    try {
+      const text = `
+VISION FORGE DIAGNOSTIC LOG
+===========================
+ID: ${log.id}
+Timestamp: ${new Date(log.timestamp).toLocaleString()}
+Type: ${log.type}
+Message: ${log.message}
+URL: ${log.url}
+User: ${log.userEmail} (ID: ${log.userId})
+
+SYSTEM INFO:
+------------
+${JSON.stringify(log.systemInfo, null, 2)}
+
+STACK TRACE:
+------------
+${log.stack || "No stack trace provided."}
+`;
+      navigator.clipboard.writeText(text.trim());
+      setCopiedLogId(log.id);
+      setTimeout(() => setCopiedLogId(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy log:", err);
+    }
+  };
+
+  const shareLogToSlack = async (log: any) => {
+    setSendingSlackLogId(log.id);
+    setSlackSendStatus(prev => ({ ...prev, [log.id]: null }));
+    try {
+      const res = await fetch("/api/logs/slack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          log
+        })
+      });
+      
+      if (res.ok) {
+        setSlackSendStatus(prev => ({ ...prev, [log.id]: "success" }));
+        setTimeout(() => {
+          setSlackSendStatus(prev => ({ ...prev, [log.id]: null }));
+        }, 3000);
+      } else {
+        const errorData = await res.json();
+        console.error("Slack error feedback:", errorData.error);
+        setSlackSendStatus(prev => ({ ...prev, [log.id]: "error" }));
+        alert(errorData.error || (language === 'sk' ? "Odoslanie na Slack zlyhalo." : "Failed to send to Slack."));
+      }
+    } catch (err: any) {
+      console.error("Failed to send log to Slack:", err);
+      setSlackSendStatus(prev => ({ ...prev, [log.id]: "error" }));
+      alert(err.message || (language === 'sk' ? "Odoslanie na Slack zlyhalo." : "Failed to send to Slack."));
+    } finally {
+      setSendingSlackLogId(null);
+    }
+  };
+
+  const triggerTestError = async () => {
+    try {
+      const mockMessage = `Test Error: Manuálna simulácia chybového logu pre overenie Slack webhooku.`;
+      const mockStack = `Error: ${mockMessage}\n    at triggerTestError (src/App.tsx:685:12)\n    at HTMLButtonElement.onClick (src/App.tsx:2360:45)`;
+      await reportErrorToServer("Simulated Client Test Error", mockMessage, mockStack, {
+        simulated: true,
+        testEnvironment: "AI Studio Live Preview",
+        triggeredBy: driveUser?.email || "Anonymný Užívateľ"
+      });
+      // Fetch fresh logs so it appears immediately
+      await fetchLogsFromServer();
+    } catch (err) {
+      console.error("Failed to trigger test error:", err);
+    }
+  };
+
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+      const errorMsg = event.message || "Unknown error";
+      const errorStack = event.error?.stack || "No stack trace available";
+      reportErrorToServer("Client Runtime Error", errorMsg, errorStack, {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      });
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      let msg = "Unhandled Promise Rejection";
+      let stack = "";
+      if (reason instanceof Error) {
+        msg = reason.message;
+        stack = reason.stack || "";
+      } else if (reason) {
+        try {
+          msg = typeof reason === 'object' ? JSON.stringify(reason) : String(reason);
+        } catch {
+          msg = String(reason);
+        }
+      }
+      reportErrorToServer("Client Promise Rejection", msg, stack);
+    };
+
+    window.addEventListener("error", handleGlobalError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+    fetchLogsFromServer();
+
+    return () => {
+      window.removeEventListener("error", handleGlobalError);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
+  }, [driveUser, language]);
+
+  useEffect(() => {
+    if (showLogsDashboard) {
+      fetchLogsFromServer();
+    }
+  }, [showLogsDashboard]);
+
   const fetchDriveFiles = async (token: string) => {
     setIsDriveLoading(true);
     try {
       const files = await listDriveFiles(token);
       setDriveFiles(files);
+      try {
+        const folderId = await getOrCreateFolder(token);
+        setDriveFolderId(folderId);
+      } catch (folderErr) {
+        console.error("Failed to find or create Drive folder:", folderErr);
+      }
     } catch (e: any) {
       console.error("Failed to load files from Google Drive:", e);
     } finally {
@@ -488,6 +742,7 @@ export default function App() {
     await logoutDrive();
     setDriveUser(null);
     setDriveToken(null);
+    setDriveFolderId(null);
     setDriveFiles([]);
   };
 
@@ -584,6 +839,7 @@ export default function App() {
       driveConnectedAs: "Connected to Google Drive as",
       driveDisconnect: "Disconnect",
       driveFolder: "Folder",
+      driveOpenFolderBtn: "Open Creations Folder",
       driveAutoBackup: "Auto Cloud Backup",
       driveAutoBackupDesc: "Automatically back up newly generated frames and cinematic sequences",
       driveUploadBtn: "Save to Drive",
@@ -609,6 +865,7 @@ export default function App() {
       driveConnectedAs: "Pripojené k disku Google ako",
       driveDisconnect: "Odpojiť",
       driveFolder: "Priečinok",
+      driveOpenFolderBtn: "Otvoriť priečinok výtvorov",
       driveAutoBackup: "Automatické zálohovanie",
       driveAutoBackupDesc: "Automaticky zálohovať novovygenerované snímky a filmové sekvencie",
       driveUploadBtn: "Uložiť na Disk",
@@ -634,6 +891,7 @@ export default function App() {
       driveConnectedAs: "Mit Google Drive verbunden als",
       driveDisconnect: "Trennen",
       driveFolder: "Ordner",
+      driveOpenFolderBtn: "Kreations-Ordner öffnen",
       driveAutoBackup: "Automatische Cloud-Sicherung",
       driveAutoBackupDesc: "Neu generierte Bilder und Filmsequenzen automatisch sichern",
       driveUploadBtn: "In Drive speichern",
@@ -659,6 +917,7 @@ export default function App() {
       driveConnectedAs: "Connecté à Google Drive en tant que",
       driveDisconnect: "Déconnecter",
       driveFolder: "Dossier",
+      driveOpenFolderBtn: "Ouvrir le dossier des créations",
       driveAutoBackup: "Sauvegarde cloud automatique",
       driveAutoBackupDesc: "Sauvegarder automatiquement les nouvelles images et séquences générées",
       driveUploadBtn: "Enregistrer sur Drive",
@@ -684,6 +943,7 @@ export default function App() {
       driveConnectedAs: "Connesso a Google Drive come",
       driveDisconnect: "Disconnetti",
       driveFolder: "Cartella",
+      driveOpenFolderBtn: "Apri cartella creazioni",
       driveAutoBackup: "Backup cloud automatico",
       driveAutoBackupDesc: "Salva automaticamente in background le nuove immagini e sequenze video generate",
       driveUploadBtn: "Salva su Drive",
@@ -709,6 +969,7 @@ export default function App() {
       driveConnectedAs: "Conectado a Google Drive como",
       driveDisconnect: "Desconectar",
       driveFolder: "Carpeta",
+      driveOpenFolderBtn: "Abrir carpeta de creaciones",
       driveAutoBackup: "Copia de seguridad automática",
       driveAutoBackupDesc: "Guarda automáticamente las nuevas imágenes y secuencias cinematográficas generadas",
       driveUploadBtn: "Guardar en Drive",
@@ -734,6 +995,7 @@ export default function App() {
       driveConnectedAs: "Conectado ao Google Drive como",
       driveDisconnect: "Desconectar",
       driveFolder: "Pasta",
+      driveOpenFolderBtn: "Abrir pasta de criações",
       driveAutoBackup: "Backup automático na nuvem",
       driveAutoBackupDesc: "Salva automaticamente as novas imagens e sequências geradas no Drive",
       driveUploadBtn: "Salvar no Drive",
@@ -759,6 +1021,7 @@ export default function App() {
       driveConnectedAs: "Połączono z Google Drive jako",
       driveDisconnect: "Rozłącz",
       driveFolder: "Folder",
+      driveOpenFolderBtn: "Otwórz folder kreacji",
       driveAutoBackup: "Automatyczna kopia zapasowa",
       driveAutoBackupDesc: "Automatycznie zapisuj nowo wygenerowane obrazy i sekwencje filmowe",
       driveUploadBtn: "Zapisz na Drive",
@@ -1598,9 +1861,9 @@ export default function App() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl"
+              className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-[2.5rem] p-6 md:p-8 shadow-2xl max-h-[90vh] flex flex-col"
             >
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-6 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-500" title={(t as any).tooltips.apiSettings}>
                     <Key className="w-5 h-5" />
@@ -1612,7 +1875,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-6 overflow-y-auto flex-1 pr-1.5 -mr-1.5 custom-scrollbar">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">{t.geminiKey}</label>
                   <div className="flex gap-2 items-center">
@@ -1938,6 +2201,404 @@ export default function App() {
                   </AnimatePresence>
                 </div>
 
+                {/* User & Server Error Logging Dashboard Accordion */}
+                <div className="border border-slate-800/80 bg-slate-950/40 rounded-[2rem] overflow-hidden shadow-inner relative group mt-4">
+                  {/* Accordion Header */}
+                  <button
+                    type="button"
+                    onClick={() => setShowLogsDashboard(!showLogsDashboard)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-all cursor-pointer select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        {userLogs.some(l => l.status === 'unread') && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                          userLogs.length > 0 ? (userLogs.some(l => l.status === 'unread') ? 'bg-rose-500' : 'bg-amber-500') : 'bg-slate-500'
+                        }`}></span>
+                      </span>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-slate-500" />
+                        {language === 'sk' ? "Diagnostika a Chybové logy" : "Diagnostics & Error Logs"}
+                        {userLogs.length > 0 && (
+                          <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded-full text-slate-400 font-mono">
+                            {userLogs.length}
+                          </span>
+                        )}
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      {!showLogsDashboard && userLogs.length > 0 && (
+                        <span className="text-[10px] font-semibold text-rose-400">
+                          {userLogs.some(l => l.status === 'unread') 
+                            ? (language === 'sk' ? "Nové chyby!" : "New errors!") 
+                            : (language === 'sk' ? "Záznam chýb" : "Errors logged")
+                          }
+                        </span>
+                      )}
+                      <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${showLogsDashboard ? "rotate-180" : ""}`} />
+                    </div>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {showLogsDashboard && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-5 pt-1 space-y-4 border-t border-slate-800/40">
+                          {/* Controls / Filter row */}
+                          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => setLogsFilter("all")}
+                                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+                                  logsFilter === "all" 
+                                    ? "bg-slate-800 text-white border-slate-700" 
+                                    : "bg-slate-900/40 text-slate-400 border-white/5 hover:bg-slate-900/60"
+                                }`}
+                              >
+                                {language === 'sk' ? "Všetky" : "All"} ({userLogs.length})
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setLogsFilter("client")}
+                                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+                                  logsFilter === "client" 
+                                    ? "bg-slate-800 text-white border-slate-700" 
+                                    : "bg-slate-900/40 text-slate-400 border-white/5 hover:bg-slate-900/60"
+                                }`}
+                              >
+                                {language === 'sk' ? "Klientské" : "Client"} ({userLogs.filter(l => l.type.includes("Client")).length})
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setLogsFilter("server")}
+                                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+                                  logsFilter === "server" 
+                                    ? "bg-slate-800 text-white border-slate-700" 
+                                    : "bg-slate-900/40 text-slate-400 border-white/5 hover:bg-slate-900/60"
+                                }`}
+                              >
+                                {language === 'sk' ? "Serverové API" : "Server API"} ({userLogs.filter(l => l.type.includes("Server")).length})
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {/* Simulate test error */}
+                              <button
+                                type="button"
+                                onClick={triggerTestError}
+                                className="text-[10px] text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1.5 bg-rose-950/20 hover:bg-rose-950/40 border border-rose-500/20 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                                title={language === 'sk' ? "Generovať testovaciu chybu pre overenie Slacku" : "Generate test error to verify Slack"}
+                              >
+                                <AlertCircle className="w-3 h-3 text-rose-500 animate-pulse" />
+                                {language === 'sk' ? "Simulovať chybu" : "Simulate Error"}
+                              </button>
+
+                              {userLogs.length > 0 && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={markAllLogsAsRead}
+                                    className="text-[10px] text-slate-400 hover:text-slate-300 font-medium flex items-center gap-1 bg-slate-900/60 border border-white/5 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                                    title={language === 'sk' ? "Označiť všetky ako prečítané" : "Mark all as read"}
+                                  >
+                                    <CheckCircle className="w-3 h-3 text-emerald-400" />
+                                    {language === 'sk' ? "Prečítané" : "Mark Read"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={exportLogsToJSON}
+                                    className="text-[10px] text-slate-400 hover:text-slate-300 font-medium flex items-center gap-1 bg-slate-900/60 border border-white/5 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                                    title={language === 'sk' ? "Exportovať logy do JSON" : "Export logs to JSON"}
+                                  >
+                                    <Download className="w-3 h-3 text-sky-400" />
+                                    {language === 'sk' ? "Export" : "Export"}
+                                  </button>
+                                  {showDeleteConfirm ? (
+                                    <div className="flex items-center gap-1 bg-rose-950/40 border border-rose-500/30 rounded-lg p-0.5">
+                                      <span className="text-[9px] text-rose-300 px-1 font-medium">{(t as any).confirmDelete || "Confirm?"}</span>
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          await clearLogsOnServer();
+                                          setShowDeleteConfirm(false);
+                                        }}
+                                        className="text-[9px] text-white bg-rose-600 hover:bg-rose-500 px-1.5 py-0.5 rounded font-bold cursor-pointer"
+                                      >
+                                        {(t as any).yes || "Yes"}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowDeleteConfirm(false)}
+                                        className="text-[9px] text-slate-400 hover:text-slate-300 px-1.5 py-0.5 rounded cursor-pointer"
+                                      >
+                                        {(t as any).no || "No"}
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowDeleteConfirm(true)}
+                                      className="text-[10px] text-slate-400 hover:text-rose-400 font-medium flex items-center gap-1 bg-slate-900/60 border border-white/5 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                                      title={(t as any).clearLogs || "Clear all logs"}
+                                    >
+                                      <Trash2 className="w-3 h-3 text-rose-400" />
+                                      {(t as any).clear || "Clear"}
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Logs List Container */}
+                          <div className="max-h-[350px] overflow-y-auto pr-1 space-y-2.5 custom-scrollbar">
+                            {logsLoading && userLogs.length === 0 ? (
+                              <div className="flex items-center justify-center py-8 text-slate-500 gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                                <span className="text-xs">{language === 'sk' ? "Načítavam logy..." : "Loading logs..."}</span>
+                              </div>
+                            ) : userLogs.length === 0 ? (
+                              <div className="text-center py-8 border border-dashed border-slate-800/60 rounded-2xl bg-slate-950/20 space-y-2">
+                                <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto" />
+                                <p className="text-xs font-semibold text-slate-300">
+                                  {language === 'sk' ? "Systém beží bez problémov" : "No problems detected"}
+                                </p>
+                                <p className="text-[10px] text-slate-500 max-w-xs mx-auto leading-relaxed">
+                                  {language === 'sk' 
+                                    ? "Chyby sa tu automaticky zaznamenajú pre diagnostické účely." 
+                                    : "Errors will be automatically recorded here for diagnostic purposes."
+                                  }
+                                </p>
+                              </div>
+                            ) : (
+                              (() => {
+                                const filtered = userLogs.filter(log => {
+                                  if (logsFilter === "client") return log.type.includes("Client");
+                                  if (logsFilter === "server") return log.type.includes("Server");
+                                  return true;
+                                });
+
+                                if (filtered.length === 0) {
+                                  return (
+                                    <div className="text-center py-6 text-slate-500 text-xs">
+                                      {language === 'sk' ? "Žiadne logy pre vybraný filter." : "No logs for selected filter."}
+                                    </div>
+                                  );
+                                }
+
+                                return filtered.map((log) => {
+                                  const isExpanded = activeLogId === log.id;
+                                  const formattedTime = new Date(log.timestamp).toLocaleTimeString(language === 'sk' ? 'sk-SK' : 'en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit'
+                                  });
+                                  
+                                  const isClient = log.type.includes("Client");
+
+                                  return (
+                                    <div 
+                                      key={log.id} 
+                                      className={`border transition-all rounded-2xl text-left ${
+                                        log.status === 'unread' 
+                                          ? 'border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10' 
+                                          : isExpanded 
+                                            ? 'border-slate-700 bg-slate-900/40' 
+                                            : 'border-slate-800/40 bg-slate-900/20 hover:bg-slate-900/40'
+                                      }`}
+                                    >
+                                      {/* Log Header */}
+                                      <div 
+                                        onClick={() => {
+                                          setActiveLogId(isExpanded ? null : log.id);
+                                          // Mark read on click
+                                          if (log.status === 'unread') {
+                                            setUserLogs(prev => prev.map(l => l.id === log.id ? { ...l, status: 'read' } : l));
+                                          }
+                                        }}
+                                        className="p-3.5 flex items-start justify-between gap-3 cursor-pointer select-none"
+                                      >
+                                        <div className="flex items-start gap-2.5 min-w-0">
+                                          <div className="flex flex-col items-center gap-1 pt-0.5">
+                                            <span className="text-[9px] font-mono font-bold text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded border border-white/5">
+                                              {formattedTime}
+                                            </span>
+                                            {log.status === 'unread' && (
+                                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                            )}
+                                          </div>
+
+                                          <div className="min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                                isClient 
+                                                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
+                                                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                              }`}>
+                                                {log.type}
+                                              </span>
+                                              <span className="text-[10px] text-slate-400 font-mono font-medium truncate max-w-[150px]" title={log.userEmail}>
+                                                {log.userEmail}
+                                              </span>
+                                            </div>
+                                            <p className="text-xs font-medium text-slate-200 truncate leading-tight">
+                                              {log.message}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform flex-shrink-0 mt-1 ${isExpanded ? "rotate-180 text-slate-300" : ""}`} />
+                                      </div>
+
+                                      {/* Log Expand Panel */}
+                                      <AnimatePresence>
+                                        {isExpanded && (
+                                          <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="overflow-hidden border-t border-slate-800/60"
+                                          >
+                                            <div className="p-4 space-y-3.5 text-left text-xs bg-slate-950/40">
+                                              {/* Message Display */}
+                                              <div className="space-y-1">
+                                                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">
+                                                  {language === 'sk' ? "Detaily správy" : "Message details"}
+                                                </span>
+                                                <p className="text-xs text-rose-300 bg-rose-500/5 p-3 rounded-xl border border-rose-500/10 font-medium whitespace-pre-wrap select-text leading-relaxed">
+                                                  {log.message}
+                                                </p>
+                                              </div>
+
+                                              {/* URL context */}
+                                              {log.url && (
+                                                <div className="space-y-1">
+                                                  <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">
+                                                    {language === 'sk' ? "Kontext / URL" : "Context / URL"}
+                                                  </span>
+                                                  <code className="text-[10px] font-mono bg-slate-900/80 px-2 py-1 rounded block truncate border border-white/5 select-all text-slate-400">
+                                                    {log.url}
+                                                  </code>
+                                                </div>
+                                              )}
+
+                                              {/* System Info Grid */}
+                                              {log.systemInfo && Object.keys(log.systemInfo).length > 0 && (
+                                                <div className="space-y-1">
+                                                  <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">
+                                                    {language === 'sk' ? "Systémové parametre" : "System specs"}
+                                                  </span>
+                                                  <div className="grid grid-cols-2 gap-2 text-[10px] bg-slate-900/30 p-3 rounded-xl border border-white/5 font-mono text-slate-400">
+                                                    {Object.entries(log.systemInfo).map(([key, val]: [string, any]) => (
+                                                      <div key={key} className="truncate">
+                                                        <span className="text-slate-500 font-bold">{key}:</span> {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                                                      </div>
+                                                    ))}
+                                                  </div>
+                                                </div>
+                                              )}
+
+                                              {/* Stack trace */}
+                                              {log.stack && (
+                                                <div className="space-y-1">
+                                                  <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">
+                                                    {language === 'sk' ? "Zásobník volaní (Stack Trace)" : "Stack Trace"}
+                                                  </span>
+                                                  <pre className="text-[10px] font-mono bg-slate-900/90 text-slate-400 p-3.5 rounded-xl border border-white/5 overflow-x-auto max-h-[160px] select-all custom-scrollbar whitespace-pre text-left leading-relaxed shadow-inner">
+                                                    {log.stack}
+                                                  </pre>
+                                                </div>
+                                              )}
+
+                                              {/* Action Share & Copy Buttons Bar */}
+                                              <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-800/40">
+                                                <div className="flex items-center gap-2">
+                                                  {/* Slack Share Button */}
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      shareLogToSlack(log);
+                                                    }}
+                                                    disabled={sendingSlackLogId === log.id}
+                                                    className={`text-[10.5px] font-bold flex items-center gap-1.5 border px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-sm ${
+                                                      slackSendStatus[log.id] === "success"
+                                                        ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/20"
+                                                        : slackSendStatus[log.id] === "error"
+                                                          ? "bg-rose-500/15 text-rose-400 border-rose-500/20"
+                                                          : "bg-slate-900/60 hover:bg-slate-900 text-slate-300 hover:text-white border border-white/5"
+                                                    }`}
+                                                    title={(t as any).sendErrorReport || "Send error report"}
+                                                  >
+                                                    {sendingSlackLogId === log.id ? (
+                                                      <>
+                                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                                                        {language === 'sk' ? "Odosielam..." : "Sending..."}
+                                                      </>
+                                                    ) : slackSendStatus[log.id] === "success" ? (
+                                                      <>
+                                                        <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                                                        {language === 'sk' ? "Odoslané!" : "Sent!"}
+                                                      </>
+                                                    ) : slackSendStatus[log.id] === "error" ? (
+                                                      <>
+                                                        <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                                                        {language === 'sk' ? "Zlyhalo!" : "Failed!"}
+                                                      </>
+                                                    ) : (
+                                                      <>
+                                                        <svg className="w-3.5 h-3.5 text-slate-400 fill-current" viewBox="0 0 24 24">
+                                                          <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523 2.528 2.528 0 0 1-2.522-2.523 2.528 2.528 0 0 1 2.522-2.52h2.52v2.52zm1.261 0a2.528 2.528 0 0 1 2.52-2.52h5.043a2.528 2.528 0 0 1 2.522 2.52v5.042a2.528 2.528 0 0 1-2.522 2.52H8.824a2.528 2.528 0 0 1-2.52-2.52v-5.042zM8.824 5.043a2.528 2.528 0 0 1 2.522-2.52 2.528 2.528 0 0 1 2.52 2.52v2.522h-2.52a2.528 2.528 0 0 1-2.522-2.522zm0 1.261a2.528 2.528 0 0 1 2.52 2.52v5.043a2.528 2.528 0 0 1-2.52 2.522H3.782a2.528 2.528 0 0 1-2.52-2.522V8.824a2.528 2.528 0 0 1 2.52-2.52h5.042zm10.134 3.781a2.528 2.528 0 0 1 2.522-2.52 2.528 2.528 0 0 1 2.52 2.52 2.528 2.528 0 0 1-2.52 2.522h-2.522v-2.522zm-1.262 0a2.528 2.528 0 0 1-2.52 2.52h-5.043a2.528 2.528 0 0 1-2.521-2.52V5.043a2.528 2.528 0 0 1 2.521-2.52h5.043a2.528 2.528 0 0 1 2.52 2.52v5.041zm-3.781 10.134a2.528 2.528 0 0 1-2.52 2.522 2.528 2.528 0 0 1-2.522-2.522v-2.52h2.522a2.528 2.528 0 0 1 2.52 2.52zm0-1.262a2.528 2.528 0 0 1-2.52-2.52v-5.043a2.528 2.528 0 0 1 2.52-2.521h5.043a2.528 2.528 0 0 1 2.52 2.521v5.043a2.528 2.528 0 0 1-2.52 2.52h-5.043z"/>
+                                                        </svg>
+                                                        {(t as any).sendError || "Send Error"}
+                                                      </>
+                                                    )}
+                                                  </button>
+                                                </div>
+
+                                                {/* Copy Button */}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => copyLogToClipboard(log)}
+                                                  className="text-[10.5px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+                                                >
+                                                  {copiedLogId === log.id ? (
+                                                    <>
+                                                      <CheckCircle className="w-3.5 h-3.5" />
+                                                      {language === 'sk' ? "Skopírované!" : "Copied!"}
+                                                    </>
+                                                  ) : (
+                                                    <>
+                                                      <Copy className="w-3.5 h-3.5" />
+                                                      {language === 'sk' ? "Kopírovať diagnózu" : "Copy Diagnostic Info"}
+                                                    </>
+                                                  )}
+                                                </button>
+                                              </div>
+                                            </div>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
+                                    </div>
+                                  );
+                                });
+                              })()
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 {/* Interactive API Key Help Guide */}
                 <div className="border border-slate-800/80 bg-slate-950/45 rounded-2xl p-4 space-y-3 transition-all">
                   <button 
@@ -2046,18 +2707,18 @@ export default function App() {
                       )}
                     </motion.div>
                   )}
-                </div>
-
-                <div className="pt-4 space-y-4">
-                  <button 
-                    onClick={() => setShowSettings(false)}
-                    className="w-full bg-emerald-500 text-slate-950 font-bold py-4 rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
-                  >
-                    {t.saveChanges}
-                  </button>
-                </div>
+               </div>
               </div>
-            </motion.div>
+
+               <div className="pt-4 mt-4 border-t border-slate-800 shrink-0">
+                 <button 
+                   onClick={() => setShowSettings(false)}
+                   className="w-full bg-emerald-500 text-slate-950 font-bold py-4 rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
+                 >
+                   {t.saveChanges}
+                 </button>
+               </div>
+             </motion.div>
           </motion.div>
         )}
 
@@ -4298,17 +4959,21 @@ export default function App() {
           </div>
 
           {/* Google Drive Connection & Custom Configuration Banner */}
-          <div className="bg-gradient-to-r from-slate-950 to-slate-900 border border-white/5 rounded-3xl p-6 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden backdrop-blur-3xl shadow-xl shadow-slate-950/40">
-            <div className="flex items-start gap-4">
+          <div className="bg-gradient-to-r from-slate-950 to-slate-900 border border-white/5 rounded-3xl p-6 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 relative overflow-hidden backdrop-blur-3xl shadow-xl shadow-slate-950/40">
+            <div className="flex items-start gap-4 min-w-0 flex-1">
               <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex-shrink-0">
                 <Cloud className="w-6 h-6" />
               </div>
-              <div className="space-y-1 text-left">
+              <div className="space-y-1 text-left min-w-0 flex-1">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   Google Drive Cloud
                 </span>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  {driveUser ? `${dt.driveConnectedAs} ${driveUser.displayName || 'User'}` : dt.driveConnectBtn}
+                <h3 className="text-lg font-bold text-white flex flex-wrap items-center gap-2 min-w-0">
+                  {driveUser ? (
+                    <span className="truncate">
+                      {dt.driveConnectedAs} <span className="text-blue-400 font-extrabold">{driveUser.displayName || 'User'}</span>
+                    </span>
+                  ) : dt.driveConnectBtn}
                 </h3>
                 <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
                   {dt.driveDescription}
@@ -4316,10 +4981,10 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full xl:w-auto flex-shrink-0">
               {/* Auto backup Toggle */}
               {driveUser && (
-                <div className="flex items-center justify-between gap-6 px-4 py-2.5 bg-white/5 border border-white/5 rounded-2xl">
+                <div className="flex items-center justify-between gap-6 px-4 py-2.5 bg-white/5 border border-white/5 rounded-2xl sm:w-auto">
                   <div className="text-left">
                     <p className="text-xs font-bold text-white leading-tight">{dt.driveAutoBackup}</p>
                     <p className="text-[9px] text-slate-500 mt-0.5 leading-none">{dt.driveAutoBackupDesc}</p>
@@ -4339,22 +5004,35 @@ export default function App() {
 
               {/* Login/Disconnect Actions */}
               {driveUser ? (
-                <div className="flex items-center justify-between gap-3 bg-white/5 lg:bg-transparent rounded-2xl p-2.5 lg:p-0">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-3 bg-white/5 xl:bg-transparent rounded-2xl p-2.5 xl:p-0">
+                  <div className="flex items-center gap-2 mr-3 flex-shrink-0">
                     {driveUser.photoURL && (
                       <img src={driveUser.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-blue-500/25 shadow-inner referrerPolicy='no-referrer'" />
                     )}
-                    <div className="text-left sm:hidden lg:block">
+                    <div className="text-left">
                       <p className="text-[10px] text-slate-500 font-bold leading-none">Status</p>
                       <p className="text-[11px] text-emerald-400 font-bold mt-0.5">Connected</p>
                     </div>
                   </div>
-                  <button
-                    onClick={handleDriveLogout}
-                    className="px-5 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-xl font-bold text-xs transition-all whitespace-nowrap"
-                  >
-                    {dt.driveDisconnect}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {driveFolderId && (
+                      <a
+                        href={`https://drive.google.com/drive/folders/${driveFolderId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 whitespace-nowrap shadow-lg shadow-blue-500/20 border border-blue-500/30"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        {dt.driveOpenFolderBtn || "Open Folder"}
+                      </a>
+                    )}
+                    <button
+                      onClick={handleDriveLogout}
+                      className="px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-xl font-bold text-xs transition-all whitespace-nowrap"
+                    >
+                      {dt.driveDisconnect}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center sm:items-end gap-2.5 w-full sm:w-auto">
@@ -4668,23 +5346,51 @@ export default function App() {
                   {dt.driveConnectBtn}
                 </button>
               </div>
-            ) : isDriveLoading ? (
-              <div className="py-20 text-center space-y-4">
-                <Loader2 className="w-10 h-10 text-blue-400 animate-spin mx-auto" />
-                <p className="text-xs text-slate-500 font-bold tracking-wider uppercase">{dt.driveLoading}</p>
-              </div>
-            ) : driveFiles.length === 0 ? (
-              <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-20 text-center backdrop-blur-3xl space-y-4">
-                <div className="w-16 h-16 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto border border-slate-800 text-slate-600">
-                  <Box className="w-6 h-6" />
-                </div>
-                <p className="text-sm text-slate-400 max-w-md mx-auto">{dt.driveEmptyCloud}</p>
-              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {driveFiles.map((file) => {
-                  const isVideo = file.mimeType?.includes('video');
-                  return (
+              <div className="space-y-6">
+                {/* Control bar / header inside Google Drive tab */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-3xl bg-slate-900/40 border border-white/5 backdrop-blur-3xl text-left">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Cloud className="w-4 h-4 text-blue-400 animate-pulse" />
+                      {language === 'sk' ? "Prístup k vašim cloudovým zálohám" : "Your Cloud Backups Location"}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {language === 'sk'
+                        ? "Vaše zálohované videá a obrázky sa ukladajú do špeciálneho priečinka vo vašom Google Disku."
+                        : "Your backed-up videos and images are stored inside a dedicated folder on your Google Drive."}
+                    </p>
+                  </div>
+                  {driveFolderId && (
+                    <a
+                      href={`https://drive.google.com/drive/folders/${driveFolderId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-lg shadow-blue-500/20 w-full sm:w-auto"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      {dt.driveOpenFolderBtn || "Open Folder"}
+                    </a>
+                  )}
+                </div>
+
+                {isDriveLoading ? (
+                  <div className="py-20 text-center space-y-4">
+                    <Loader2 className="w-10 h-10 text-blue-400 animate-spin mx-auto" />
+                    <p className="text-xs text-slate-500 font-bold tracking-wider uppercase">{dt.driveLoading}</p>
+                  </div>
+                ) : driveFiles.length === 0 ? (
+                  <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-20 text-center backdrop-blur-3xl space-y-4">
+                    <div className="w-16 h-16 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto border border-slate-800 text-slate-600">
+                      <Box className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm text-slate-400 max-w-md mx-auto">{dt.driveEmptyCloud}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {driveFiles.map((file) => {
+                      const isVideo = file.mimeType?.includes('video');
+                      return (
                     <div 
                       key={file.id} 
                       className="group relative bg-slate-900/60 border border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-3xl transition-all hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/5 ring-1 ring-white/5 flex flex-col justify-between"
@@ -4759,8 +5465,10 @@ export default function App() {
                   );
                 })}
               </div>
-            )
-          )}
+            )}
+          </div>
+        )
+      )}
         </motion.section>
 
         {/* Global Footer */}

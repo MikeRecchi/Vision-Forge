@@ -241,7 +241,13 @@ export const translations = {
         item5Title: "5. Direct Cloud Download",
         item5Text: "Download any backed-up video or image directly from your Google Drive storage tab back to your local device with a single click."
       }
-    }
+    },
+    confirmDelete: "Confirm?",
+    yes: "Yes",
+    no: "No",
+    clearLogs: "Clear all logs",
+    sendError: "Send Error",
+    sendErrorReport: "Send error report"
   },
   de: {
     heroBadge: "Unterstützt von Google Gemini & OpenAI",
@@ -485,7 +491,13 @@ export const translations = {
         item5Title: "5. Direkter Cloud-Download",
         item5Text: "Laden Sie jedes gesicherte Video oder Bild mit einem einzigen Klick direkt von Ihrer Google Drive-Registerkarte auf Ihr lokales Gerät herunter."
       }
-    }
+    },
+    confirmDelete: "Sicher?",
+    yes: "Ja",
+    no: "Nein",
+    clearLogs: "Alle Logs löschen",
+    sendError: "Fehler senden",
+    sendErrorReport: "Fehlerbericht senden"
   },
   fr: {
     heroBadge: "Propulsé par Google Gemini & OpenAI",
@@ -729,7 +741,13 @@ export const translations = {
         item5Title: "5. Téléchargement cloud direct",
         item5Text: "Téléchargez n'importe quelle vidéo ou image sauvegardée directement depuis votre onglet de stockage Google Drive sur votre appareil local en un seul clic."
       }
-    }
+    },
+    confirmDelete: "Confirmer ?",
+    yes: "Oui",
+    no: "Non",
+    clearLogs: "Effacer tous les logs",
+    sendError: "Envoyer l'erreur",
+    sendErrorReport: "Envoyer le rapport d'erreur"
   },
   it: {
     heroBadge: "Alimentato da Google Gemini & OpenAI",
@@ -973,7 +991,13 @@ export const translations = {
         item5Title: "5. Download diretto dal Cloud",
         item5Text: "Scarica qualsiasi video o immagine di backup direttamente dalla scheda di memoria di Google Drive sul tuo dispositivo locale con un solo clic."
       }
-    }
+    },
+    confirmDelete: "Confermi?",
+    yes: "Sì",
+    no: "No",
+    clearLogs: "Cancella tutti i log",
+    sendError: "Invia errore",
+    sendErrorReport: "Invia segnalazione errore"
   },
   es: {
     heroBadge: "Potenciado por Google Gemini y OpenAI",
@@ -1217,7 +1241,13 @@ export const translations = {
         item5Title: "5. Descarga directa desde la nube",
         item5Text: "Descargue cualquier video o imagen respaldado directamente desde su pestaña de almacenamiento de Google Drive en su dispositivo local con un solo clic."
       }
-    }
+    },
+    confirmDelete: "¿Confirmar?",
+    yes: "Sí",
+    no: "No",
+    clearLogs: "Limpiar todos los logs",
+    sendError: "Enviar error",
+    sendErrorReport: "Enviar informe de error"
   },
   pt: {
     heroBadge: "Alimentado por Google Gemini & OpenAI",
@@ -1461,7 +1491,13 @@ export const translations = {
         item5Title: "5. Download direto da nuvem",
         item5Text: "Baixe qualquer vídeo ou imagem salvo diretamente de sua guia de armazenamento do Google Drive de volta para seu dispositivo local com um único clique."
       }
-    }
+    },
+    confirmDelete: "Confirmar?",
+    yes: "Sim",
+    no: "Não",
+    clearLogs: "Limpar todos os logs",
+    sendError: "Enviar erro",
+    sendErrorReport: "Enviar relatório de erro"
   },
   pl: {
     heroBadge: "Napędzane przez Google Gemini & OpenAI",
@@ -1705,7 +1741,13 @@ export const translations = {
         item5Title: "5. Bezpośrednie pobieranie z chmury",
         item5Text: "Pobierz dowolny zapisany film lub obraz bezpośrednio z karty dysku Google Drive na swoje lokalne urządzenie jednym kliknięciem."
       }
-    }
+    },
+    confirmDelete: "Na pewno?",
+    yes: "Tak",
+    no: "Nie",
+    clearLogs: "Wyczyść wszystkie logi",
+    sendError: "Wyślij błąd",
+    sendErrorReport: "Wyślij raport o błędzie"
   },
   sk: {
     heroBadge: "Poháňané Google Gemini a OpenAI",
@@ -1949,7 +1991,13 @@ export const translations = {
         item5Title: "5. Priame stiahnutie z cloudu",
         item5Text: "Stiahnite si akékoľvek zálohované video alebo obrázok priamo z karty úložiska Google Disk do svojho lokálneho zariadenia jediným kliknutím."
       }
-    }
+    },
+    confirmDelete: "Naozaj?",
+    yes: "Áno",
+    no: "Nie",
+    clearLogs: "Vymazať všetky logy",
+    sendError: "Odošli chybu",
+    sendErrorReport: "Odoslať chybový report"
   }
 };
 
